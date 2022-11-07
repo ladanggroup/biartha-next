@@ -6,16 +6,35 @@ import { useRouter } from 'next/router'
 export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     const router = useRouter()
 
-    const { data: user, error, mutate } = useSWR('/api/user', () =>
-        axios
-            .get('/api/user')
-            .then(res => res.data)
-            .catch(error => {
-                if (error.response.status !== 409) throw error
+    const { data: user, error, mutate } = useSWR(
+        '/api/user',
+        () =>
+            axios
+                .get('/api/user')
+                .then(res => res.data)
+                .catch(error => {
+                    if (error.response.status !== 409) throw error
+                    router.push('/verify-email')
+                }),
+        {
+            onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+                // Never retry on 401.
+                if (error.status === 401) return
 
-                router.push('/verify-email')
-            }),
+                // Never retry for a specific key.
+                if (key === '/api/user') return
+
+                // Only retry up to 10 times.
+                if (retryCount >= 10) return
+
+                // Retry after 5 seconds.
+                setTimeout(() => revalidate({ retryCount }), 5000)
+            },
+        },
     )
+    // if (error.response.status === 401) {
+    //     router.push('/login')
+    // }
 
     const csrf = () => axios.get('/sanctum/csrf-cookie')
 
@@ -74,7 +93,9 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
         axios
             .post('/reset-password', { token: router.query.token, ...props })
-            .then(response => router.push('/login?reset=' + btoa(response.data.status)))
+            .then(response =>
+                router.push('/login?reset=' + btoa(response.data.status)),
+            )
             .catch(error => {
                 if (error.response.status !== 422) throw error
 
@@ -89,19 +110,23 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     }
 
     const logout = async () => {
-        if (! error) {
-            await axios
-                .post('/logout')
-                .then(() => mutate())
+        if (!error) {
+            await axios.post('/logout').then(() => mutate())
         }
 
         window.location.pathname = '/login'
     }
 
     useEffect(() => {
-        if (middleware === 'guest' && redirectIfAuthenticated && user) router.push(redirectIfAuthenticated)
-        if (window.location.pathname === "/verify-email" && user?.email_verified_at) router.push(redirectIfAuthenticated)
+        if (middleware === 'guest' && redirectIfAuthenticated && user)
+            router.push(redirectIfAuthenticated)
+        if (
+            window.location.pathname === '/verify-email' &&
+            user?.email_verified_at
+        )
+            router.push(redirectIfAuthenticated)
         if (middleware === 'auth' && error) logout()
+        // if (middleware === 'auth' && !user) router.push('/login')
     }, [user, error])
 
     return {

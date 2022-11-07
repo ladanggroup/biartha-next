@@ -1,5 +1,11 @@
 import 'tailwindcss/tailwind.css'
-
-const App = ({ Component, pageProps }) => <Component {...pageProps} />
-
-export default App
+import '../styles/globals.css'
+import NextNProgress from 'nextjs-progressbar'
+export default function App({ Component, pageProps }) {
+    return (
+        <>
+            <NextNProgress />
+            <Component {...pageProps} />
+        </>
+    )
+}
