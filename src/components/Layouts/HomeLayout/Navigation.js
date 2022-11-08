@@ -14,7 +14,6 @@ function Navigation(props) {
     if (typeof window === 'object') {
         window.addEventListener('scroll', changeNavbarColor)
     }
-    console.log(colorChange)
     return (
         <nav
             className={`${

@@ -13,9 +13,13 @@ const nextConfig = {
 
     async rewrites() {
         return [
+            // {
+            //     source: '/:path*',
+            //     destination: 'http://localhost:8000/:path*',
+            // },
             {
-                source: '/:path*',
-                destination: 'http://localhost:8000/:path*',
+                source: '/pinjaman',
+                destination: '/loan',
             },
         ]
     },
