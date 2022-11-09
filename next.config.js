@@ -21,6 +21,14 @@ const nextConfig = {
                 source: '/pinjaman',
                 destination: '/loan',
             },
+            {
+                source: '/pinjaman/buat-pengajuan',
+                destination: '/loan/create',
+            },
+            {
+                source: '/akun',
+                destination: '/profile',
+            },
         ]
     },
 }

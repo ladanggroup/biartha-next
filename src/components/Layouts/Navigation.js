@@ -43,6 +43,11 @@ const Navigation = ({ user }) => {
                                 active={router.pathname === '/loan'}>
                                 Pinjaman
                             </NavLink>
+                            <NavLink
+                                href="/akun"
+                                active={router.pathname === '/profile'}>
+                                Kelola Akun
+                            </NavLink>
                         </div>
                     </div>
 
