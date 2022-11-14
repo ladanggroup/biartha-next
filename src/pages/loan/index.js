@@ -119,7 +119,7 @@ export default function loan() {
                                                             viewBox="0 0 24 24"
                                                             stroke-width="1.5"
                                                             stroke="currentColor"
-                                                            class="h-5 w-5">
+                                                            className="h-5 w-5">
                                                             <path
                                                                 stroke-linecap="round"
                                                                 stroke-linejoin="round"
@@ -161,7 +161,7 @@ export default function loan() {
                                                             viewBox="0 0 24 24"
                                                             stroke-width="1.5"
                                                             stroke="currentColor"
-                                                            class="h-5 w-5">
+                                                            className="h-5 w-5">
                                                             <path
                                                                 stroke-linecap="round"
                                                                 stroke-linejoin="round"

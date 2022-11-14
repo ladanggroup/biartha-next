@@ -7,9 +7,10 @@ import Input from '@/components/Input'
 import InputError from '@/components/InputError'
 import Label from '@/components/Label'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/auth'
+// import { useAuth } from '@/hooks/auth'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import { useAuth } from '@/hooks/auth'
 
 const Login = () => {
     const router = useRouter()

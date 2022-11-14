@@ -39,9 +39,9 @@ export default function register() {
                                                 </Link>
                                             </li>
                                             <li>
-                                                <div class="flex items-center">
+                                                <div className="flex items-center">
                                                     <svg
-                                                        class="h-6 w-6 text-gray-400"
+                                                        className="h-6 w-6 text-gray-400"
                                                         fill="currentColor"
                                                         viewBox="0 0 20 20"
                                                         xmlns="http://www.w3.org/2000/svg">
@@ -52,7 +52,7 @@ export default function register() {
                                                     </svg>
                                                     <Link
                                                         href="/loan"
-                                                        class="ml-1 text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white md:ml-2">
+                                                        className="ml-1 text-sm font-medium text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white md:ml-2">
                                                         Pinjaman
                                                     </Link>
                                                 </div>
