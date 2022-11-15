@@ -1,11 +1,14 @@
 import axios from '@/lib/axios'
 import { Dialog, Transition } from '@headlessui/react'
 import React, { Fragment, useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
+import InputSelect from './InputSelect'
 import InputWithLabel from './InputWithLabel'
 
 export default function CompanyDetail() {
     let [isOpen, setIsOpen] = useState(false)
-    const [companyId, setCompanyId] = useState('')
+    const [validation, setValidation] = useState([])
+    const [company, setCompany] = useState([])
     const [companyName, setCompanyName] = useState('')
     const [companyType, setCompanyType] = useState('')
     const [companyIndustry, setCompanyIndustry] = useState('')
@@ -19,17 +22,49 @@ export default function CompanyDetail() {
     const [companyDistrictId, setCompanyDistrictId] = useState('')
     const [companyPostalCode, setCompanyPostalCode] = useState('')
 
+    const [province, setProvince] = useState([])
+    const [city, setCity] = useState([])
+    const [district, setDistrict] = useState([])
+
+    const getPronvince = async () => {
+        const res = await axios({
+            method: 'GET',
+            url: '/api/get/province',
+        }).then(res => {
+            // console.log(res.data)
+            setProvince(res.data)
+        })
+    }
+
+    const getCity = async id => {
+        const res = await axios({
+            method: 'GET',
+            url: '/api/get/city/' + id,
+        }).then(res => {
+            setCity(res.data)
+        })
+    }
+
+    const getDistrict = async id => {
+        const res = await axios({
+            method: 'GET',
+            url: '/api/get/district/' + id,
+        }).then(res => {
+            setDistrict(res.data)
+        })
+    }
+
     const getCompanyDetail = async () => {
         try {
             const res = await axios({
                 method: 'GET',
                 url: `/api/company`,
             }).then(res => {
-                setCompanyId(res.data.data.id)
+                setCompany(res.data.data)
                 setCompanyName(res.data.data.name)
                 setCompanyType(res.data.data.type)
                 // this company industry still typo and need to be fixed
-                setCompanyIndustry(res.data.data.company_indutry)
+                setCompanyIndustry(res.data.data.company_industry)
                 setEmployeeCount(res.data.data.employee_count)
                 setFoundingDate(res.data.data.founding_date)
                 setCompanyPhone(res.data.data.phone)
@@ -46,14 +81,23 @@ export default function CompanyDetail() {
     }
     function toggleModal() {
         setIsOpen(isOpen => !isOpen)
+        if (province.length === 0) {
+            getPronvince()
+        }
+        if (city.length === 0) {
+            getCity(companyProvinceId)
+        }
+        if (district.length === 0) {
+            getDistrict(companyCityId)
+        }
     }
     const handleSubmit = async e => {
         e.preventDefault()
-
+        setValidation([])
         const formData = new FormData()
         formData.append('name', companyName)
         formData.append('type', companyType)
-        formData.append('company_indutry', companyIndustry)
+        formData.append('company_industry', companyIndustry)
         formData.append('employee_count', employeeCount)
         formData.append('founding_date', foundingDate)
         formData.append('phone', companyPhone)
@@ -63,12 +107,11 @@ export default function CompanyDetail() {
         formData.append('city_id', companyCityId)
         formData.append('district_id', companyDistrictId)
         formData.append('postal_code', companyPostalCode)
-
-        console.log(formData)
+        formData.append('_method', 'PUT')
 
         await axios({
             method: 'POST',
-            url: `/api/company`,
+            url: `/api/company/${company.id}`,
             data: formData,
         })
             .then(res => {
@@ -78,7 +121,7 @@ export default function CompanyDetail() {
                 })
             })
             .catch(err => {
-                console.log(err)
+                setValidation(err.response.data.errors)
             })
     }
 
@@ -154,7 +197,13 @@ export default function CompanyDetail() {
                                         Alamat Perusahaan
                                     </div>
                                     <div className="">
-                                        {companyAddress || '-'}
+                                        {companyAddress +
+                                            ', ' +
+                                            company.city_name +
+                                            ', ' +
+                                            company.district_name +
+                                            ', ' +
+                                            company.province_name || '-'}
                                     </div>
                                 </div>
                                 <div className="flex space-x-2">
@@ -217,6 +266,15 @@ export default function CompanyDetail() {
                                                         )
                                                     }
                                                     value={companyType}
+                                                    error={
+                                                        validation.company_type && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.company_type
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                                 <InputWithLabel
                                                     id="companyName"
@@ -231,6 +289,15 @@ export default function CompanyDetail() {
                                                         )
                                                     }
                                                     value={companyName}
+                                                    error={
+                                                        validation.name && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.name
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                                 <InputWithLabel
                                                     id="companyIndustry"
@@ -245,6 +312,15 @@ export default function CompanyDetail() {
                                                         )
                                                     }
                                                     value={companyIndustry}
+                                                    error={
+                                                        validation.company_industry && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.company_industry
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                                 <InputWithLabel
                                                     id="employeeCount"
@@ -257,6 +333,15 @@ export default function CompanyDetail() {
                                                         )
                                                     }
                                                     value={employeeCount}
+                                                    error={
+                                                        validation.employee_count && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.employee_count
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                                 <InputWithLabel
                                                     id="foundingDate"
@@ -271,6 +356,15 @@ export default function CompanyDetail() {
                                                         )
                                                     }
                                                     value={foundingDate}
+                                                    error={
+                                                        validation.founding_date && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.founding_date
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                                 <InputWithLabel
                                                     id="companyPhone"
@@ -285,6 +379,15 @@ export default function CompanyDetail() {
                                                         )
                                                     }
                                                     value={companyPhone}
+                                                    error={
+                                                        validation.phone && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.phone
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                                 <InputWithLabel
                                                     id="companyDescription"
@@ -301,43 +404,93 @@ export default function CompanyDetail() {
                                                         )
                                                     }
                                                     value={companyDescription}
+                                                    error={
+                                                        validation.description && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.description
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
-                                                <InputWithLabel
+                                                <InputSelect
                                                     id="companyProvinceId"
                                                     label={'Provinsi'}
-                                                    placeholder={'Jawa Timur'}
-                                                    type="number"
+                                                    placeholder={
+                                                        'Pilih Provinsi'
+                                                    }
                                                     onChange={e =>
-                                                        setCompanyPostalCode(
+                                                        setCompanyProvinceId(
                                                             e.target.value,
                                                         )
                                                     }
-                                                    value={companyPostalCode}
-                                                />
-                                                <InputWithLabel
+                                                    value={companyProvinceId}>
+                                                    {province.map(
+                                                        (item, index) => (
+                                                            <option
+                                                                key={index}
+                                                                value={item.id}
+                                                                onClick={e =>
+                                                                    getCity(
+                                                                        e.target
+                                                                            .value,
+                                                                    )
+                                                                }>
+                                                                {item.name}
+                                                            </option>
+                                                        ),
+                                                    )}
+                                                </InputSelect>
+
+                                                <InputSelect
                                                     id="companyCityId"
-                                                    label={'Kota/Kabupaten'}
-                                                    placeholder={'Surabaya'}
-                                                    type="number"
+                                                    label={'Kabupaten/Kota'}
+                                                    placeholder={
+                                                        'Pilih Kabupaten/Kota'
+                                                    }
                                                     onChange={e =>
                                                         setCompanyCityId(
                                                             e.target.value,
                                                         )
                                                     }
-                                                    value={companyCityId}
-                                                />
-                                                <InputWithLabel
+                                                    value={companyCityId}>
+                                                    {city.map((item, index) => (
+                                                        <option
+                                                            key={index}
+                                                            value={item.id}
+                                                            onClick={e =>
+                                                                getDistrict(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }>
+                                                            {item.name}
+                                                        </option>
+                                                    ))}
+                                                </InputSelect>
+                                                <InputSelect
                                                     id="companyDistrictId"
-                                                    label={'Kecaamatan'}
-                                                    placeholder={'Sukolilo'}
-                                                    type="number"
+                                                    label={'Kecamatan'}
+                                                    placeholder={
+                                                        'Pilih Kecamatan'
+                                                    }
                                                     onChange={e =>
                                                         setCompanyDistrictId(
                                                             e.target.value,
                                                         )
                                                     }
-                                                    value={companyDistrictId}
-                                                />
+                                                    value={companyDistrictId}>
+                                                    {district.map(
+                                                        (item, index) => (
+                                                            <option
+                                                                key={index}
+                                                                value={item.id}>
+                                                                {item.name}
+                                                            </option>
+                                                        ),
+                                                    )}
+                                                </InputSelect>
                                                 <InputWithLabel
                                                     id="companyPostalCode"
                                                     label={
@@ -351,6 +504,15 @@ export default function CompanyDetail() {
                                                         )
                                                     }
                                                     value={companyPostalCode}
+                                                    error={
+                                                        validation.postal_code && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.postal_code
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                                 <InputWithLabel
                                                     id="companyAddress"
@@ -365,6 +527,15 @@ export default function CompanyDetail() {
                                                         )
                                                     }
                                                     value={companyAddress}
+                                                    error={
+                                                        validation.address && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.address
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                             </div>
                                         </div>

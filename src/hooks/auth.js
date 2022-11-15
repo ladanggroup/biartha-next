@@ -28,7 +28,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 if (retryCount >= 10) return
 
                 // Retry after 5 seconds.
-                setTimeout(() => revalidate({ retryCount }), 5000)
+                setTimeout(() => revalidate({ retryCount }), 10000)
             },
         },
     )

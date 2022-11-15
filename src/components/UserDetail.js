@@ -1,11 +1,13 @@
 import axios from '@/lib/axios'
 import { Dialog, Transition } from '@headlessui/react'
 import React, { Fragment, useEffect, useState } from 'react'
-import { ToastContainer } from 'react-toastify'
+import { toast, ToastContainer } from 'react-toastify'
+import InputSelect from './InputSelect'
 import InputWithLabel from './InputWithLabel'
 
 export default function UserDetail() {
     let [isOpen, setIsOpen] = useState(false)
+    const [validation, setValidation] = useState([])
     const [userDetail, setUserDetail] = useState([])
     const [email, setEmail] = useState('')
     const [phone, setPhone] = useState('')
@@ -18,6 +20,66 @@ export default function UserDetail() {
     const [districtId, setDistrictId] = useState('')
     const [postalCode, setPostalCode] = useState('')
     const [address, setAddress] = useState('')
+
+    const [province, setProvince] = useState([])
+    const [city, setCity] = useState([])
+    const [district, setDistrict] = useState([])
+
+    const getPronvince = async () => {
+        const res = await axios({
+            method: 'GET',
+            url: '/api/get/province',
+        }).then(res => {
+            // console.log(res.data)
+            setProvince(res.data)
+        })
+    }
+
+    const getCity = async id => {
+        const res = await axios({
+            method: 'GET',
+            url: '/api/get/city/' + id,
+        }).then(res => {
+            setCity(res.data)
+        })
+    }
+
+    const getDistrict = async id => {
+        const res = await axios({
+            method: 'GET',
+            url: '/api/get/district/' + id,
+        }).then(res => {
+            setDistrict(res.data)
+        })
+    }
+
+    const uploadFile = async e => {
+        e.preventDefault()
+        const file = e.target.files[0]
+        if (file.size > 2000000) {
+            e.target.value = null
+            toast.error('Ukuran file tidak boleh lebih dari 2mb', {
+                position: toast.POSITION.BOTTOM_RIGHT,
+            })
+        } else if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+            e.target.value = null
+            toast.error('Format file tidak didukung', {
+                position: toast.POSITION.BOTTOM_RIGHT,
+            })
+        } else {
+            const folder = 'customer/card_image'
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('folder', folder)
+            const res = await axios({
+                method: 'POST',
+                url: '/api/upload-file',
+                data: formData,
+            }).then(res => {
+                setCardImage(res.data.data.file_url)
+            })
+        }
+    }
 
     const getUserDetail = async () => {
         try {
@@ -41,9 +103,18 @@ export default function UserDetail() {
             console.log(e.message)
         }
     }
-
     function toggleModal() {
         setIsOpen(isOpen => !isOpen)
+
+        if (province.length === 0) {
+            getPronvince()
+        }
+        if (city.length === 0) {
+            getCity(provinceId)
+        }
+        if (district.length === 0) {
+            getDistrict(cityId)
+        }
     }
 
     const handleSubmit = async e => {
@@ -53,6 +124,7 @@ export default function UserDetail() {
         formData.append('email', email)
         formData.append('phone', phone)
         formData.append('card_number', cardNumber)
+        formData.append('card_image', cardImage)
         formData.append('company_position', companyPosition)
         formData.append('company_division', companyDevision)
         formData.append('province_id', provinceId)
@@ -62,7 +134,6 @@ export default function UserDetail() {
         formData.append('address', address)
         formData.append('_method', 'PUT')
 
-        console.log(formData)
         if (userDetail) {
             try {
                 await axios({
@@ -70,14 +141,14 @@ export default function UserDetail() {
                     url: `/api/user/details/${userDetail.id}`,
                     data: formData,
                 }).then(res => {
-                    console.log(res)
+                    getUserDetail()
                     toggleModal()
                     toast.success(res.data.message, {
                         position: toast.POSITION.BOTTOM_RIGHT,
                     })
                 })
-            } catch (e) {
-                console.log(e.message)
+            } catch (err) {
+                setValidation(err.response.data.errors)
             }
         } else {
             await axios({
@@ -86,13 +157,14 @@ export default function UserDetail() {
                 data: formData,
             })
                 .then(res => {
+                    getUserDetail()
                     toggleModal()
                     toast.success(res.data.message, {
                         position: toast.POSITION.BOTTOM_RIGHT,
                     })
                 })
                 .catch(err => {
-                    console.log(err)
+                    setValidation(err.response.data.errors)
                 })
         }
     }
@@ -133,7 +205,8 @@ export default function UserDetail() {
                                     </div>
                                     {userDetail?.card_image && (
                                         <a
-                                            href="#"
+                                            href={userDetail?.card_image}
+                                            target={'_blank'}
                                             className="text-blue-500 bg-blue-100 px-2 py-0.5 rounded-full text-xs hover:bg-blue-200 flex justify-between space-x-2">
                                             Lihat Foto KTP
                                         </a>
@@ -162,7 +235,13 @@ export default function UserDetail() {
                                 <div className="flex space-x-2">
                                     <div className="w-64">Alamat</div>
                                     <div className="">
-                                        {userDetail?.address || '-'}
+                                        {userDetail?.address +
+                                            ', ' +
+                                            userDetail?.district_name +
+                                            ', ' +
+                                            userDetail?.city_name +
+                                            ', ' +
+                                            userDetail?.province_name || '-'}
                                     </div>
                                 </div>
                             </div>
@@ -206,7 +285,7 @@ export default function UserDetail() {
                                     <form onSubmit={handleSubmit}>
                                         <div className="mt-2">
                                             <div className="grid grid-cols-2 gap-4">
-                                                <InputWithLabel
+                                                {/* <InputWithLabel
                                                     id="email"
                                                     label={'Email'}
                                                     placeholder={
@@ -217,7 +296,16 @@ export default function UserDetail() {
                                                         setEmail(e.target.value)
                                                     }
                                                     value={email}
-                                                />
+                                                    error={
+                                                        validation.email && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.email
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
+                                                /> */}
                                                 <InputWithLabel
                                                     id="phone"
                                                     label={'Nomor Hp'}
@@ -227,6 +315,15 @@ export default function UserDetail() {
                                                         setPhone(e.target.value)
                                                     }
                                                     value={phone}
+                                                    error={
+                                                        validation.phone && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.phone
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                                 <InputWithLabel
                                                     id="cardNumber"
@@ -239,19 +336,40 @@ export default function UserDetail() {
                                                         )
                                                     }
                                                     value={cardNumber}
+                                                    error={
+                                                        validation.card_number && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.card_number
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                                 <InputWithLabel
                                                     id="cardImage"
                                                     label={'Foto KTP'}
                                                     placeholder={'Foto KTP'}
                                                     type="file"
-                                                    onChange={e =>
-                                                        setCardImage(
-                                                            e.target.value,
+                                                    onChange={uploadFile}
+                                                    accept="image/*"
+                                                    helper={
+                                                        <p
+                                                            class="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                                                            id="file_input_help">
+                                                            PNG atau JPG (MAX.
+                                                            2mb)
+                                                        </p>
+                                                    }
+                                                    error={
+                                                        validation.card_image && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.card_image
+                                                                }
+                                                            </span>
                                                         )
                                                     }
-                                                    value={cardImage}
-                                                    accept="image/*"
                                                 />
                                                 <InputWithLabel
                                                     id="companyPosition"
@@ -266,6 +384,15 @@ export default function UserDetail() {
                                                         )
                                                     }
                                                     value={companyPosition}
+                                                    error={
+                                                        validation.company_position && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.company_position
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                                 <InputWithLabel
                                                     id="companyDevision"
@@ -280,43 +407,93 @@ export default function UserDetail() {
                                                         )
                                                     }
                                                     value={companyDevision}
+                                                    error={
+                                                        validation.company_division && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.company_division
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
-                                                <InputWithLabel
+                                                <InputSelect
                                                     id="provinceId"
                                                     label={'Provinsi'}
-                                                    placeholder={'Jawa Timur'}
-                                                    type="number"
+                                                    placeholder={
+                                                        'Pilih Provinsi'
+                                                    }
                                                     onChange={e =>
                                                         setProvinceId(
                                                             e.target.value,
                                                         )
                                                     }
-                                                    value={provinceId}
-                                                />
-                                                <InputWithLabel
+                                                    value={provinceId}>
+                                                    {province.map(
+                                                        (item, index) => (
+                                                            <option
+                                                                key={index}
+                                                                value={item.id}
+                                                                onClick={e =>
+                                                                    getCity(
+                                                                        e.target
+                                                                            .value,
+                                                                    )
+                                                                }>
+                                                                {item.name}
+                                                            </option>
+                                                        ),
+                                                    )}
+                                                </InputSelect>
+
+                                                <InputSelect
                                                     id="cityId"
                                                     label={'Kabupaten/Kota'}
-                                                    placeholder={'Surabaya'}
-                                                    type="number"
+                                                    placeholder={
+                                                        'Pilih Kabupaten/Kota'
+                                                    }
                                                     onChange={e =>
                                                         setCityId(
                                                             e.target.value,
                                                         )
                                                     }
-                                                    value={cityId}
-                                                />
-                                                <InputWithLabel
+                                                    value={cityId}>
+                                                    {city.map((item, index) => (
+                                                        <option
+                                                            key={index}
+                                                            value={item.id}
+                                                            onClick={e =>
+                                                                getDistrict(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }>
+                                                            {item.name}
+                                                        </option>
+                                                    ))}
+                                                </InputSelect>
+                                                <InputSelect
                                                     id="districtId"
-                                                    label={'Kecaamatan'}
-                                                    placeholder={'Gayungan'}
-                                                    type="number"
+                                                    label={'Kecamatan'}
+                                                    placeholder={
+                                                        'Pilih Kecamatan'
+                                                    }
                                                     onChange={e =>
                                                         setDistrictId(
                                                             e.target.value,
                                                         )
                                                     }
-                                                    value={districtId}
-                                                />
+                                                    value={districtId}>
+                                                    {district.map(
+                                                        (item, index) => (
+                                                            <option
+                                                                key={index}
+                                                                value={item.id}>
+                                                                {item.name}
+                                                            </option>
+                                                        ),
+                                                    )}
+                                                </InputSelect>
                                                 <InputWithLabel
                                                     id="postalCode"
                                                     label={'Kode Pos'}
@@ -328,6 +505,15 @@ export default function UserDetail() {
                                                         )
                                                     }
                                                     value={postalCode}
+                                                    error={
+                                                        validation.postal_code && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.postal_code
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                                 <InputWithLabel
                                                     id="address"
@@ -342,6 +528,15 @@ export default function UserDetail() {
                                                         )
                                                     }
                                                     value={address}
+                                                    error={
+                                                        validation.address && (
+                                                            <span className="text-red-500 text-sm">
+                                                                {
+                                                                    validation.address
+                                                                }
+                                                            </span>
+                                                        )
+                                                    }
                                                 />
                                             </div>
                                         </div>
@@ -366,7 +561,6 @@ export default function UserDetail() {
                     </div>
                 </Dialog>
             </Transition>
-            <ToastContainer />
         </div>
     )
 }
