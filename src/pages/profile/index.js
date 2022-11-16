@@ -1,14 +1,12 @@
 import CompanyDetail from '@/components/CompanyDetail'
+import CompanyDocument from '@/components/CompanyDocument'
 import AppLayout from '@/components/Layouts/AppLayout'
 import LoadingUser from '@/components/LoadingUser'
 import UserDetail from '@/components/UserDetail'
 import { useAuth } from '@/hooks/auth'
-import axios from '@/lib/axios'
-import { Dialog, Transition } from '@headlessui/react'
 import Head from 'next/head'
 import Link from 'next/link'
-import React, { useEffect, useState, Fragment } from 'react'
-import { toast, ToastContainer } from 'react-toastify'
+import React, { useEffect, useState, Fragment, Suspense } from 'react'
 
 export default function register() {
     const { user } = useAuth({ middleware: 'auth' })
@@ -119,6 +117,7 @@ export default function register() {
                                     {/* Data Detail User */}
                                     <UserDetail />
                                     <CompanyDetail />
+                                    <CompanyDocument />
                                 </div>
                             </div>
                         </div>

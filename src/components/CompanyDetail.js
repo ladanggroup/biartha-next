@@ -248,7 +248,7 @@ export default function CompanyDetail() {
                                     <Dialog.Title
                                         as="h3"
                                         className="text-lg font-medium leading-6 text-gray-900">
-                                        Ubah Data Anda
+                                        Ubah Perusahaan
                                     </Dialog.Title>
                                     <form onSubmit={handleSubmit}>
                                         <div className="mt-2">
