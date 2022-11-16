@@ -17,19 +17,21 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                     router.push('/verify-email')
                 }),
         {
-            onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
-                // Never retry on 401.
-                if (error.status === 401) return
+            // onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+            //     // Never retry on 401.
+            //     if (error.status === 401) return
 
-                // Never retry for a specific key.
-                if (key === '/api/user') return
+            //     // Never retry for a specific key.
+            //     if (key === '/api/user') return
 
-                // Only retry up to 10 times.
-                if (retryCount >= 10) return
+            //     // Only retry up to 10 times.
+            //     if (retryCount >= 10) return
 
-                // Retry after 5 seconds.
-                setTimeout(() => revalidate({ retryCount }), 10000)
-            },
+            //     // Retry after 5 seconds.
+            //     setTimeout(() => revalidate({ retryCount }), 10000)
+            // },
+            revalidateIfStale: false,
+            revalidateOnFocus: false,
         },
     )
     // if (error.response.status === 401) {
