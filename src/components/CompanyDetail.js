@@ -380,7 +380,7 @@ export default function CompanyDetail() {
                                                         <InputWithLabel
                                                             id="foundingDate"
                                                             label={
-                                                                'tanggal Berdiri Perusahaan'
+                                                                'Tanggal Berdiri Perusahaan'
                                                             }
                                                             placeholder={
                                                                 '1990-01-01'

@@ -50,7 +50,6 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             .then(() => mutate())
             .catch(error => {
                 if (error.response.status !== 422) throw error
-
                 setErrors(error.response.data.errors)
             })
     }
@@ -128,7 +127,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         )
             router.push(redirectIfAuthenticated)
         if (middleware === 'auth' && error) logout()
-        // if (middleware === 'auth' && !user) router.push('/login')
+        if (user && !user.company_id) router.push('/akun/buat-data')
     }, [user, error])
 
     return {

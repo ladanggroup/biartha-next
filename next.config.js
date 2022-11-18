@@ -29,6 +29,10 @@ const nextConfig = {
                 source: '/akun',
                 destination: '/profile',
             },
+            {
+                source: '/akun/buat-data',
+                destination: '/profile/create',
+            },
         ]
     },
 }

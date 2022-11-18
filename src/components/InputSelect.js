@@ -7,6 +7,7 @@ export default function InputSelect({
     label,
     value,
     children,
+    error,
     ...props
 }) {
     // const [selected, setSelected] = React.useState(value)
@@ -26,6 +27,7 @@ export default function InputSelect({
                 <option value="">{placeholder}</option>
                 {children}
             </select>
+            {error}
         </div>
     )
 }
