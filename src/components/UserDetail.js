@@ -4,6 +4,7 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
 import InputSelect from './InputSelect'
 import InputWithLabel from './InputWithLabel'
+import LoadingUser from './LoadingUser'
 
 export default function UserDetail() {
     let [isOpen, setIsOpen] = useState(false)
@@ -20,7 +21,7 @@ export default function UserDetail() {
     const [districtId, setDistrictId] = useState('')
     const [postalCode, setPostalCode] = useState('')
     const [address, setAddress] = useState('')
-
+    const [loading, setLoading] = useState(false)
     const [province, setProvince] = useState([])
     const [city, setCity] = useState([])
     const [district, setDistrict] = useState([])
@@ -168,124 +169,136 @@ export default function UserDetail() {
                 })
         }
     }
-
     useEffect(() => {
         getUserDetail()
     }, [])
 
     return (
-        <div>
-            <div className="w-full space-y-4">
-                <div className="h-fit rounded-lg bg-white shadow-sm">
-                    <div className="p-6">
-                        <div className="text-sm text-gray-600">
-                            <div className="mb-2 flex justify-between border-b-2 pb-2 ">
-                                <div className="text-xl font-semibold text-gray-700">
-                                    Informasi Pribadi
-                                </div>
+        <>
+            {userDetail.length === 0 ? (
+                <LoadingUser />
+            ) : (
+                <div>
+                    <div className="w-full space-y-4">
+                        <div className="h-fit rounded-lg bg-white shadow-sm">
+                            <div className="p-6">
+                                <div className="text-sm text-gray-600">
+                                    <div className="mb-2 flex justify-between border-b-2 pb-2 ">
+                                        <div className="text-xl font-semibold text-gray-700">
+                                            Informasi Pribadi
+                                        </div>
 
-                                <button
-                                    type="button"
-                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                                    onClick={toggleModal}>
-                                    Ubah Data
-                                </button>
-                            </div>
-                            <div className="flex flex-col space-y-2">
-                                <div className="flex space-x-2">
-                                    <div className="w-64">Nomor Hp</div>
-                                    <div className="">
-                                        {userDetail?.phone || '-'}
+                                        <button
+                                            type="button"
+                                            className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                                            onClick={toggleModal}>
+                                            Ubah Data
+                                        </button>
                                     </div>
-                                </div>
-                                <div className="flex space-x-2">
-                                    <div className="w-64">Nomor KTP</div>
-                                    <div className="">
-                                        {userDetail?.card_number || '-'}
-                                    </div>
-                                    {userDetail?.card_image && (
-                                        <a
-                                            href={userDetail?.card_image}
-                                            target={'_blank'}
-                                            className="text-blue-500 bg-blue-100 px-2 py-0.5 rounded-full text-xs hover:bg-blue-200 flex justify-between space-x-2">
-                                            Lihat Foto KTP
-                                        </a>
-                                    )}
-                                </div>
-                                <div className="flex space-x-2">
-                                    <div className="w-64">
-                                        Posisi di Perusahaan
-                                    </div>
-                                    <div className="">
-                                        {userDetail?.company_position || '-'}
-                                    </div>
-                                </div>
-                                <div className="flex space-x-2">
-                                    <div className="w-64">Jenis Perusahan</div>
-                                    <div className="">
-                                        {userDetail?.company_division || '-'}
-                                    </div>
-                                </div>
-                                <div className="flex space-x-2">
-                                    <div className="w-64">Kode POS</div>
-                                    <div className="">
-                                        {userDetail?.postal_code || '-'}
-                                    </div>
-                                </div>
-                                <div className="flex space-x-2">
-                                    <div className="w-64">Alamat</div>
-                                    <div className="">
-                                        {userDetail?.address +
-                                            ', ' +
-                                            userDetail?.district_name +
-                                            ', ' +
-                                            userDetail?.city_name +
-                                            ', ' +
-                                            userDetail?.province_name || '-'}
+                                    <div className="flex flex-col space-y-2">
+                                        <div className="flex space-x-2">
+                                            <div className="w-64">Nomor Hp</div>
+                                            <div className="">
+                                                {userDetail?.phone || '-'}
+                                            </div>
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <div className="w-64">
+                                                Nomor KTP
+                                            </div>
+                                            <div className="">
+                                                {userDetail?.card_number || '-'}
+                                            </div>
+                                            {userDetail?.card_image && (
+                                                <a
+                                                    href={
+                                                        userDetail?.card_image
+                                                    }
+                                                    target={'_blank'}
+                                                    className="text-blue-500 bg-blue-100 px-2 py-0.5 rounded-full text-xs hover:bg-blue-200 flex justify-between space-x-2">
+                                                    Lihat Foto KTP
+                                                </a>
+                                            )}
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <div className="w-64">
+                                                Posisi di Perusahaan
+                                            </div>
+                                            <div className="">
+                                                {userDetail?.company_position ||
+                                                    '-'}
+                                            </div>
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <div className="w-64">
+                                                Jenis Perusahan
+                                            </div>
+                                            <div className="">
+                                                {userDetail?.company_division ||
+                                                    '-'}
+                                            </div>
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <div className="w-64">Kode POS</div>
+                                            <div className="">
+                                                {userDetail?.postal_code || '-'}
+                                            </div>
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <div className="w-64">Alamat</div>
+                                            <div className="">
+                                                {userDetail?.address +
+                                                    ', ' +
+                                                    userDetail?.district_name +
+                                                    ', ' +
+                                                    userDetail?.city_name +
+                                                    ', ' +
+                                                    userDetail?.province_name ||
+                                                    '-'}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <Transition appear show={isOpen} as={Fragment}>
-                <Dialog
-                    open={isOpen}
-                    as="div"
-                    className="relative z-10"
-                    onClose={toggleModal}>
-                    <Transition.Child
-                        as={Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0"
-                        enterTo="opacity-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0">
-                        <div className="fixed inset-0 bg-black bg-opacity-25" />
-                    </Transition.Child>
-
-                    <div className="fixed inset-0 overflow-y-auto">
-                        <div className="flex min-h-full items-center justify-center p-4 text-center">
+                    <Transition appear show={isOpen} as={Fragment}>
+                        <Dialog
+                            open={isOpen}
+                            as="div"
+                            className="relative z-10"
+                            onClose={toggleModal}>
                             <Transition.Child
                                 as={Fragment}
                                 enter="ease-out duration-300"
-                                enterFrom="opacity-0 scale-95"
-                                enterTo="opacity-100 scale-100"
+                                enterFrom="opacity-0"
+                                enterTo="opacity-100"
                                 leave="ease-in duration-200"
-                                leaveFrom="opacity-100 scale-100"
-                                leaveTo="opacity-0 scale-95">
-                                <Dialog.Panel className="w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                    <Dialog.Title
-                                        as="h3"
-                                        className="text-lg font-medium leading-6 text-gray-900">
-                                        Ubah Data Anda
-                                    </Dialog.Title>
-                                    <form onSubmit={handleSubmit}>
-                                        <div className="mt-2">
-                                            <div className="grid grid-cols-2 gap-4">
-                                                {/* <InputWithLabel
+                                leaveFrom="opacity-100"
+                                leaveTo="opacity-0">
+                                <div className="fixed inset-0 bg-black bg-opacity-25" />
+                            </Transition.Child>
+
+                            <div className="fixed inset-0 overflow-y-auto">
+                                <div className="flex min-h-full items-center justify-center p-4 text-center">
+                                    <Transition.Child
+                                        as={Fragment}
+                                        enter="ease-out duration-300"
+                                        enterFrom="opacity-0 scale-95"
+                                        enterTo="opacity-100 scale-100"
+                                        leave="ease-in duration-200"
+                                        leaveFrom="opacity-100 scale-100"
+                                        leaveTo="opacity-0 scale-95">
+                                        <Dialog.Panel className="w-full max-w-6xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                            <Dialog.Title
+                                                as="h3"
+                                                className="text-lg font-medium leading-6 text-gray-900">
+                                                Ubah Data Anda
+                                            </Dialog.Title>
+                                            <form onSubmit={handleSubmit}>
+                                                <div className="mt-2">
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        {/* <InputWithLabel
                                                     id="email"
                                                     label={'Email'}
                                                     placeholder={
@@ -306,261 +319,327 @@ export default function UserDetail() {
                                                         )
                                                     }
                                                 /> */}
-                                                <InputWithLabel
-                                                    id="phone"
-                                                    label={'Nomor Hp'}
-                                                    placeholder={'08123456789'}
-                                                    type="tel"
-                                                    onChange={e =>
-                                                        setPhone(e.target.value)
-                                                    }
-                                                    value={phone}
-                                                    error={
-                                                        validation.phone && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.phone
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                />
-                                                <InputWithLabel
-                                                    id="cardNumber"
-                                                    label={'Nomor KTP'}
-                                                    placeholder={'1234567890'}
-                                                    type="number"
-                                                    onChange={e =>
-                                                        setCardNumber(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    value={cardNumber}
-                                                    error={
-                                                        validation.card_number && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.card_number
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                />
-                                                <InputWithLabel
-                                                    id="cardImage"
-                                                    label={'Foto KTP'}
-                                                    placeholder={'Foto KTP'}
-                                                    type="file"
-                                                    onChange={uploadFile}
-                                                    accept="image/*"
-                                                    helper={
-                                                        <p
-                                                            class="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                                                            id="file_input_help">
-                                                            PNG atau JPG (MAX.
-                                                            2mb)
-                                                        </p>
-                                                    }
-                                                    error={
-                                                        validation.card_image && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.card_image
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                />
-                                                <InputWithLabel
-                                                    id="companyPosition"
-                                                    label={
-                                                        'Posisi di Perusahaan'
-                                                    }
-                                                    placeholder={'Manager'}
-                                                    type="text"
-                                                    onChange={e =>
-                                                        setCompanyPosition(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    value={companyPosition}
-                                                    error={
-                                                        validation.company_position && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.company_position
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                />
-                                                <InputWithLabel
-                                                    id="companyDevision"
-                                                    label={'Jenis Perusahaan'}
-                                                    placeholder={
-                                                        'Penjualan & Retail'
-                                                    }
-                                                    type="text"
-                                                    onChange={e =>
-                                                        setCompanyDevision(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    value={companyDevision}
-                                                    error={
-                                                        validation.company_division && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.company_division
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                />
-                                                <InputSelect
-                                                    id="provinceId"
-                                                    label={'Provinsi'}
-                                                    placeholder={
-                                                        'Pilih Provinsi'
-                                                    }
-                                                    onChange={e =>
-                                                        setProvinceId(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    value={provinceId}>
-                                                    {province.map(
-                                                        (item, index) => (
-                                                            <option
-                                                                key={index}
-                                                                value={item.id}
-                                                                onClick={e =>
-                                                                    getCity(
-                                                                        e.target
-                                                                            .value,
-                                                                    )
-                                                                }>
-                                                                {item.name}
-                                                            </option>
-                                                        ),
-                                                    )}
-                                                </InputSelect>
-
-                                                <InputSelect
-                                                    id="cityId"
-                                                    label={'Kabupaten/Kota'}
-                                                    placeholder={
-                                                        'Pilih Kabupaten/Kota'
-                                                    }
-                                                    onChange={e =>
-                                                        setCityId(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    value={cityId}>
-                                                    {city.map((item, index) => (
-                                                        <option
-                                                            key={index}
-                                                            value={item.id}
-                                                            onClick={e =>
-                                                                getDistrict(
+                                                        <InputWithLabel
+                                                            id="phone"
+                                                            label={'Nomor Hp'}
+                                                            placeholder={
+                                                                '08123456789'
+                                                            }
+                                                            type="tel"
+                                                            onChange={e =>
+                                                                setPhone(
                                                                     e.target
                                                                         .value,
                                                                 )
-                                                            }>
-                                                            {item.name}
-                                                        </option>
-                                                    ))}
-                                                </InputSelect>
-                                                <InputSelect
-                                                    id="districtId"
-                                                    label={'Kecamatan'}
-                                                    placeholder={
-                                                        'Pilih Kecamatan'
-                                                    }
-                                                    onChange={e =>
-                                                        setDistrictId(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    value={districtId}>
-                                                    {district.map(
-                                                        (item, index) => (
-                                                            <option
-                                                                key={index}
-                                                                value={item.id}>
-                                                                {item.name}
-                                                            </option>
-                                                        ),
-                                                    )}
-                                                </InputSelect>
-                                                <InputWithLabel
-                                                    id="postalCode"
-                                                    label={'Kode Pos'}
-                                                    placeholder={'60231'}
-                                                    type="text"
-                                                    onChange={e =>
-                                                        setPostalCode(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    value={postalCode}
-                                                    error={
-                                                        validation.postal_code && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.postal_code
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                />
-                                                <InputWithLabel
-                                                    id="address"
-                                                    label={'Alamat Lengkap'}
-                                                    placeholder={
-                                                        'Jln, Raya Gayungan No. 1'
-                                                    }
-                                                    type="text"
-                                                    onChange={e =>
-                                                        setAddress(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    value={address}
-                                                    error={
-                                                        validation.address && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.address
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                />
-                                            </div>
-                                        </div>
+                                                            }
+                                                            value={phone}
+                                                            error={
+                                                                validation.phone && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.phone
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }
+                                                        />
+                                                        <InputWithLabel
+                                                            id="cardNumber"
+                                                            label={'Nomor KTP'}
+                                                            placeholder={
+                                                                '1234567890'
+                                                            }
+                                                            type="number"
+                                                            onChange={e =>
+                                                                setCardNumber(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            value={cardNumber}
+                                                            error={
+                                                                validation.card_number && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.card_number
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }
+                                                        />
+                                                        <InputWithLabel
+                                                            id="cardImage"
+                                                            label={'Foto KTP'}
+                                                            placeholder={
+                                                                'Foto KTP'
+                                                            }
+                                                            type="file"
+                                                            onChange={
+                                                                uploadFile
+                                                            }
+                                                            accept="image/*"
+                                                            helper={
+                                                                <p
+                                                                    class="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                                                                    id="file_input_help">
+                                                                    PNG atau JPG
+                                                                    (MAX. 2mb)
+                                                                </p>
+                                                            }
+                                                            error={
+                                                                validation.card_image && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.card_image
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }
+                                                        />
+                                                        <InputWithLabel
+                                                            id="companyPosition"
+                                                            label={
+                                                                'Posisi di Perusahaan'
+                                                            }
+                                                            placeholder={
+                                                                'Manager'
+                                                            }
+                                                            type="text"
+                                                            onChange={e =>
+                                                                setCompanyPosition(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            value={
+                                                                companyPosition
+                                                            }
+                                                            error={
+                                                                validation.company_position && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.company_position
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }
+                                                        />
+                                                        <InputWithLabel
+                                                            id="companyDevision"
+                                                            label={
+                                                                'Jenis Perusahaan'
+                                                            }
+                                                            placeholder={
+                                                                'Penjualan & Retail'
+                                                            }
+                                                            type="text"
+                                                            onChange={e =>
+                                                                setCompanyDevision(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            value={
+                                                                companyDevision
+                                                            }
+                                                            error={
+                                                                validation.company_division && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.company_division
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }
+                                                        />
+                                                        <InputSelect
+                                                            id="provinceId"
+                                                            label={'Provinsi'}
+                                                            placeholder={
+                                                                'Pilih Provinsi'
+                                                            }
+                                                            onChange={e =>
+                                                                setProvinceId(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            value={provinceId}>
+                                                            {province.map(
+                                                                (
+                                                                    item,
+                                                                    index,
+                                                                ) => (
+                                                                    <option
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        value={
+                                                                            item.id
+                                                                        }
+                                                                        onClick={e =>
+                                                                            getCity(
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            )
+                                                                        }>
+                                                                        {
+                                                                            item.name
+                                                                        }
+                                                                    </option>
+                                                                ),
+                                                            )}
+                                                        </InputSelect>
 
-                                        <div className="mt-4 flex justify-end space-x-2">
-                                            <button
-                                                type="button"
-                                                className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-                                                onClick={toggleModal}>
-                                                Batal
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-                                                Simpan Data
-                                            </button>
-                                        </div>
-                                    </form>
-                                </Dialog.Panel>
-                            </Transition.Child>
-                        </div>
-                    </div>
-                </Dialog>
-            </Transition>
-        </div>
+                                                        <InputSelect
+                                                            id="cityId"
+                                                            label={
+                                                                'Kabupaten/Kota'
+                                                            }
+                                                            placeholder={
+                                                                'Pilih Kabupaten/Kota'
+                                                            }
+                                                            onChange={e =>
+                                                                setCityId(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            value={cityId}>
+                                                            {city.map(
+                                                                (
+                                                                    item,
+                                                                    index,
+                                                                ) => (
+                                                                    <option
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        value={
+                                                                            item.id
+                                                                        }
+                                                                        onClick={e =>
+                                                                            getDistrict(
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                            )
+                                                                        }>
+                                                                        {
+                                                                            item.name
+                                                                        }
+                                                                    </option>
+                                                                ),
+                                                            )}
+                                                        </InputSelect>
+                                                        <InputSelect
+                                                            id="districtId"
+                                                            label={'Kecamatan'}
+                                                            placeholder={
+                                                                'Pilih Kecamatan'
+                                                            }
+                                                            onChange={e =>
+                                                                setDistrictId(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            value={districtId}>
+                                                            {district.map(
+                                                                (
+                                                                    item,
+                                                                    index,
+                                                                ) => (
+                                                                    <option
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        value={
+                                                                            item.id
+                                                                        }>
+                                                                        {
+                                                                            item.name
+                                                                        }
+                                                                    </option>
+                                                                ),
+                                                            )}
+                                                        </InputSelect>
+                                                        <InputWithLabel
+                                                            id="postalCode"
+                                                            label={'Kode Pos'}
+                                                            placeholder={
+                                                                '60231'
+                                                            }
+                                                            type="text"
+                                                            onChange={e =>
+                                                                setPostalCode(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            value={postalCode}
+                                                            error={
+                                                                validation.postal_code && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.postal_code
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }
+                                                        />
+                                                        <InputWithLabel
+                                                            id="address"
+                                                            label={
+                                                                'Alamat Lengkap'
+                                                            }
+                                                            placeholder={
+                                                                'Jln, Raya Gayungan No. 1'
+                                                            }
+                                                            type="text"
+                                                            onChange={e =>
+                                                                setAddress(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            value={address}
+                                                            error={
+                                                                validation.address && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.address
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-4 flex justify-end space-x-2">
+                                                    <button
+                                                        type="button"
+                                                        className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                                                        onClick={toggleModal}>
+                                                        Batal
+                                                    </button>
+                                                    <button
+                                                        type="submit"
+                                                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                        Simpan Data
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </Dialog.Panel>
+                                    </Transition.Child>
+                                </div>
+                            </div>
+                        </Dialog>
+                    </Transition>
+                </div>
+            )}
+        </>
     )
 }
