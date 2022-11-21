@@ -1,12 +1,27 @@
 import AppLayout from '@/components/Layouts/AppLayout'
 import LoadingUser from '@/components/LoadingUser'
 import { useAuth } from '@/hooks/auth'
+import axios from '@/lib/axios'
 import Head from 'next/head'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 export default function loan() {
     const { user } = useAuth({ middleware: 'auth' })
+    const [loan, setLoan] = React.useState([])
+
+    const getLoan = async () => {
+        const response = await axios({
+            method: 'GET',
+            url: '/api/loan',
+        }).then(response => {
+            setLoan(response.data.data)
+        })
+    }
+    useEffect(() => {
+        getLoan()
+    }, [])
+
     return (
         <>
             {!user && <LoadingUser />}
@@ -74,6 +89,44 @@ export default function loan() {
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
+                                        {loan.map((item, index) => (
+                                            <div className="h-fit w-full bg-white shadow-sm sm:rounded-lg">
+                                                <div className="p-6">
+                                                    <div className="flex justify-between">
+                                                        <div className="text-gray-800">
+                                                            Tagihan{' '}
+                                                            <span className="font-semibold">
+                                                                {' '}
+                                                                No.{' '}
+                                                                {
+                                                                    item.loan_number
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                        <div className="text-sm text-gray-600">
+                                                            {item.status}
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-sm text-gray-700">
+                                                        Jatuh tempo{' '}
+                                                        <span className="text-primary">
+                                                            12/12/2021
+                                                        </span>
+                                                        <div className="text-secondary my-2 text-xl font-semibold">
+                                                            {item.loan_value
+                                                                ? item.loan_value
+                                                                : 'Menunggu konfirmasi'}
+                                                        </div>
+                                                    </div>
+                                                    <Link
+                                                        href={'#'}
+                                                        className="block text-center border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
+                                                        Lihat detail
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        ))}
+
                                         <div className="h-fit w-full bg-white shadow-sm sm:rounded-lg">
                                             <div className="p-6">
                                                 <div className="flex justify-between">
