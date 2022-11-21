@@ -21,7 +21,7 @@ export default function UserDetail() {
     const [districtId, setDistrictId] = useState('')
     const [postalCode, setPostalCode] = useState('')
     const [address, setAddress] = useState('')
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [province, setProvince] = useState([])
     const [city, setCity] = useState([])
     const [district, setDistrict] = useState([])
@@ -31,27 +31,45 @@ export default function UserDetail() {
             method: 'GET',
             url: '/api/get/province',
         }).then(res => {
-            // console.log(res.data)
             setProvince(res.data)
         })
     }
 
     const getCity = async id => {
-        const res = await axios({
-            method: 'GET',
-            url: '/api/get/city/' + id,
-        }).then(res => {
-            setCity(res.data)
-        })
+        try {
+            if (id) {
+                const res = await axios({
+                    method: 'GET',
+                    url: `/api/get/city/${id}`,
+                }).then(res => {
+                    setCity(res.data)
+                })
+            }
+        } catch (error) {
+            console.log(error)
+        }
+
+        // const res = await axios({
+        //     method: 'GET',
+        //     url: '/api/get/city/' + id,
+        // }).then(res => {
+        //     setCity(res.data)
+        // })
     }
 
     const getDistrict = async id => {
-        const res = await axios({
-            method: 'GET',
-            url: '/api/get/district/' + id,
-        }).then(res => {
-            setDistrict(res.data)
-        })
+        try {
+            if (id) {
+                const res = await axios({
+                    method: 'GET',
+                    url: '/api/get/district/' + id,
+                }).then(res => {
+                    setDistrict(res.data)
+                })
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const uploadFile = async e => {
@@ -101,7 +119,7 @@ export default function UserDetail() {
                 setAddress(res.data.data.address)
             })
         } catch (e) {
-            console.log(e.message)
+            setLoading(false)
         }
     }
     function toggleModal() {
@@ -175,7 +193,7 @@ export default function UserDetail() {
 
     return (
         <>
-            {userDetail.length === 0 ? (
+            {userDetail.length === 0 && loading === true ? (
                 <LoadingUser />
             ) : (
                 <div>
@@ -247,14 +265,29 @@ export default function UserDetail() {
                                         <div className="flex space-x-2">
                                             <div className="w-64">Alamat</div>
                                             <div className="">
-                                                {userDetail?.address +
-                                                    ', ' +
-                                                    userDetail?.district_name +
-                                                    ', ' +
-                                                    userDetail?.city_name +
-                                                    ', ' +
-                                                    userDetail?.province_name ||
-                                                    '-'}
+                                                {userDetail?.address || '-'}
+                                            </div>
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <div className="w-64">
+                                                Kecamatan
+                                            </div>
+                                            <div className="">
+                                                {userDetail?.district || '-'}
+                                            </div>
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <div className="w-64">
+                                                Kabupaten/Kota
+                                            </div>
+                                            <div className="">
+                                                {userDetail?.city || '-'}
+                                            </div>
+                                        </div>
+                                        <div className="flex space-x-2">
+                                            <div className="w-64">Provinsi</div>
+                                            <div className="">
+                                                {userDetail?.province || '-'}
                                             </div>
                                         </div>
                                     </div>
@@ -464,7 +497,16 @@ export default function UserDetail() {
                                                                         .value,
                                                                 )
                                                             }
-                                                            value={provinceId}>
+                                                            value={provinceId}
+                                                            error={
+                                                                validation.province_id && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.province_id
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }>
                                                             {province.map(
                                                                 (
                                                                     item,
@@ -506,7 +548,16 @@ export default function UserDetail() {
                                                                         .value,
                                                                 )
                                                             }
-                                                            value={cityId}>
+                                                            value={cityId}
+                                                            error={
+                                                                validation.city_id && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.city_id
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }>
                                                             {city.map(
                                                                 (
                                                                     item,
@@ -545,7 +596,16 @@ export default function UserDetail() {
                                                                         .value,
                                                                 )
                                                             }
-                                                            value={districtId}>
+                                                            value={districtId}
+                                                            error={
+                                                                validation.district_id && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.district_id
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }>
                                                             {district.map(
                                                                 (
                                                                     item,

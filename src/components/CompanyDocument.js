@@ -15,6 +15,7 @@ export default function CompanyDocument() {
     const [inActiveDate, setInActiveDate] = React.useState('')
     const [validation, setValidation] = React.useState([])
     const [companyDocument, setCompanyDocument] = React.useState([])
+    const [loading, setLoading] = React.useState(true)
     const filterDocument = ['NPWP', 'SIUP']
     const documentOption = [
         { value: 'NPWP', label: 'NPWP' },
@@ -114,29 +115,46 @@ export default function CompanyDocument() {
             })
     }
 
-    const getCompanyDocument = async () => {
-        await axios({
-            method: 'GET',
-            url: '/api/company/document',
-        })
-            .then(res => {
-                console.log(res.data.data)
-                setCompanyDocument(res.data.data)
-            })
-            .catch(err => {
-                toast.error(err.response.data.message, {
-                    position: toast.POSITION.BOTTOM_RIGHT,
-                })
-            })
-    }
+    // const getCompanyDocument = async () => {
+    //     try {
+    //         const res = await axios({
+    //             method: 'GET',
+    //             url: '/api/company/document',
+    //         }).then(res => {
+    //             setCompanyDocument(res.data.data)
+    //         })
+    //     } catch (error) {
+    //         console.log(loading)
+    //         setLoading(false)
+    //     }
+    // }
 
+    const getCompanyDocument = async () => {
+        try {
+            const res = await axios({
+                method: 'GET',
+                url: '/api/company/document',
+            })
+                .then(res => {
+                    setCompanyDocument(res.data.data)
+                    if (res.data.data.length === 0) {
+                        setLoading(false)
+                    }
+                })
+                .catch(e => {
+                    setLoading(false)
+                })
+        } catch (error) {
+            setLoading(false)
+        }
+    }
     useEffect(() => {
         getCompanyDocument()
     }, [])
 
     return (
         <div>
-            {companyDocument.length === 0 ? (
+            {companyDocument.length === 0 && loading === true ? (
                 <LoadingUser />
             ) : (
                 <div>
