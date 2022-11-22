@@ -7,11 +7,12 @@ import axios from '@/lib/axios'
 import { Dialog, Transition } from '@headlessui/react'
 import Head from 'next/head'
 import Link from 'next/link'
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import CreatableSelect from 'react-select/creatable'
+import { useRouter } from 'next/router'
 
-export default function register() {
+export default function create() {
     const { user } = useAuth({ middleware: 'auth' })
     const [validation, setValidation] = React.useState([])
     const [show, setShow] = React.useState(false)
@@ -34,6 +35,12 @@ export default function register() {
         pic_position: '',
     })
     const [listDocument, setListDocument] = React.useState([])
+    const router = useRouter()
+    const loan_id = router.query.loan_id
+
+    const updateStatusLoan = async () => {
+        console.log('update status')
+    }
 
     const handleSubmit = async event => {
         event.preventDefault()
@@ -56,7 +63,11 @@ export default function register() {
                 toast.success(res.data.message, {
                     position: toast.POSITION.BOTTOM_RIGHT,
                 })
-                setDocument({ ...document, loan_id: res.data.data.loan_id })
+                // setDocument({ ...document, loan_id: res.data.data.loan_id })
+                router.push({
+                    pathname: '/loan/create',
+                    query: { loan_id: res.data.data.loan_id },
+                })
             })
             .catch(error => {
                 if (error.response.status !== 422) throw error
@@ -116,6 +127,13 @@ export default function register() {
                 toast.success(res.data.message, {
                     position: toast.POSITION.BOTTOM_RIGHT,
                 })
+                setDocument({
+                    ...document,
+                    type: '',
+                    name: '',
+                    number: '',
+                    file_doc: '',
+                })
                 toggleModal()
                 getDocument()
             })
@@ -126,18 +144,29 @@ export default function register() {
     }
 
     const getDocument = async () => {
-        await axios({
-            method: 'GET',
-            url: '/api/loan/document' + '/' + document.loan_id,
-        })
-            .then(res => {
-                // console.log(res)
-                setListDocument(res.data.data)
+        if (document.loan_id) {
+            await axios({
+                method: 'GET',
+                url: '/api/loan/document' + '/' + document.loan_id,
             })
-            .catch(error => {
-                console.log(error)
-            })
+                .then(res => {
+                    setListDocument(res.data.data)
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        }
     }
+
+    useEffect(() => {
+        if (loan_id) {
+            setDocument(document => ({ ...document, loan_id: loan_id }))
+        }
+    }, [loan_id])
+
+    useEffect(() => {
+        getDocument()
+    }, [document.loan_id])
 
     return (
         <>
@@ -459,7 +488,9 @@ export default function register() {
                                             <div className="grid grid-cols-2 gap-4 w-full text-gray-600 font-medium text-sm">
                                                 {listDocument.map(
                                                     (item, index) => (
-                                                        <div className="flex space-x-2">
+                                                        <div
+                                                            className="flex space-x-2"
+                                                            key={index}>
                                                             <svg
                                                                 xmlns="http://www.w3.org/2000/svg"
                                                                 fill="none"
@@ -491,6 +522,14 @@ export default function register() {
                                                     type="button"
                                                     className="border-2 border-gray-300 p-5 border-dashed rounded-lg text-center col-span-2 hover:shadow-md">
                                                     Tambahkan dokumen lainnya
+                                                </button>
+                                            </div>
+                                            <div className="mt-4 flex justify-end space-x-2">
+                                                <button
+                                                    onClick={updateStatusLoan}
+                                                    type="button"
+                                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                    Ajukan Pinjaman
                                                 </button>
                                             </div>
                                             <Transition
@@ -638,7 +677,7 @@ export default function register() {
                                                                                     accept="image/*, .pdf"
                                                                                     helper={
                                                                                         <p
-                                                                                            class="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                                                                                            className="mt-1 text-sm text-gray-500 dark:text-gray-300"
                                                                                             id="file_input_help">
                                                                                             PNG,
                                                                                             JPG,
@@ -649,10 +688,10 @@ export default function register() {
                                                                                         </p>
                                                                                     }
                                                                                     error={
-                                                                                        validation.card_image && (
+                                                                                        validation.file_doc && (
                                                                                             <span className="text-red-500 text-sm">
                                                                                                 {
-                                                                                                    validation.card_image
+                                                                                                    validation.file_doc
                                                                                                 }
                                                                                             </span>
                                                                                         )
@@ -662,7 +701,8 @@ export default function register() {
                                                                                     hidden
                                                                                     type="text"
                                                                                     value={
-                                                                                        document.file_doc
+                                                                                        document.file_doc ||
+                                                                                        ''
                                                                                     }
                                                                                 />
                                                                             </div>

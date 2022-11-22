@@ -119,7 +119,14 @@ export default function loan() {
                                                         </div>
                                                     </div>
                                                     <Link
-                                                        href={'#'}
+                                                        href={{
+                                                            pathname:
+                                                                '/pinjaman/buat-pengajuan',
+                                                            query: {
+                                                                loan_id:
+                                                                    item.id,
+                                                            },
+                                                        }}
                                                         className="block text-center border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
                                                         Lihat detail
                                                     </Link>
@@ -170,7 +177,7 @@ export default function loan() {
                                                             xmlns="http://www.w3.org/2000/svg"
                                                             fill="none"
                                                             viewBox="0 0 24 24"
-                                                            stroke-width="1.5"
+                                                            strokeWidth="1.5"
                                                             stroke="currentColor"
                                                             className="h-5 w-5">
                                                             <path
