@@ -90,7 +90,9 @@ export default function loan() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         {loan.map((item, index) => (
-                                            <div className="h-fit w-full bg-white shadow-sm sm:rounded-lg">
+                                            <div
+                                                className="h-fit w-full bg-white shadow-sm sm:rounded-lg"
+                                                key={index}>
                                                 <div className="p-6">
                                                     <div className="flex justify-between">
                                                         <div className="text-gray-800">
@@ -103,9 +105,68 @@ export default function loan() {
                                                                 }
                                                             </span>
                                                         </div>
-                                                        <div className="text-sm text-gray-600">
-                                                            {item.status}
-                                                        </div>
+                                                        {item.status ===
+                                                            'CREATED' && (
+                                                            <div className="text-sm text-gray-600">
+                                                                Belum Diajukan
+                                                            </div>
+                                                        )}
+
+                                                        {item.status ===
+                                                            'PROCCESS' && (
+                                                            <div className="flex space-x-1 text-sm text-gray-600">
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    fill="none"
+                                                                    viewBox="0 0 24 24"
+                                                                    strokeWidth={
+                                                                        1.5
+                                                                    }
+                                                                    stroke="currentColor"
+                                                                    className="w-5 h-5">
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                                    />
+                                                                </svg>
+                                                                <div>
+                                                                    Pengajuan
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        {item.status ===
+                                                            'APPROVED' && (
+                                                            <div className="text-sm text-gray-600">
+                                                                Disetujui
+                                                            </div>
+                                                        )}
+                                                        {item.status ===
+                                                            'REJECTED' && (
+                                                            <div className="text-sm text-gray-600">
+                                                                Ditolak
+                                                            </div>
+                                                        )}
+                                                        {item.status ===
+                                                            'PAID' && (
+                                                            <div className="flex space-x-1 text-sm text-green-500">
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    fill="none"
+                                                                    viewBox="0 0 24 24"
+                                                                    strokeWidth="1.5"
+                                                                    stroke="currentColor"
+                                                                    className="h-5 w-5">
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                                    />
+                                                                </svg>
+
+                                                                <div>Lunas</div>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                     <div className="text-sm text-gray-700">
                                                         Jatuh tempo{' '}
@@ -118,18 +179,33 @@ export default function loan() {
                                                                 : 'Menunggu konfirmasi'}
                                                         </div>
                                                     </div>
-                                                    <Link
-                                                        href={{
-                                                            pathname:
-                                                                '/pinjaman/buat-pengajuan',
-                                                            query: {
-                                                                loan_id:
-                                                                    item.id,
-                                                            },
-                                                        }}
-                                                        className="block text-center border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
-                                                        Lihat detail
-                                                    </Link>
+                                                    {item.status ===
+                                                        'CREATED' && (
+                                                        <Link
+                                                            href={{
+                                                                pathname:
+                                                                    '/pinjaman/buat-pengajuan',
+                                                                query: {
+                                                                    loan_id:
+                                                                        item.loan_id,
+                                                                },
+                                                            }}
+                                                            className="block text-center border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
+                                                            Upload File
+                                                        </Link>
+                                                    )}
+                                                    {item.status !==
+                                                        'CREATED' && (
+                                                        <Link
+                                                            href={{
+                                                                pathname:
+                                                                    '/pinjaman/detail/' +
+                                                                    item.loan_id,
+                                                            }}
+                                                            className="block text-center border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
+                                                            Lihat detail
+                                                        </Link>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}
@@ -181,8 +257,8 @@ export default function loan() {
                                                             stroke="currentColor"
                                                             className="h-5 w-5">
                                                             <path
-                                                                stroke-linecap="round"
-                                                                stroke-linejoin="round"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
                                                                 d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                             />
                                                         </svg>
@@ -219,12 +295,12 @@ export default function loan() {
                                                             xmlns="http://www.w3.org/2000/svg"
                                                             fill="none"
                                                             viewBox="0 0 24 24"
-                                                            stroke-width="1.5"
+                                                            strokeWidth="1.5"
                                                             stroke="currentColor"
                                                             className="h-5 w-5">
                                                             <path
-                                                                stroke-linecap="round"
-                                                                stroke-linejoin="round"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
                                                                 d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                             />
                                                         </svg>

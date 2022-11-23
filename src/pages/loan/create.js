@@ -38,42 +38,64 @@ export default function create() {
     const router = useRouter()
     const loan_id = router.query.loan_id
 
-    const updateStatusLoan = async () => {
-        console.log('update status')
-    }
-
     const handleSubmit = async event => {
         event.preventDefault()
         setValidation([])
         const formData = new FormData()
-        formData.append('contract_name', loan.contract_name)
-        formData.append('contract_number', loan.contract_number)
-        formData.append('contract_start_date', loan.contract_start_date)
-        formData.append('contract_end_date', loan.contract_end_date)
-        formData.append('contract_value', loan.contract_value)
-        formData.append('pic_name', loan.pic_name)
-        formData.append('pic_phone', loan.pic_phone)
-        formData.append('pic_position', loan.pic_position)
-        await axios({
-            method: 'POST',
-            url: '/api/loan',
-            data: formData,
-        })
-            .then(res => {
-                toast.success(res.data.message, {
-                    position: toast.POSITION.BOTTOM_RIGHT,
-                })
-                // setDocument({ ...document, loan_id: res.data.data.loan_id })
-                router.push({
-                    pathname: '/loan/create',
-                    query: { loan_id: res.data.data.loan_id },
-                })
+        if (loan_id) {
+            formData.append('_method', 'PUT')
+            await axios({
+                method: 'POST',
+                url: '/api/loan/' + loan_id,
+                data: formData,
             })
-            .catch(error => {
-                if (error.response.status !== 422) throw error
-                setValidation(error.response.data.errors)
-                setShow(false)
+                .then(res => {
+                    toast.success(
+                        'Pinjaman Berhasil di ajukan dan menunggu konfirmasi oleh admin.',
+                        {
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                        },
+                    )
+                    setDocument({})
+                    // router.push({
+                    //     pathname: '/loan',
+                    // })
+                })
+                .catch(error => {
+                    if (error.response.status !== 422) throw error
+                    setValidation(error.response.data.errors)
+                    setShow(false)
+                })
+        } else {
+            formData.append('contract_name', loan.contract_name)
+            formData.append('contract_number', loan.contract_number)
+            formData.append('contract_start_date', loan.contract_start_date)
+            formData.append('contract_end_date', loan.contract_end_date)
+            formData.append('contract_value', loan.contract_value)
+            formData.append('pic_name', loan.pic_name)
+            formData.append('pic_phone', loan.pic_phone)
+            formData.append('pic_position', loan.pic_position)
+            await axios({
+                method: 'POST',
+                url: '/api/loan',
+                data: formData,
             })
+                .then(res => {
+                    toast.success(res.data.message, {
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                    })
+                    setDocument({})
+                    router.push({
+                        pathname: '/loan/create',
+                        query: { loan_id: res.data.data.loan_id },
+                    })
+                })
+                .catch(error => {
+                    if (error.response.status !== 422) throw error
+                    setValidation(error.response.data.errors)
+                    setShow(false)
+                })
+        }
     }
     function toggleModal() {
         setIsOpen(isOpen => !isOpen)
@@ -526,7 +548,7 @@ export default function create() {
                                             </div>
                                             <div className="mt-4 flex justify-end space-x-2">
                                                 <button
-                                                    onClick={updateStatusLoan}
+                                                    onClick={handleSubmit}
                                                     type="button"
                                                     className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
                                                     Ajukan Pinjaman
@@ -584,6 +606,9 @@ export default function create() {
                                                                                         'SPK, SPPBJ, dll'
                                                                                     }
                                                                                     type="text"
+                                                                                    value={
+                                                                                        document.type
+                                                                                    }
                                                                                     onChange={e =>
                                                                                         setDocument(
                                                                                             {
@@ -614,6 +639,9 @@ export default function create() {
                                                                                         'SIPLah 2021'
                                                                                     }
                                                                                     type="text"
+                                                                                    value={
+                                                                                        document.name
+                                                                                    }
                                                                                     onChange={e =>
                                                                                         setDocument(
                                                                                             {
@@ -644,6 +672,9 @@ export default function create() {
                                                                                         '123abc-123abc-123abc'
                                                                                     }
                                                                                     type="text"
+                                                                                    value={
+                                                                                        document.number
+                                                                                    }
                                                                                     onChange={e =>
                                                                                         setDocument(
                                                                                             {
