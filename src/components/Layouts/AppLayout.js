@@ -1,6 +1,5 @@
 import Navigation from '@/components/Layouts/Navigation'
 import { useAuth } from '@/hooks/auth'
-import { ToastContainer } from 'react-toastify'
 
 const AppLayout = ({ header, children }) => {
     const { user } = useAuth({ middleware: 'auth' })
@@ -18,7 +17,6 @@ const AppLayout = ({ header, children }) => {
 
             {/* Page Content */}
             <main>{children}</main>
-            <ToastContainer />
         </div>
     )
 }

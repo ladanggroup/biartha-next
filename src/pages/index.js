@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import AppLayout from '@/components/Layouts/HomeLayout/AppLayout'
 import { Accordion } from 'flowbite-react'
+import Link from 'next/link'
 export default function Home() {
     return (
         <>
@@ -29,7 +30,8 @@ export default function Home() {
                                     Butuh Modal Jualan / Usaha?
                                 </h1>
                                 <h2 className="text-lg font-light tracking-wide text-gray-800 ">
-                                    Segera ajukan ke Bi'artha dan dapatkan modal usaha Anda sekarang juga!
+                                    Segera ajukan ke Bi'artha dan dapatkan modal
+                                    usaha Anda sekarang juga!
                                 </h2>
                                 <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-2">
                                     <a
@@ -37,11 +39,11 @@ export default function Home() {
                                         className="text-primary border-primary rounded-full border-2 bg-white py-1 px-4 text-center font-medium tracking-wide shadow-lg">
                                         Lihat Caranya
                                     </a>
-                                    <a
-                                        href="#"
+                                    <Link
+                                        href="/register"
                                         className="border-primary bg-primary rounded-full border-2 py-1 px-4 text-center font-medium tracking-wide text-white shadow-lg">
                                         Daftar Sekarang
-                                    </a>
+                                    </Link>
                                 </div>
                             </div>
                         </div>

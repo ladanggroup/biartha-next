@@ -79,253 +79,180 @@ export default function loan() {
                             <div className="mx-auto flex max-w-7xl space-x-4 sm:px-6 lg:px-8">
                                 <div className="w-full space-y-4">
                                     <div className="h-fit overflow-hidden rounded-lg bg-white shadow-sm">
-                                        <div className="p-6">
-                                            <div className="text-sm text-gray-600">
-                                                Total tagihan{' '}
-                                                <span className="text-secondary text-xl font-semibold">
-                                                    Rp. 1.000.000
-                                                </span>
+                                        <div className="px-4 pt-4">
+                                            <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+                                                <ul class="flex flex-wrap -mb-px">
+                                                    <li class="mr-2">
+                                                        <a
+                                                            href="#"
+                                                            class="inline-block p-4 text-blue-600 rounded-t-lg border-b-2 border-blue-600 active dark:text-blue-500 dark:border-blue-500">
+                                                            Semua
+                                                        </a>
+                                                    </li>
+                                                    <li class="mr-2">
+                                                        <a
+                                                            href="#"
+                                                            class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                                                            aria-current="page">
+                                                            Pengajuan
+                                                        </a>
+                                                    </li>
+                                                    <li class="mr-2">
+                                                        <a
+                                                            href="#"
+                                                            class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">
+                                                            Disetujui
+                                                        </a>
+                                                    </li>
+                                                    <li class="mr-2">
+                                                        <a
+                                                            href="#"
+                                                            class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">
+                                                            Ditolak
+                                                        </a>
+                                                    </li>
+                                                    <li class="mr-2">
+                                                        <a
+                                                            href="#"
+                                                            class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">
+                                                            Lunas
+                                                        </a>
+                                                    </li>
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {loan.map((item, index) => (
-                                            <div
-                                                className="h-fit w-full bg-white shadow-sm sm:rounded-lg"
-                                                key={index}>
-                                                <div className="p-6">
-                                                    <div className="flex justify-between">
-                                                        <div className="text-gray-800">
-                                                            Tagihan{' '}
-                                                            <span className="font-semibold">
-                                                                {' '}
-                                                                No.{' '}
-                                                                {
-                                                                    item.loan_number
-                                                                }
+                                    {loan.length === 0 && notFound()}
+                                    {loan.length !== 0 && (
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {loan.map((item, index) => (
+                                                <div
+                                                    className="h-fit w-full bg-white shadow-sm sm:rounded-lg"
+                                                    key={index}>
+                                                    <div className="p-6">
+                                                        <div className="flex justify-between">
+                                                            <div className="text-gray-800">
+                                                                Tagihan{' '}
+                                                                <span className="font-semibold">
+                                                                    {' '}
+                                                                    No.{' '}
+                                                                    {
+                                                                        item.loan_number
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                            {item.status ===
+                                                                'CREATED' && (
+                                                                <div className="text-sm text-gray-600">
+                                                                    Belum
+                                                                    Diajukan
+                                                                </div>
+                                                            )}
+
+                                                            {item.status ===
+                                                                'PROCCESS' && (
+                                                                <div className="flex space-x-1 text-sm text-gray-600">
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        fill="none"
+                                                                        viewBox="0 0 24 24"
+                                                                        strokeWidth={
+                                                                            1.5
+                                                                        }
+                                                                        stroke="currentColor"
+                                                                        className="w-5 h-5">
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                                        />
+                                                                    </svg>
+                                                                    <div>
+                                                                        Pengajuan
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            {item.status ===
+                                                                'APPROVED' && (
+                                                                <div className="text-sm text-gray-600">
+                                                                    Disetujui
+                                                                </div>
+                                                            )}
+                                                            {item.status ===
+                                                                'REJECTED' && (
+                                                                <div className="text-sm text-gray-600">
+                                                                    Ditolak
+                                                                </div>
+                                                            )}
+                                                            {item.status ===
+                                                                'PAID' && (
+                                                                <div className="flex space-x-1 text-sm text-green-500">
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        fill="none"
+                                                                        viewBox="0 0 24 24"
+                                                                        strokeWidth="1.5"
+                                                                        stroke="currentColor"
+                                                                        className="h-5 w-5">
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                                        />
+                                                                    </svg>
+
+                                                                    <div>
+                                                                        Lunas
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="text-sm text-gray-700">
+                                                            Jatuh tempo{' '}
+                                                            <span className="text-primary">
+                                                                12/12/2021
                                                             </span>
+                                                            <div className="text-secondary my-2 text-xl font-semibold">
+                                                                {item.loan_value
+                                                                    ? item.loan_value
+                                                                    : 'Menunggu konfirmasi'}
+                                                            </div>
                                                         </div>
                                                         {item.status ===
                                                             'CREATED' && (
-                                                            <div className="text-sm text-gray-600">
-                                                                Belum Diajukan
-                                                            </div>
+                                                            <Link
+                                                                href={{
+                                                                    pathname:
+                                                                        '/pinjaman/buat-pengajuan',
+                                                                    query: {
+                                                                        loan_id:
+                                                                            item.loan_id,
+                                                                    },
+                                                                }}
+                                                                className="block text-center border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
+                                                                Upload File
+                                                            </Link>
                                                         )}
-
-                                                        {item.status ===
-                                                            'PROCCESS' && (
-                                                            <div className="flex space-x-1 text-sm text-gray-600">
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    fill="none"
-                                                                    viewBox="0 0 24 24"
-                                                                    strokeWidth={
-                                                                        1.5
-                                                                    }
-                                                                    stroke="currentColor"
-                                                                    className="w-5 h-5">
-                                                                    <path
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                                    />
-                                                                </svg>
-                                                                <div>
-                                                                    Pengajuan
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                        {item.status ===
-                                                            'APPROVED' && (
-                                                            <div className="text-sm text-gray-600">
-                                                                Disetujui
-                                                            </div>
-                                                        )}
-                                                        {item.status ===
-                                                            'REJECTED' && (
-                                                            <div className="text-sm text-gray-600">
-                                                                Ditolak
-                                                            </div>
-                                                        )}
-                                                        {item.status ===
-                                                            'PAID' && (
-                                                            <div className="flex space-x-1 text-sm text-green-500">
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    fill="none"
-                                                                    viewBox="0 0 24 24"
-                                                                    strokeWidth="1.5"
-                                                                    stroke="currentColor"
-                                                                    className="h-5 w-5">
-                                                                    <path
-                                                                        strokeLinecap="round"
-                                                                        strokeLinejoin="round"
-                                                                        d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                                    />
-                                                                </svg>
-
-                                                                <div>Lunas</div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="text-sm text-gray-700">
-                                                        Jatuh tempo{' '}
-                                                        <span className="text-primary">
-                                                            12/12/2021
-                                                        </span>
-                                                        <div className="text-secondary my-2 text-xl font-semibold">
-                                                            {item.loan_value
-                                                                ? item.loan_value
-                                                                : 'Menunggu konfirmasi'}
-                                                        </div>
-                                                    </div>
-                                                    {item.status ===
-                                                        'CREATED' && (
-                                                        <Link
-                                                            href={{
-                                                                pathname:
-                                                                    '/pinjaman/buat-pengajuan',
-                                                                query: {
-                                                                    loan_id:
+                                                        {item.status !==
+                                                            'CREATED' && (
+                                                            <Link
+                                                                href={{
+                                                                    pathname:
+                                                                        '/pinjaman/detail/' +
                                                                         item.loan_id,
-                                                                },
-                                                            }}
-                                                            className="block text-center border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
-                                                            Upload File
-                                                        </Link>
-                                                    )}
-                                                    {item.status !==
-                                                        'CREATED' && (
-                                                        <Link
-                                                            href={{
-                                                                pathname:
-                                                                    '/pinjaman/detail/' +
-                                                                    item.loan_id,
-                                                            }}
-                                                            className="block text-center border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
-                                                            Lihat detail
-                                                        </Link>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))}
-
-                                        <div className="h-fit w-full bg-white shadow-sm sm:rounded-lg">
-                                            <div className="p-6">
-                                                <div className="flex justify-between">
-                                                    <div className="text-gray-800">
-                                                        Tagihan{' '}
-                                                        <span className="font-semibold">
-                                                            {' '}
-                                                            No. CC716
-                                                        </span>
-                                                    </div>
-                                                    <div className="text-sm text-gray-600">
-                                                        Belum lunas
+                                                                }}
+                                                                className="block text-center border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
+                                                                Lihat detail
+                                                            </Link>
+                                                        )}
                                                     </div>
                                                 </div>
-                                                <div className="text-sm text-gray-700">
-                                                    Jatuh tempo{' '}
-                                                    <span className="text-primary">
-                                                        12/12/2021
-                                                    </span>
-                                                    <div className="text-secondary my-2 text-xl font-semibold">
-                                                        Rp. 1.000.000
-                                                    </div>
-                                                </div>
-                                                <button className="border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
-                                                    Lihat detail
-                                                </button>
-                                            </div>
+                                            ))}
                                         </div>
-                                        <div className="h-fit w-full bg-white shadow-sm sm:rounded-lg">
-                                            <div className="p-6">
-                                                <div className="flex justify-between">
-                                                    <div className="text-gray-800">
-                                                        Tagihan{' '}
-                                                        <span className="font-semibold">
-                                                            {' '}
-                                                            No. CC715
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex space-x-1 text-sm text-green-500">
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            strokeWidth="1.5"
-                                                            stroke="currentColor"
-                                                            className="h-5 w-5">
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                            />
-                                                        </svg>
-
-                                                        <div>Lunas</div>
-                                                    </div>
-                                                </div>
-                                                <div className="text-sm text-gray-700">
-                                                    Jatuh tempo{' '}
-                                                    <span className="text-primary">
-                                                        12/12/2021
-                                                    </span>
-                                                    <div className="text-secondary my-2 text-xl font-semibold">
-                                                        Rp. 1.000.000
-                                                    </div>
-                                                </div>
-                                                <button className="border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
-                                                    Lihat detail
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div className="h-fit w-full bg-white shadow-sm sm:rounded-lg">
-                                            <div className="p-6">
-                                                <div className="flex justify-between">
-                                                    <div className="text-gray-800">
-                                                        Tagihan{' '}
-                                                        <span className="font-semibold">
-                                                            {' '}
-                                                            No. CC715
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex space-x-1 text-sm text-green-500">
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            strokeWidth="1.5"
-                                                            stroke="currentColor"
-                                                            className="h-5 w-5">
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                                            />
-                                                        </svg>
-
-                                                        <div>Lunas</div>
-                                                    </div>
-                                                </div>
-                                                <div className="text-sm text-gray-700">
-                                                    Jatuh tempo{' '}
-                                                    <span className="text-primary">
-                                                        12/12/2021
-                                                    </span>
-                                                    <div className="text-secondary my-2 text-xl font-semibold">
-                                                        Rp. 1.000.000
-                                                    </div>
-                                                </div>
-                                                <button className="border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
-                                                    Lihat detail
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
                                 <div className="h-fit w-96 overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                                    <div className="bg-orange-600 p-6 text-center">
+                                    {/* <div className="bg-orange-600 p-6 text-center">
                                         <div className="text-sm text-gray-100">
                                             Sisa Kredit Pinjaman Kamu
                                         </div>
@@ -336,7 +263,7 @@ export default function loan() {
                                         <div className="text-xs font-normal text-gray-300">
                                             Total Kredit Rp. 100.000.000.000
                                         </div>
-                                    </div>
+                                    </div> */}
                                     <div className="flex px-6 py-4">
                                         <Link
                                             href={'/pinjaman/buat-pengajuan'}
@@ -351,5 +278,13 @@ export default function loan() {
                 </>
             )}
         </>
+    )
+}
+
+function notFound() {
+    return (
+        <div className="text-center text-gray-500">
+            Anda belum memiliki riwayat pinjaman.
+        </div>
     )
 }

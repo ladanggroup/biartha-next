@@ -1,12 +1,15 @@
 import InputSelect from '@/components/InputSelect'
 import InputWithLabel from '@/components/InputWithLabel'
 import AppLayout from '@/components/Layouts/AppLayout'
+import { useAuth } from '@/hooks/auth'
 import axios from '@/lib/axios'
 import Link from 'next/link'
-import { Router } from 'next/router'
+import { useRouter } from 'next/router'
 import React, { use, useEffect } from 'react'
+import { toast } from 'react-toastify'
 
 export default function createCompany() {
+    const { user } = useAuth({ middleware: 'auth' })
     const [company, setCompany] = React.useState({
         companyName: '',
         companyType: '',
@@ -25,10 +28,10 @@ export default function createCompany() {
     const [city, setCity] = React.useState([])
     const [district, setDistrict] = React.useState([])
     const [validation, setValidation] = React.useState([])
-
+    const router = useRouter()
     const handleSubmit = async e => {
         e.preventDefault()
-        setValidation([])
+        // setValidation([])
         const formData = new FormData()
         formData.append('name', company.companyName)
         formData.append('type', company.companyType)
@@ -42,21 +45,20 @@ export default function createCompany() {
         formData.append('district_id', company.companyDistrictId)
         formData.append('description', company.companyDescription)
         formData.append('postal_code', company.companyPostalCode)
-
-        await axios({
-            method: 'POST',
-            url: `/api/company`,
-            data: formData,
-        })
-            .then(res => {
-                Router.push('/dashboard')
+        try {
+            await axios({
+                method: 'POST',
+                url: `/api/company`,
+                data: formData,
+            }).then(res => {
+                router.push('/akun')
                 toast.success(res.data.message, {
                     position: toast.POSITION.BOTTOM_RIGHT,
                 })
             })
-            .catch(err => {
-                setValidation(err.response.data.errors)
-            })
+        } catch (err) {
+            setValidation(err.response.data.errors)
+        }
     }
 
     const getPronvince = async () => {
@@ -89,7 +91,6 @@ export default function createCompany() {
             setDistrict(res.data)
         })
     }
-
     useEffect(() => {
         getPronvince()
     }, [])
@@ -126,6 +127,7 @@ export default function createCompany() {
                                             </span>
                                         )
                                     }
+                                    maxLength="5"
                                 />
                                 <InputWithLabel
                                     id="companyName"
@@ -342,6 +344,7 @@ export default function createCompany() {
                                             </span>
                                         )
                                     }
+                                    maxLength="5"
                                 />
                                 <InputWithLabel
                                     id="address"

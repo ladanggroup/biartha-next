@@ -128,12 +128,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             router.push(redirectIfAuthenticated)
         if (middleware === 'auth' && error) logout()
         if (user && !user.company_id) router.push('/akun/buat-data')
-        if (
-            user &&
-            user.company_id &&
-            window.location.pathname === '/akun/buat-data'
-        )
-            router.push('/akun')
+        
     }, [user, error])
 
     return {

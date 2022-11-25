@@ -42,7 +42,7 @@ export default function create() {
         event.preventDefault()
         setValidation([])
         const formData = new FormData()
-        if (loan_id) {
+        if (document.loan_id) {
             formData.append('_method', 'PUT')
             await axios({
                 method: 'POST',
@@ -56,6 +56,7 @@ export default function create() {
                             position: toast.POSITION.BOTTOM_RIGHT,
                         },
                     )
+                    router.push('/loan')
                     setDocument({})
                     // router.push({
                     //     pathname: '/loan',
