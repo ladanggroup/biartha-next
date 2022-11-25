@@ -26,12 +26,10 @@ export default function Home() {
                         <div className="relative grid grid-cols-1 px-6 md:grid-cols-2 md:px-20">
                             <div className="space-y-4">
                                 <h1 className="text-5xl font-bold tracking-wide text-gray-800">
-                                    Butuh Modal Jualan?
+                                    Butuh Modal Jualan / Usaha?
                                 </h1>
                                 <h2 className="text-lg font-light tracking-wide text-gray-800 ">
-                                    Lorem ipsum dolor, sit amet consectetur
-                                    adipisicing elit. Lorem ipsum dolor, sit
-                                    amet consectetur adipisicing elit.
+                                    Segera ajukan ke Bi'artha dan dapatkan modal usaha Anda sekarang juga!
                                 </h2>
                                 <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-2">
                                     <a
