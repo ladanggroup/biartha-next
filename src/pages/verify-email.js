@@ -1,4 +1,3 @@
-import ApplicationLogo from '@/components/ApplicationLogo'
 import AuthCard from '@/components/AuthCard'
 import Button from '@/components/Button'
 import GuestLayout from '@/components/Layouts/GuestLayout'
@@ -6,6 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/hooks/auth'
 import { useState } from 'react'
 import LoadingUser from '@/components/LoadingUser'
+import ApplicationLogoText from '@/components/ApplicationLogoText'
 
 const VerifyEmail = () => {
     const { logout, resendEmailVerification } = useAuth({
@@ -23,7 +23,7 @@ const VerifyEmail = () => {
                     <AuthCard
                         logo={
                             <Link href="/">
-                                <ApplicationLogo className="w-20 h-20 fill-current text-gray-500" />
+                                <ApplicationLogoText className="block w-auto h-20" />
                             </Link>
                         }>
                         <div className="mb-4 text-sm text-gray-600">

@@ -1,3 +1,4 @@
+import ApplicationLogoText from '@/components/ApplicationLogoText'
 import React from 'react'
 
 export default function Footer() {
@@ -6,14 +7,7 @@ export default function Footer() {
             <div className="md:flex md:justify-between">
                 <div className="mb-6 md:mb-0">
                     <a href="/" className="flex items-center">
-                        <img
-                            src="https://flowbite.com/docs/images/logo.svg"
-                            className="mr-3 h-8"
-                            alt="FlowBite Logo"
-                        />
-                        <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
-                            {process.env.appName}
-                        </span>
+                        <ApplicationLogoText className="block w-auto h-10" />
                     </a>
                 </div>
                 <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 sm:gap-6">

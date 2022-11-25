@@ -1,4 +1,3 @@
-import ApplicationLogo from '@/components/ApplicationLogo'
 import AuthCard from '@/components/AuthCard'
 import Button from '@/components/Button'
 import GuestLayout from '@/components/Layouts/GuestLayout'
@@ -8,6 +7,7 @@ import Label from '@/components/Label'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/auth'
 import { useState } from 'react'
+import ApplicationLogoText from '@/components/ApplicationLogoText'
 
 const Register = () => {
     const { register } = useAuth({
@@ -38,7 +38,7 @@ const Register = () => {
             <AuthCard
                 logo={
                     <Link href="/">
-                        <ApplicationLogo className="w-20 h-20 fill-current text-gray-500" />
+                        <ApplicationLogoText className="block w-auto h-20" />
                     </Link>
                 }>
                 <form onSubmit={submitForm}>

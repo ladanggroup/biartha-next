@@ -1,4 +1,3 @@
-import ApplicationLogo from '@/components/ApplicationLogo'
 import AuthCard from '@/components/AuthCard'
 import AuthSessionStatus from '@/components/AuthSessionStatus'
 import Button from '@/components/Button'
@@ -9,6 +8,7 @@ import Label from '@/components/Label'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/auth'
 import { useState } from 'react'
+import ApplicationLogoText from '@/components/ApplicationLogoText'
 
 const ForgotPassword = () => {
     const { forgotPassword } = useAuth({ middleware: 'guest' })
@@ -28,7 +28,7 @@ const ForgotPassword = () => {
             <AuthCard
                 logo={
                     <Link href="/">
-                        <ApplicationLogo className="w-20 h-20 fill-current text-gray-500" />
+                        <ApplicationLogoText className="block w-auto h-20" />
                     </Link>
                 }>
                 <div className="mb-4 text-sm text-gray-600">

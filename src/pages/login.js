@@ -1,4 +1,3 @@
-import ApplicationLogo from '@/components/ApplicationLogo'
 import AuthCard from '@/components/AuthCard'
 import AuthSessionStatus from '@/components/AuthSessionStatus'
 import Button from '@/components/Button'
@@ -11,6 +10,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { useAuth } from '@/hooks/auth'
+import ApplicationLogoText from '@/components/ApplicationLogoText'
 
 const Login = () => {
     const router = useRouter()
@@ -51,7 +51,7 @@ const Login = () => {
             <AuthCard
                 logo={
                     <Link href="/">
-                        <ApplicationLogo className="w-20 h-20 fill-current text-gray-500" />
+                        <ApplicationLogoText className="block w-auto h-20" />
                     </Link>
                 }>
                 {/* Session Status */}

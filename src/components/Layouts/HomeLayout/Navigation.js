@@ -1,3 +1,5 @@
+import ApplicationLogo from '@/components/ApplicationLogo'
+import ApplicationLogoText from '@/components/ApplicationLogoText'
 import Link from 'next/dist/client/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
@@ -21,14 +23,10 @@ function Navigation(props) {
             } duration-400 fixed top-0 left-0 z-20 w-full px-2 py-2.5 transition-all  dark:border-gray-600 dark:bg-gray-900 sm:px-4`}>
             <div className="container mx-auto flex flex-wrap items-center justify-between">
                 <a href="https://flowbite.com/" className="flex items-center">
-                    <img
-                        src="https://flowbite.com/docs/images/logo.svg"
-                        className="mr-3 h-6 sm:h-9"
-                        alt="Flowbite Logo"
-                    />
-                    <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+                    <ApplicationLogoText className="block h-10 w-auto" />
+                    {/* <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
                         {process.env.appName}
-                    </span>
+                    </span> */}
                 </a>
                 <div className="flex space-x-2 md:order-2">
                     <Link
