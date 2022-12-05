@@ -11,6 +11,7 @@ import React, { Fragment, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import CreatableSelect from 'react-select/creatable'
 import { useRouter } from 'next/router'
+import InputSelect from '@/components/InputSelect'
 
 export default function create() {
     const { user } = useAuth({ middleware: 'auth' })
@@ -30,6 +31,7 @@ export default function create() {
         contract_start_date: '',
         contract_end_date: '',
         contract_value: '',
+        tenor: '',
         pic_name: '',
         pic_phone: '',
         pic_position: '',
@@ -43,10 +45,11 @@ export default function create() {
         setValidation([])
         const formData = new FormData()
         if (document.loan_id) {
+            formData.append('status', 'PROCCESS')
             formData.append('_method', 'PUT')
             await axios({
                 method: 'POST',
-                url: '/api/loan/' + loan_id,
+                url: '/api/loan/edit/' + loan_id,
                 data: formData,
             })
                 .then(res => {
@@ -75,6 +78,7 @@ export default function create() {
             formData.append('contract_value', loan.contract_value)
             formData.append('pic_name', loan.pic_name)
             formData.append('pic_phone', loan.pic_phone)
+            formData.append('tenor', loan.tenor)
             formData.append('pic_position', loan.pic_position)
             await axios({
                 method: 'POST',
@@ -291,6 +295,9 @@ export default function create() {
                                                                             .value,
                                                                 })
                                                             }
+                                                            value={
+                                                                loan.contract_name
+                                                            }
                                                             error={
                                                                 validation.contract_name && (
                                                                     <span className="text-red-500 text-sm">
@@ -318,6 +325,9 @@ export default function create() {
                                                                             .value,
                                                                 })
                                                             }
+                                                            value={
+                                                                loan.contract_number
+                                                            }
                                                             error={
                                                                 validation.contract_number && (
                                                                     <span className="text-red-500 text-sm">
@@ -343,6 +353,9 @@ export default function create() {
                                                                             .value,
                                                                 })
                                                             }
+                                                            value={
+                                                                loan.contract_start_date
+                                                            }
                                                             error={
                                                                 validation.contract_start_date && (
                                                                     <span className="text-red-500 text-sm">
@@ -367,6 +380,9 @@ export default function create() {
                                                                         e.target
                                                                             .value,
                                                                 })
+                                                            }
+                                                            value={
+                                                                loan.contract_end_date
                                                             }
                                                             error={
                                                                 validation.contract_end_date && (
@@ -395,6 +411,9 @@ export default function create() {
                                                                             .value,
                                                                 })
                                                             }
+                                                            value={
+                                                                loan.contract_value
+                                                            }
                                                             error={
                                                                 validation.contract_value && (
                                                                     <span className="text-red-500 text-sm">
@@ -405,6 +424,40 @@ export default function create() {
                                                                 )
                                                             }
                                                         />
+                                                        <InputSelect
+                                                            id="tenor"
+                                                            label={
+                                                                'Tenor Pinjaman'
+                                                            }
+                                                            placeholder={
+                                                                'Pilih Tenor'
+                                                            }
+                                                            onChange={e =>
+                                                                setLoan({
+                                                                    ...loan,
+                                                                    tenor:
+                                                                        e.target
+                                                                            .value,
+                                                                })
+                                                            }
+                                                            error={
+                                                                validation.tenor && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.tenor
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }>
+                                                            <option value={30}>
+                                                                30 Hari - Bunga
+                                                                1%
+                                                            </option>
+                                                            <option value={60}>
+                                                                60 Hari - Bunga
+                                                                1.5%
+                                                            </option>
+                                                        </InputSelect>
                                                         <InputWithLabel
                                                             id="picName"
                                                             label={'Nama PIC'}
@@ -419,6 +472,9 @@ export default function create() {
                                                                         e.target
                                                                             .value,
                                                                 })
+                                                            }
+                                                            value={
+                                                                loan.pic_name
                                                             }
                                                             error={
                                                                 validation.pic_name && (
@@ -447,6 +503,9 @@ export default function create() {
                                                                             .value,
                                                                 })
                                                             }
+                                                            value={
+                                                                loan.pic_phone
+                                                            }
                                                             error={
                                                                 validation.pic_phone && (
                                                                     <span className="text-red-500 text-sm">
@@ -473,6 +532,9 @@ export default function create() {
                                                                         e.target
                                                                             .value,
                                                                 })
+                                                            }
+                                                            value={
+                                                                loan.pic_position
                                                             }
                                                             error={
                                                                 validation.pic_position && (
@@ -535,7 +597,7 @@ export default function create() {
                                                                 No.
                                                                 {item.number}
                                                             </div>
-                                                            <BtnShow />
+                                                            <BtnShow link={item.file_doc} />
                                                         </div>
                                                     ),
                                                 )}

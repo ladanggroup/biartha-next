@@ -238,8 +238,11 @@ export default function loan() {
                                                             <Link
                                                                 href={{
                                                                     pathname:
-                                                                        '/pinjaman/detail/' +
-                                                                        item.loan_id,
+                                                                        '/pinjaman/detail/',
+                                                                    query: {
+                                                                        loan_id:
+                                                                            item.loan_id,
+                                                                    },
                                                                 }}
                                                                 className="block text-center border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
                                                                 Lihat detail

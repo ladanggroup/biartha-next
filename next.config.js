@@ -26,6 +26,10 @@ const nextConfig = {
                 destination: '/loan/create',
             },
             {
+                source: '/pinjaman/detail',
+                destination: '/loan/detail',
+            },
+            {
                 source: '/akun',
                 destination: '/profile',
             },

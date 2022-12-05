@@ -32,23 +32,30 @@ const Navigation = ({ user }) => {
                         </div>
 
                         {/* Navigation Links */}
-                        <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                            <NavLink
-                                href="/dashboard"
-                                active={router.pathname === '/dashboard'}>
-                                Dashboard
-                            </NavLink>
-                            <NavLink
-                                href="/pinjaman"
-                                active={router.pathname === '/loan'}>
-                                Pinjaman
-                            </NavLink>
-                            <NavLink
-                                href="/akun"
-                                active={router.pathname === '/profile'}>
-                                Kelola Akun
-                            </NavLink>
-                        </div>
+                        {user?.company_id && (
+                            <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                                <NavLink
+                                    href="/dashboard"
+                                    active={router.pathname === '/dashboard'}>
+                                    Dashboard
+                                </NavLink>
+                                <NavLink
+                                    href="/pinjaman"
+                                    active={router.pathname.startsWith(
+                                        '/loan',
+                                    )}>
+                                    Pinjaman
+                                </NavLink>
+
+                                <NavLink
+                                    href="/akun"
+                                    active={router.pathname.startsWith(
+                                        '/profile',
+                                    )}>
+                                    Kelola Akun
+                                </NavLink>
+                            </div>
+                        )}
                     </div>
 
                     {/* Settings Dropdown */}
