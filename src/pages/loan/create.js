@@ -45,7 +45,7 @@ export default function create() {
         setValidation([])
         const formData = new FormData()
         if (document.loan_id) {
-            formData.append('status', 'PROCCESS')
+            formData.append('status', 'LOAN_PROPOSED')
             formData.append('_method', 'PUT')
             await axios({
                 method: 'POST',
@@ -124,7 +124,7 @@ export default function create() {
                 position: toast.POSITION.BOTTOM_RIGHT,
             })
         } else {
-            const folder = 'customer/company/document'
+            const folder = 'customer/loan/document'
             const formData = new FormData()
             formData.append('file', file)
             formData.append('folder', folder)
@@ -597,7 +597,11 @@ export default function create() {
                                                                 No.
                                                                 {item.number}
                                                             </div>
-                                                            <BtnShow link={item.file_doc} />
+                                                            <BtnShow
+                                                                link={
+                                                                    item.file_doc
+                                                                }
+                                                            />
                                                         </div>
                                                     ),
                                                 )}

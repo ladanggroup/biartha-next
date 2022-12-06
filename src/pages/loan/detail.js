@@ -1,13 +1,22 @@
+import InputWithLabel from '@/components/InputWithLabel'
 import AppLayout from '@/components/Layouts/AppLayout'
 import axios from '@/lib/axios'
+import { Dialog, Transition } from '@headlessui/react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
+import React, { Fragment, useEffect } from 'react'
+import { toast } from 'react-toastify'
 
 export default function show() {
     const [loan, setLoan] = React.useState([])
     const [document, setDocument] = React.useState([])
+    const [isOpen, setIsOpen] = React.useState(false)
+    const [validation, setValidation] = React.useState([])
+    const [contract, setContract] = React.useState({
+        contract_file: '',
+        accept: false,
+    })
 
     const router = useRouter()
     const { loan_id } = router.query
@@ -20,6 +29,76 @@ export default function show() {
             setLoan(res.data.data.loan)
             setDocument(res.data.data.loan_document)
         })
+    }
+
+    const toggleModal = async () => {
+        setIsOpen(!isOpen)
+    }
+
+    const uploadFile = async e => {
+        e.preventDefault()
+        const file = e.target.files[0]
+        if (file.size > 5000000) {
+            e.target.value = null
+            toast.error('Ukuran file tidak boleh lebih dari 5mb', {
+                position: toast.POSITION.BOTTOM_RIGHT,
+            })
+        } else if (
+            file.type !== 'image/jpeg' &&
+            file.type !== 'image/png' &&
+            file.type !== 'application/pdf'
+        ) {
+            e.target.value = null
+            toast.error('Format file tidak didukung', {
+                position: toast.POSITION.BOTTOM_RIGHT,
+            })
+        } else {
+            const folder = 'customer/loan/document/contract'
+            const formData = new FormData()
+            formData.append('file', file)
+            formData.append('folder', folder)
+            const res = await axios({
+                method: 'POST',
+                url: '/api/upload-file',
+                data: formData,
+            }).then(res => {
+                setContract({
+                    ...contract,
+                    contract_file: res.data.data.file_url,
+                })
+            })
+        }
+    }
+
+    const handleSubmit = async e => {
+        e.preventDefault()
+        setValidation([])
+        if (contract.accept === true) {
+            const formData = new FormData()
+            formData.append('contract_document', contract.contract_file)
+            formData.append('status', 'LOAN_WAITING_TRANSFERED')
+            formData.append('_method', 'PUT')
+            const res = await axios({
+                method: 'POST',
+                url: '/api/loan/edit/' + loan.loan_id,
+                data: formData,
+            })
+                .then(res => {
+                    toast.success('Data berhasil disimpan', {
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                    })
+                    toggleModal()
+                    getLoan()
+                })
+                .catch(error => {
+                    if (error.response.status !== 422) throw error
+                    setValidation(error.response.data.errors)
+                })
+        } else {
+            toast.error('Anda belum menyetujui Syarat dan Kententuan', {
+                position: toast.POSITION.BOTTOM_RIGHT,
+            })
+        }
     }
 
     useEffect(() => {
@@ -83,14 +162,20 @@ export default function show() {
                                     <span className="font-semibold">
                                         {' '}
                                         {loan.loan_number} (
-                                        {loan.status === 'PROCCESS' &&
+                                        {loan.status === 'LOAN_PROPOSED' &&
                                             'Pengajuan'}
+                                        {loan.status === 'LOAN_APPROVED' &&
+                                            'Disetujui'}
+                                        {loan.status ===
+                                            'LOAN_WAITING_TRANSFERED' &&
+                                            'Pencarian Dana'}
                                         )
                                     </span>
                                 </div>
                             </div>
 
-                            {loan.status === 'LOAN_APPROVED' && (
+                            {(loan.status === 'LOAN_APPROVED' ||
+                                loan.status === 'LOAN_WAITING_TRANSFERED') && (
                                 <div className="mt-4 text-blue-800 bg-blue-50 p-4">
                                     <div>
                                         Pinjaman : Rp.{' '}
@@ -100,7 +185,7 @@ export default function show() {
                                         </span>
                                     </div>
                                     <div>
-                                        Bunga : Rp.
+                                        Bunga : Rp.{' '}
                                         {loan.loan_interest?.toLocaleString()} (
                                         {loan.interest_percentage}%)
                                     </div>
@@ -109,6 +194,14 @@ export default function show() {
                                         {loan.handling_fee?.toLocaleString()}
                                     </div>
                                     <div>Tenor : {loan.tenor} Hari</div>
+                                    <div className="text-xl font-semibold">
+                                        Total : Rp.{' '}
+                                        {(
+                                            loan?.loan_value +
+                                            loan?.loan_interest +
+                                            loan?.handling_fee
+                                        ).toLocaleString()}{' '}
+                                    </div>
                                 </div>
                             )}
 
@@ -176,15 +269,174 @@ export default function show() {
                     <div className="w-72">
                         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                             <div className="text-gray-600 font-bold">Aksi</div>
-                            {loan.status === 'PROCCESS' && (
+                            {(loan.status === 'LOAN_PROPOSED' ||
+                                loan.status === 'LOAN_WAITING_TRANSFERED') && (
                                 <span className="text-gray-500 font-light mt-4">
                                     Tidak ada aksi yang di butuhkan
                                 </span>
+                            )}
+                            {loan.status === 'LOAN_APPROVED' && (
+                                <div className="mt-4 flex flex-col space-y-2">
+                                    <button
+                                        className="bg-blue-200 hover:bg-opacity-75 text-blue-500 py-2 px-4 rounded-full w-full shadow-sm"
+                                        onClick={toggleModal}>
+                                        Terima Pinjaman
+                                    </button>
+                                    <button className="bg-red-200 hover:bg-opacity-75 text-red-500 py-2 px-4 rounded-full w-full shadow-sm">
+                                        Tolak Pinjaman
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
                 </div>
             </AppLayout>
+            <Transition appear show={isOpen} as={Fragment}>
+                <Dialog
+                    open={isOpen}
+                    as="div"
+                    className="relative z-10"
+                    onClose={toggleModal}>
+                    <Transition.Child
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0">
+                        <div className="fixed inset-0 bg-black bg-opacity-25" />
+                    </Transition.Child>
+
+                    <div className="fixed inset-0 overflow-y-auto">
+                        <div className="flex min-h-full items-center justify-center p-4 text-center">
+                            <Transition.Child
+                                as={Fragment}
+                                enter="ease-out duration-300"
+                                enterFrom="opacity-0 scale-95"
+                                enterTo="opacity-100 scale-100"
+                                leave="ease-in duration-200"
+                                leaveFrom="opacity-100 scale-100"
+                                leaveTo="opacity-0 scale-95">
+                                <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                    <Dialog.Title
+                                        as="h3"
+                                        className="text-lg font-medium leading-6 text-gray-900">
+                                        Proses Pinjaman
+                                    </Dialog.Title>
+                                    <form onSubmit={handleSubmit}>
+                                        <div className="mt-2">
+                                            <div className="text-gray-600">
+                                                <div className="border-b-2 border-gray-100 py-2">
+                                                    Pinjaman telah disetujui,
+                                                    silahkan download file PDF
+                                                    berikut dan upload kembali
+                                                    file yang sudah bertanda
+                                                    tangan.
+                                                </div>
+                                                <div className="mt-4">
+                                                    <a
+                                                        href="#"
+                                                        className="text-blue-500 flex">
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none"
+                                                            viewBox="0 0 24 24"
+                                                            strokeWidth={1.5}
+                                                            stroke="currentColor"
+                                                            className="w-6 h-6">
+                                                            <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                d="M9 13.5l3 3m0 0l3-3m-3 3v-6m1.06-4.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
+                                                            />
+                                                        </svg>
+                                                        Download File Kontrak
+                                                    </a>
+                                                </div>
+                                                <div className="mt-4">
+                                                    <InputWithLabel
+                                                        id="cardImage"
+                                                        label={'Upload Dokumen'}
+                                                        type="file"
+                                                        onChange={uploadFile}
+                                                        accept="image/*, .pdf"
+                                                        helper={
+                                                            <p
+                                                                className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                                                                id="file_input_help">
+                                                                PNG, JPG, atau
+                                                                PDF (Maks 5MB)
+                                                            </p>
+                                                        }
+                                                        error={
+                                                            validation.file_doc && (
+                                                                <span className="text-red-500 text-sm">
+                                                                    {
+                                                                        validation.file_doc
+                                                                    }
+                                                                </span>
+                                                            )
+                                                        }
+                                                    />
+                                                    <input
+                                                        hidden
+                                                        type="text"
+                                                        value={
+                                                            contract.contract_file ||
+                                                            ''
+                                                        }
+                                                    />
+                                                </div>
+                                                <div className="mt-4">
+                                                    <div className="flex items-center mb-4">
+                                                        <input
+                                                            onClick={e =>
+                                                                setContract({
+                                                                    ...contract,
+                                                                    accept: true,
+                                                                })
+                                                            }
+                                                            id="default-checkbox"
+                                                            type="checkbox"
+                                                            defaultValue=""
+                                                            className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                        />
+                                                        <label
+                                                            htmlFor="default-checkbox"
+                                                            className="ml-2 text-sm text-gray-500 dark:text-gray-300">
+                                                            Saya telah membaca
+                                                            dan menyetujui{' '}
+                                                            <span className="font-semibold">
+                                                                Syarat dan
+                                                                Ketentuan
+                                                            </span>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-4 flex justify-end space-x-2">
+                                            <button
+                                                type="button"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                                                onClick={toggleModal}>
+                                                Batal
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                Simpan Data
+                                            </button>
+                                        </div>
+                                    </form>
+                                </Dialog.Panel>
+                            </Transition.Child>
+                        </div>
+                    </div>
+                </Dialog>
+            </Transition>
         </div>
     )
 }
