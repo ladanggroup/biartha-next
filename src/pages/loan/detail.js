@@ -1,3 +1,4 @@
+import InputSelect from '@/components/InputSelect'
 import InputWithLabel from '@/components/InputWithLabel'
 import AppLayout from '@/components/Layouts/AppLayout'
 import axios from '@/lib/axios'
@@ -17,6 +18,12 @@ export default function show() {
         contract_file: '',
         accept: false,
     })
+    const [payment, setPayment] = React.useState({
+        payment_method: '',
+        payment_account_no: '',
+        payment_account_name: '',
+        payment_date: '',
+    })
 
     const router = useRouter()
     const { loan_id } = router.query
@@ -24,7 +31,7 @@ export default function show() {
     const getLoan = async () => {
         const res = await axios({
             method: 'GET',
-            url: `/admin/loan/${loan_id}`,
+            url: `/api/loan/${loan_id}`,
         }).then(res => {
             setLoan(res.data.data.loan)
             setDocument(res.data.data.loan_document)
@@ -73,10 +80,44 @@ export default function show() {
     const handleSubmit = async e => {
         e.preventDefault()
         setValidation([])
-        if (contract.accept === true) {
+        if (loan.status === 'LOAN_APPROVED') {
+            if (contract.accept === true) {
+                const formData = new FormData()
+                formData.append('contract_document', contract.contract_file)
+                formData.append('status', 'LOAN_WAITING_TRANSFERED')
+                formData.append('_method', 'PUT')
+                const res = await axios({
+                    method: 'POST',
+                    url: '/api/loan/edit/' + loan.loan_id,
+                    data: formData,
+                })
+                    .then(res => {
+                        toast.success('Data berhasil disimpan', {
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                        })
+                        toggleModal()
+                        getLoan()
+                    })
+                    .catch(error => {
+                        if (error.response.status !== 422) throw error
+                        setValidation(error.response.data.errors)
+                    })
+            } else {
+                toast.error('Anda belum menyetujui Syarat dan Kententuan', {
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                })
+            }
+        } else if (loan.status === 'LOAN_RUNNING') {
             const formData = new FormData()
-            formData.append('contract_document', contract.contract_file)
-            formData.append('status', 'LOAN_WAITING_TRANSFERED')
+            formData.append('payment_method', payment.payment_method)
+            formData.append('payment_account_no', payment.payment_account_no)
+            formData.append(
+                'payment_account_name',
+                payment.payment_account_name,
+            )
+            formData.append('payment_date', payment.payment_date)
+            formData.append('payment_file', contract.payment_file)
+            formData.append('status', 'LOAN_PAYMENT_VERIFY')
             formData.append('_method', 'PUT')
             const res = await axios({
                 method: 'POST',
@@ -94,10 +135,6 @@ export default function show() {
                     if (error.response.status !== 422) throw error
                     setValidation(error.response.data.errors)
                 })
-        } else {
-            toast.error('Anda belum menyetujui Syarat dan Kententuan', {
-                position: toast.POSITION.BOTTOM_RIGHT,
-            })
         }
     }
 
@@ -169,13 +206,16 @@ export default function show() {
                                         {loan.status ===
                                             'LOAN_WAITING_TRANSFERED' &&
                                             'Pencarian Dana'}
+                                        {loan.status === 'LOAN_RUNNING' &&
+                                            'Masa Pinjaman'}
                                         )
                                     </span>
                                 </div>
                             </div>
 
                             {(loan.status === 'LOAN_APPROVED' ||
-                                loan.status === 'LOAN_WAITING_TRANSFERED') && (
+                                loan.status === 'LOAN_WAITING_TRANSFERED' ||
+                                loan.status === 'LOAN_RUNNING') && (
                                 <div className="mt-4 text-blue-800 bg-blue-50 p-4">
                                     <div>
                                         Pinjaman : Rp.{' '}
@@ -287,156 +327,426 @@ export default function show() {
                                     </button>
                                 </div>
                             )}
+                            {loan.status === 'LOAN_RUNNING' && (
+                                <div className="mt-4 flex flex-col space-y-2">
+                                    <button
+                                        className="bg-blue-200 hover:bg-opacity-75 text-blue-500 py-2 px-4 rounded-full w-full shadow-sm"
+                                        onClick={toggleModal}>
+                                        Bayar Pinjaman
+                                    </button>
+                                    <button className="bg-red-200 hover:bg-opacity-75 text-red-500 py-2 px-4 rounded-full w-full shadow-sm">
+                                        Perpanjang
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </AppLayout>
-            <Transition appear show={isOpen} as={Fragment}>
-                <Dialog
-                    open={isOpen}
-                    as="div"
-                    className="relative z-10"
-                    onClose={toggleModal}>
-                    <Transition.Child
-                        as={Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0"
-                        enterTo="opacity-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0">
-                        <div className="fixed inset-0 bg-black bg-opacity-25" />
-                    </Transition.Child>
+            {loan.status === 'LOAN_APPROVED' && (
+                <Transition appear show={isOpen} as={Fragment}>
+                    <Dialog
+                        open={isOpen}
+                        as="div"
+                        className="relative z-10"
+                        onClose={toggleModal}>
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0"
+                            enterTo="opacity-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100"
+                            leaveTo="opacity-0">
+                            <div className="fixed inset-0 bg-black bg-opacity-25" />
+                        </Transition.Child>
 
-                    <div className="fixed inset-0 overflow-y-auto">
-                        <div className="flex min-h-full items-center justify-center p-4 text-center">
-                            <Transition.Child
-                                as={Fragment}
-                                enter="ease-out duration-300"
-                                enterFrom="opacity-0 scale-95"
-                                enterTo="opacity-100 scale-100"
-                                leave="ease-in duration-200"
-                                leaveFrom="opacity-100 scale-100"
-                                leaveTo="opacity-0 scale-95">
-                                <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                    <Dialog.Title
-                                        as="h3"
-                                        className="text-lg font-medium leading-6 text-gray-900">
-                                        Proses Pinjaman
-                                    </Dialog.Title>
-                                    <form onSubmit={handleSubmit}>
-                                        <div className="mt-2">
-                                            <div className="text-gray-600">
-                                                <div className="border-b-2 border-gray-100 py-2">
-                                                    Pinjaman telah disetujui,
-                                                    silahkan download file PDF
-                                                    berikut dan upload kembali
-                                                    file yang sudah bertanda
-                                                    tangan.
-                                                </div>
-                                                <div className="mt-4">
-                                                    <a
-                                                        href="#"
-                                                        className="text-blue-500 flex">
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 24 24"
-                                                            strokeWidth={1.5}
-                                                            stroke="currentColor"
-                                                            className="w-6 h-6">
-                                                            <path
-                                                                strokeLinecap="round"
-                                                                strokeLinejoin="round"
-                                                                d="M9 13.5l3 3m0 0l3-3m-3 3v-6m1.06-4.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
-                                                            />
-                                                        </svg>
-                                                        Download File Kontrak
-                                                    </a>
-                                                </div>
-                                                <div className="mt-4">
-                                                    <InputWithLabel
-                                                        id="cardImage"
-                                                        label={'Upload Dokumen'}
-                                                        type="file"
-                                                        onChange={uploadFile}
-                                                        accept="image/*, .pdf"
-                                                        helper={
-                                                            <p
-                                                                className="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                                                                id="file_input_help">
-                                                                PNG, JPG, atau
-                                                                PDF (Maks 5MB)
-                                                            </p>
-                                                        }
-                                                        error={
-                                                            validation.file_doc && (
-                                                                <span className="text-red-500 text-sm">
-                                                                    {
-                                                                        validation.file_doc
-                                                                    }
-                                                                </span>
-                                                            )
-                                                        }
-                                                    />
-                                                    <input
-                                                        hidden
-                                                        type="text"
-                                                        value={
-                                                            contract.contract_file ||
-                                                            ''
-                                                        }
-                                                    />
-                                                </div>
-                                                <div className="mt-4">
-                                                    <div className="flex items-center mb-4">
-                                                        <input
-                                                            onClick={e =>
-                                                                setContract({
-                                                                    ...contract,
-                                                                    accept: true,
-                                                                })
+                        <div className="fixed inset-0 overflow-y-auto">
+                            <div className="flex min-h-full items-center justify-center p-4 text-center">
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0 scale-95"
+                                    enterTo="opacity-100 scale-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100 scale-100"
+                                    leaveTo="opacity-0 scale-95">
+                                    <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                        <Dialog.Title
+                                            as="h3"
+                                            className="text-lg font-medium leading-6 text-gray-900">
+                                            Proses Pinjaman
+                                        </Dialog.Title>
+                                        <form onSubmit={handleSubmit}>
+                                            <div className="mt-2">
+                                                <div className="text-gray-600">
+                                                    <div className="border-b-2 border-gray-100 py-2">
+                                                        Pinjaman telah
+                                                        disetujui, silahkan
+                                                        download file PDF
+                                                        berikut dan upload
+                                                        kembali file yang sudah
+                                                        bertanda tangan.
+                                                    </div>
+                                                    <div className="mt-4">
+                                                        <a
+                                                            href="#"
+                                                            className="text-blue-500 flex">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                                strokeWidth={
+                                                                    1.5
+                                                                }
+                                                                stroke="currentColor"
+                                                                className="w-6 h-6">
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    d="M9 13.5l3 3m0 0l3-3m-3 3v-6m1.06-4.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
+                                                                />
+                                                            </svg>
+                                                            Download File
+                                                            Kontrak
+                                                        </a>
+                                                    </div>
+                                                    <div className="mt-4">
+                                                        <InputWithLabel
+                                                            id="cardImage"
+                                                            label={
+                                                                'Upload Dokumen'
                                                             }
-                                                            id="default-checkbox"
-                                                            type="checkbox"
-                                                            defaultValue=""
-                                                            className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                            type="file"
+                                                            onChange={
+                                                                uploadFile
+                                                            }
+                                                            accept="image/*, .pdf"
+                                                            helper={
+                                                                <p
+                                                                    className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                                                                    id="file_input_help">
+                                                                    PNG, JPG,
+                                                                    atau PDF
+                                                                    (Maks 5MB)
+                                                                </p>
+                                                            }
+                                                            error={
+                                                                validation.file_doc && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.file_doc
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }
                                                         />
-                                                        <label
-                                                            htmlFor="default-checkbox"
-                                                            className="ml-2 text-sm text-gray-500 dark:text-gray-300">
-                                                            Saya telah membaca
-                                                            dan menyetujui{' '}
-                                                            <span className="font-semibold">
-                                                                Syarat dan
-                                                                Ketentuan
-                                                            </span>
-                                                        </label>
+                                                        <input
+                                                            hidden
+                                                            type="text"
+                                                            value={
+                                                                contract.contract_file ||
+                                                                ''
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div className="mt-4">
+                                                        <div className="flex items-center mb-4">
+                                                            <input
+                                                                onClick={e =>
+                                                                    setContract(
+                                                                        {
+                                                                            ...contract,
+                                                                            accept: true,
+                                                                        },
+                                                                    )
+                                                                }
+                                                                id="default-checkbox"
+                                                                type="checkbox"
+                                                                defaultValue=""
+                                                                className="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                                            />
+                                                            <label
+                                                                htmlFor="default-checkbox"
+                                                                className="ml-2 text-sm text-gray-500 dark:text-gray-300">
+                                                                Saya telah
+                                                                membaca dan
+                                                                menyetujui{' '}
+                                                                <span className="font-semibold">
+                                                                    Syarat dan
+                                                                    Ketentuan
+                                                                </span>
+                                                            </label>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <div className="mt-4 flex justify-end space-x-2">
-                                            <button
-                                                type="button"
-                                                className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-                                                onClick={toggleModal}>
-                                                Batal
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-                                                Simpan Data
-                                            </button>
-                                        </div>
-                                    </form>
-                                </Dialog.Panel>
-                            </Transition.Child>
+                                            <div className="mt-4 flex justify-end space-x-2">
+                                                <button
+                                                    type="button"
+                                                    className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                                                    onClick={toggleModal}>
+                                                    Batal
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                    Simpan Data
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </Dialog.Panel>
+                                </Transition.Child>
+                            </div>
                         </div>
-                    </div>
-                </Dialog>
-            </Transition>
+                    </Dialog>
+                </Transition>
+            )}
+            {loan.status === 'LOAN_RUNNING' && (
+                <Transition appear show={isOpen} as={Fragment}>
+                    <Dialog
+                        open={isOpen}
+                        as="div"
+                        className="relative z-10"
+                        onClose={toggleModal}>
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0"
+                            enterTo="opacity-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100"
+                            leaveTo="opacity-0">
+                            <div className="fixed inset-0 bg-black bg-opacity-25" />
+                        </Transition.Child>
+
+                        <div className="fixed inset-0 overflow-y-auto">
+                            <div className="flex min-h-full items-center justify-center p-4 text-center">
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0 scale-95"
+                                    enterTo="opacity-100 scale-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100 scale-100"
+                                    leaveTo="opacity-0 scale-95">
+                                    <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                        <Dialog.Title
+                                            as="h3"
+                                            className="text-lg font-medium leading-6 text-gray-900">
+                                            Bayar Pinjaman
+                                        </Dialog.Title>
+                                        <form onSubmit={handleSubmit}>
+                                            <div className="mt-2">
+                                                <div className="text-gray-600">
+                                                    <div className="border-b-2 border-gray-100 py-2">
+                                                        Tagihan :{' '}
+                                                        <span className="font-semibold">
+                                                            {' '}
+                                                            Rp.{' '}
+                                                            {(
+                                                                loan?.loan_value +
+                                                                loan?.loan_interest +
+                                                                loan?.handling_fee
+                                                            ).toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                    <div className="mt-4 flex flex-col space-y-4">
+                                                        <InputSelect
+                                                            id="payment_method"
+                                                            label={
+                                                                'Pilih Metode Pembayaran'
+                                                            }
+                                                            placeholder={
+                                                                'Pilih Metode Pembayaran'
+                                                            }
+                                                            error={
+                                                                validation.payment_method && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.payment_method
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }
+                                                            onChange={e =>
+                                                                setPayment({
+                                                                    ...payment,
+                                                                    payment_method:
+                                                                        e.target
+                                                                            .value,
+                                                                })
+                                                            }>
+                                                            <option value="Bank Jatim">
+                                                                Bank Jatim -
+                                                                1234567890 - a/n
+                                                                PT. Biartha
+                                                            </option>
+                                                            <option value="Bank Jateng">
+                                                                Bank Jateng -
+                                                                1234567890 - a/n
+                                                                PT. Biartha
+                                                            </option>
+                                                        </InputSelect>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <InputWithLabel
+                                                                id="paymentAccountName"
+                                                                label={
+                                                                    'Nama Bank Pengirim'
+                                                                }
+                                                                placeholder={
+                                                                    'PT Langgeng Jaya'
+                                                                }
+                                                                type="text"
+                                                                onChange={e =>
+                                                                    setPayment({
+                                                                        ...payment,
+                                                                        payment_account_name:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    payment.payment_account_name
+                                                                }
+                                                                error={
+                                                                    validation.payment_account_name && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.payment_account_name
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            />
+                                                            <InputWithLabel
+                                                                id="paymentAccountNumber"
+                                                                label={
+                                                                    'Nomor Bank Pengirim'
+                                                                }
+                                                                placeholder={
+                                                                    '1234567890'
+                                                                }
+                                                                type="number"
+                                                                onChange={e =>
+                                                                    setPayment({
+                                                                        ...payment,
+                                                                        payment_account_no:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    payment.payment_account_no
+                                                                }
+                                                                error={
+                                                                    validation.payment_account_no && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.payment_account_no
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            />
+                                                            <InputWithLabel
+                                                                id="paymentTransferDate"
+                                                                label={
+                                                                    'Tanggal Transfer'
+                                                                }
+                                                                type="date"
+                                                                onChange={e =>
+                                                                    setPayment({
+                                                                        ...payment,
+                                                                        payment_date:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    payment.payment_date
+                                                                }
+                                                                error={
+                                                                    validation.payment_date && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.payment_date
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            />
+                                                            <InputWithLabel
+                                                                id="cardImage"
+                                                                label={
+                                                                    'Upload Bukti Bayar'
+                                                                }
+                                                                type="file"
+                                                                onChange={
+                                                                    uploadFile
+                                                                }
+                                                                defaultValue=""
+                                                                accept="image/*, .pdf"
+                                                                helper={
+                                                                    <p
+                                                                        className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                                                                        id="file_input_help">
+                                                                        PNG,
+                                                                        JPG,
+                                                                        atau PDF
+                                                                        (Maks
+                                                                        5MB)
+                                                                    </p>
+                                                                }
+                                                                error={
+                                                                    validation.file_doc && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.file_doc
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            />
+                                                        </div>
+
+                                                        <input
+                                                            hidden
+                                                            type="text"
+                                                            value={
+                                                                contract.payment_file ||
+                                                                ''
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4 flex justify-end space-x-2">
+                                                <button
+                                                    type="button"
+                                                    className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                                                    onClick={toggleModal}>
+                                                    Batal
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                    Simpan Data
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </Dialog.Panel>
+                                </Transition.Child>
+                            </div>
+                        </div>
+                    </Dialog>
+                </Transition>
+            )}
         </div>
     )
 }

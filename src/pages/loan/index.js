@@ -18,6 +18,7 @@ export default function loan() {
             setLoan(response.data.data)
         })
     }
+
     useEffect(() => {
         getLoan()
     }, [])
@@ -80,41 +81,41 @@ export default function loan() {
                                 <div className="w-full space-y-4">
                                     <div className="h-fit overflow-hidden rounded-lg bg-white shadow-sm">
                                         <div className="px-4 pt-4">
-                                            <div class="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
-                                                <ul class="flex flex-wrap -mb-px">
-                                                    <li class="mr-2">
+                                            <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+                                                <ul className="flex flex-wrap -mb-px">
+                                                    <li className="mr-2">
                                                         <a
                                                             href="#"
-                                                            class="inline-block p-4 text-blue-600 rounded-t-lg border-b-2 border-blue-600 active dark:text-blue-500 dark:border-blue-500">
+                                                            className="inline-block p-4 text-blue-600 rounded-t-lg border-b-2 border-blue-600 active dark:text-blue-500 dark:border-blue-500">
                                                             Semua
                                                         </a>
                                                     </li>
-                                                    <li class="mr-2">
+                                                    <li className="mr-2">
                                                         <a
                                                             href="#"
-                                                            class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                                                            className="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
                                                             aria-current="page">
                                                             Pengajuan
                                                         </a>
                                                     </li>
-                                                    <li class="mr-2">
+                                                    <li className="mr-2">
                                                         <a
                                                             href="#"
-                                                            class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">
+                                                            className="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">
                                                             Disetujui
                                                         </a>
                                                     </li>
-                                                    <li class="mr-2">
+                                                    <li className="mr-2">
                                                         <a
                                                             href="#"
-                                                            class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">
+                                                            className="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">
                                                             Ditolak
                                                         </a>
                                                     </li>
-                                                    <li class="mr-2">
+                                                    <li className="mr-2">
                                                         <a
                                                             href="#"
-                                                            class="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">
+                                                            className="inline-block p-4 rounded-t-lg border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300">
                                                             Lunas
                                                         </a>
                                                     </li>
@@ -222,6 +223,31 @@ export default function loan() {
                                                                 </div>
                                                             )}
                                                             {item.status ===
+                                                                'LOAN_RUNNING' && (
+                                                                <div className="flex space-x-1 text-sm text-gray-600">
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        fill="none"
+                                                                        viewBox="0 0 24 24"
+                                                                        strokeWidth={
+                                                                            1.5
+                                                                        }
+                                                                        stroke="currentColor"
+                                                                        className="w-5 h-5">
+                                                                        <path
+                                                                            strokeLinecap="round"
+                                                                            strokeLinejoin="round"
+                                                                            d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"
+                                                                        />
+                                                                    </svg>
+
+                                                                    <div>
+                                                                        Masa
+                                                                        Pinjaman
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            {item.status ===
                                                                 'PAID' && (
                                                                 <div className="flex space-x-1 text-sm text-green-500">
                                                                     <svg
@@ -245,10 +271,11 @@ export default function loan() {
                                                             )}
                                                         </div>
                                                         <div className="text-sm text-gray-700">
-                                                            Jatuh tempo{' '}
+                                                            Mulai Pinjaman :{' '}
                                                             <span className="text-primary">
-                                                                {loan.loan_date +
-                                                                    loan.tenor}
+                                                                {item.loan_date
+                                                                    ? item.loan_date
+                                                                    : '-'}
                                                             </span>
                                                             <div className="text-secondary my-2 text-xl font-semibold">
                                                                 {item.loan_value
