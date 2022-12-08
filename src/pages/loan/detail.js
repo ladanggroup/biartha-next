@@ -208,6 +208,9 @@ export default function show() {
                                             'Pencarian Dana'}
                                         {loan.status === 'LOAN_RUNNING' &&
                                             'Masa Pinjaman'}
+                                        {loan.status ===
+                                            'LOAN_PAYMENT_VERIFY' &&
+                                            'Verifikasi Pembayaran'}
                                         )
                                     </span>
                                 </div>
@@ -215,7 +218,8 @@ export default function show() {
 
                             {(loan.status === 'LOAN_APPROVED' ||
                                 loan.status === 'LOAN_WAITING_TRANSFERED' ||
-                                loan.status === 'LOAN_RUNNING') && (
+                                loan.status === 'LOAN_RUNNING' ||
+                                loan.status === 'LOAN_PAYMENT_VERIFY') && (
                                 <div className="mt-4 text-blue-800 bg-blue-50 p-4">
                                     <div>
                                         Pinjaman : Rp.{' '}
@@ -310,7 +314,8 @@ export default function show() {
                         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                             <div className="text-gray-600 font-bold">Aksi</div>
                             {(loan.status === 'LOAN_PROPOSED' ||
-                                loan.status === 'LOAN_WAITING_TRANSFERED') && (
+                                loan.status === 'LOAN_WAITING_TRANSFERED' ||
+                                loan.status === 'LOAN_PAYMENT_VERIFY') && (
                                 <span className="text-gray-500 font-light mt-4">
                                     Tidak ada aksi yang di butuhkan
                                 </span>
