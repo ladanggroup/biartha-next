@@ -98,7 +98,7 @@ const Register = () => {
                     {/* Confirm Password */}
                     <div className="mt-4">
                         <Label htmlFor="passwordConfirmation">
-                            Confirm Password
+                            Ulangi Password
                         </Label>
 
                         <Input
@@ -122,10 +122,10 @@ const Register = () => {
                         <Link
                             href="/login"
                             className="underline text-sm text-gray-600 hover:text-gray-900">
-                            Already registered?
+                            Sudah terdaftar? Masuk disini
                         </Link>
 
-                        <Button className="ml-4">Register</Button>
+                        <Button className="ml-4">DAFTAR</Button>
                     </div>
                 </form>
             </AuthCard>

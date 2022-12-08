@@ -120,11 +120,19 @@ const Login = () => {
                         <Link
                             href="/forgot-password"
                             className="underline text-sm text-gray-600 hover:text-gray-900">
-                            Forgot your password?
+                            Lupa password Anda?
                         </Link>
 
                         <Button className="ml-3">Login</Button>
                     </div>
+                    <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+                        Belum punya akun?{' '}
+                        <Link
+                            href="/register"
+                            class="font-semibold text-blue-600 hover:underline dark:text-blue-500">
+                            Buat akun sekarang
+                        </Link>
+                    </p>
                 </form>
             </AuthCard>
         </GuestLayout>

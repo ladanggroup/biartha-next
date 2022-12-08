@@ -32,9 +32,10 @@ const ForgotPassword = () => {
                     </Link>
                 }>
                 <div className="mb-4 text-sm text-gray-600">
-                    Forgot your password? No problem. Just let us know your
-                    email address and we will email you a password reset link
-                    that will allow you to choose a new one.
+                    Lupa kata sandi Anda? Tidak masalah. Beri tahu kami alamat
+                    email Anda dan kami akan mengirimi Anda tautan setel ulang
+                    kata sandi melalui email yang memungkinkan Anda memilih yang
+                    baru.
                 </div>
 
                 {/* Session Status */}
@@ -58,7 +59,27 @@ const ForgotPassword = () => {
                         <InputError messages={errors.email} className="mt-2" />
                     </div>
 
-                    <div className="flex items-center justify-end mt-4">
+                    <div className="flex items-center justify-between mt-4">
+                        <div>
+                            <Link
+                                href="/login"
+                                className="underline text-sm text-gray-600 hover:text-gray-900 flex">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="w-5 h-5">
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M15.75 19.5L8.25 12l7.5-7.5"
+                                    />
+                                </svg>
+                                Kembali
+                            </Link>
+                        </div>
                         <Button>Email Password Reset Link</Button>
                     </div>
                 </form>

@@ -16,11 +16,13 @@ export default function Home() {
             </Head>
             <AppLayout>
                 {/* hero */}
-                <div className="relative h-full w-screen overflow-hidden">
+                <div
+                    className="relative h-full w-screen overflow-hidden"
+                    id="home">
                     <div className="flex h-screen items-center">
                         <img
                             className="absolute inset-0 h-full w-full object-cover"
-                            src="/banner1.png"
+                            src="/banner1-min.png"
                             alt=""
                         />
                         {/* <div className="absolute inset-0 bg-gray-900 bg-opacity-75"></div> */}
@@ -41,7 +43,7 @@ export default function Home() {
                                     </a>
                                     <Link
                                         href="/register"
-                                        className="border-primary bg-primary rounded-full border-2 py-1 px-4 text-center font-medium tracking-wide text-white shadow-lg">
+                                        className="border-primary hover:bg-opacity-75 bg-primary rounded-full border-2 py-1 px-4 text-center font-medium tracking-wide text-white shadow-lg">
                                         Daftar Sekarang
                                     </Link>
                                 </div>
@@ -50,13 +52,13 @@ export default function Home() {
                     </div>
                 </div>
 
-                <div className="h-full w-screen space-y-24 py-16 px-6">
+                <div className="h-full w-screen space-y-24 pt-16 px-6">
                     <div className="flex flex-col justify-between space-x-0 space-y-2 md:flex-row md:space-x-4 md:space-y-0 md:px-16">
                         <div className="flex max-w-sm flex-col justify-center rounded-lg p-6 shadow-md hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                             <img
-                                src="/icon-money.svg"
+                                src="/icon-money.png"
                                 alt=""
-                                className="h-28 w-auto"
+                                className="h-28 w-auto mx-auto"
                             />
                             <div className="text-center">
                                 <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -70,11 +72,11 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <div className="flex max-w-sm flex-col justify-center rounded-lg p-6 shadow-md hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+                        <div className=" flex max-w-sm flex-col justify-center rounded-lg p-6 shadow-md hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                             <img
-                                src="/icon-money2.svg"
+                                src="/icon-money2.png"
                                 alt=""
-                                className="h-28 w-auto"
+                                className="h-28 w-auto mx-auto"
                             />
                             <div className="text-center">
                                 <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -90,9 +92,9 @@ export default function Home() {
 
                         <div className="flex max-w-sm flex-col justify-center rounded-lg p-6 shadow-md hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
                             <img
-                                src="/icon-money3.svg"
+                                src="/icon-money3.png"
                                 alt=""
-                                className="h-28 w-auto"
+                                className="h-28 w-auto mx-auto"
                             />
                             <div className="text-center">
                                 <h5 className="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
@@ -106,41 +108,42 @@ export default function Home() {
                             </div>
                         </div>
                     </div>
-
-                    <div className="grid grid-cols-1 bg-white md:grid-cols-2 md:space-x-4 md:px-16">
-                        <div className="order-2 space-y-4 md:order-1 md:pr-20">
-                            <div className="border-primary rounded-l-md border-l-4 pl-2 text-2xl font-bold text-gray-800">
-                                Biartha adalah fintech yang terdaftar resmi dan
-                                sudah menjadi{' '}
-                                <span className="text-primary text-3xl">
-                                    mitra permodalan terpercaya
-                                </span>{' '}
-                                untuk untuk para UMKM
+                    <div id="about" className="py-20">
+                        <div className="grid grid-cols-1 bg-white md:grid-cols-2 md:space-x-4 md:px-16">
+                            <div className="order-2 space-y-4 md:order-1 md:pr-20">
+                                <div className="border-primary rounded-l-md border-l-4 pl-2 text-2xl font-bold text-gray-800">
+                                    Biartha adalah fintech yang terdaftar resmi
+                                    dan sudah menjadi{' '}
+                                    <span className="text-primary text-3xl">
+                                        mitra permodalan terpercaya
+                                    </span>{' '}
+                                    untuk untuk para UMKM
+                                </div>
+                                <div className="text-gray-600">
+                                    Lorem, ipsum dolor sit amet consectetur
+                                    adipisicing elit. Laboriosam consequuntur
+                                    quisquam voluptas dolor eos. Quidem commodi
+                                    fugiat temporibus impedit iure
+                                    necessitatibus perferendis fugit tempore
+                                    repudiandae rem, rerum natus quas debitis
+                                    assumenda sed? Eius repudiandae deserunt quo
+                                    laborum amet delectus eos. Itaque nemo
+                                    aspernatur natus earum modi excepturi,
+                                    corrupti ea quam quas recusandae ad
+                                    perferendis facilis illum? Fugiat iusto ipsa
+                                    dolore, ratione animi vitae aperiam et ullam
+                                    iure recusandae provident.
+                                </div>
                             </div>
-                            <div className="text-gray-600">
-                                Lorem, ipsum dolor sit amet consectetur
-                                adipisicing elit. Laboriosam consequuntur
-                                quisquam voluptas dolor eos. Quidem commodi
-                                fugiat temporibus impedit iure necessitatibus
-                                perferendis fugit tempore repudiandae rem, rerum
-                                natus quas debitis assumenda sed? Eius
-                                repudiandae deserunt quo laborum amet delectus
-                                eos. Itaque nemo aspernatur natus earum modi
-                                excepturi, corrupti ea quam quas recusandae ad
-                                perferendis facilis illum? Fugiat iusto ipsa
-                                dolore, ratione animi vitae aperiam et ullam
-                                iure recusandae provident.
+                            <div className="order-1 mb-4 flex justify-end md:order-2 md:mb-0">
+                                <img
+                                    src="/caracter.png"
+                                    alt=""
+                                    className="w-full"
+                                />
                             </div>
-                        </div>
-                        <div className="order-1 mb-4 flex justify-end md:order-2 md:mb-0">
-                            <img
-                                src="/caracter.svg"
-                                alt=""
-                                className="w-full"
-                            />
                         </div>
                     </div>
-
                     <div className="bg-primary mt-10 space-y-4 rounded-lg px-4 pt-10 pb-10 md:mx-16 md:space-y-10 md:px-28 md:pb-20">
                         <div className="text-center text-2xl font-semibold text-white md:text-4xl">
                             Kami Siap Membantu Bisnis Anda
@@ -176,7 +179,9 @@ export default function Home() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 space-x-0 space-y-2 md:grid-cols-2 md:flex-row md:space-x-4 md:space-y-0 md:p-16">
+                    <div
+                        className="grid grid-cols-1 space-x-0 space-y-2 md:grid-cols-2 md:flex-row md:space-x-4 md:space-y-0 md:p-16"
+                        id="services">
                         <div className="col-span-2 mb-4 text-center md:mb-16">
                             <div className="text-4xl font-bold text-gray-800">
                                 FAQ
@@ -188,7 +193,7 @@ export default function Home() {
                         </div>
                         <div className="">
                             <img
-                                src="/caracter3.svg"
+                                src="/caracter3.png"
                                 alt=""
                                 className="w-full"
                             />

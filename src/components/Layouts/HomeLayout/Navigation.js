@@ -2,10 +2,12 @@ import ApplicationLogo from '@/components/ApplicationLogo'
 import ApplicationLogoText from '@/components/ApplicationLogoText'
 import Link from 'next/dist/client/link'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 function Navigation(props) {
     const [colorChange, setColorchange] = useState(false)
     const [open, setOpen] = useState(false)
+    const router = useRouter()
     const changeNavbarColor = () => {
         if (window.scrollY >= 80) {
             setColorchange(true)
@@ -15,6 +17,13 @@ function Navigation(props) {
     }
     if (typeof window === 'object') {
         window.addEventListener('scroll', changeNavbarColor)
+    }
+    const handleClickScroll = targetElement => {
+        const element = document.getElementById(targetElement)
+        if (element) {
+            // 👇 Will scroll smoothly to the top of the next section
+            element.scrollIntoView({ behavior: 'smooth' })
+        }
     }
     return (
         <nav
@@ -63,26 +72,30 @@ function Navigation(props) {
                     id="navbar-sticky">
                     <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:text-sm md:font-medium md:dark:bg-gray-900">
                         <li>
-                            <a
-                                href="#"
+                            <button
+                                onClick={() => handleClickScroll('home')}
                                 className="block rounded bg-blue-700 py-2 pr-4 pl-3 text-white dark:text-white md:bg-transparent md:p-0 md:text-blue-700"
                                 aria-current="page">
                                 Home
-                            </a>
+                            </button>
                         </li>
                         <li>
-                            <a
-                                href="#"
-                                className="block rounded py-2 pr-4 pl-3 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:p-0 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-white">
+                            <button
+                                onClick={() => handleClickScroll('about')}
+                                className={`${
+                                    router.asPath === '/#about'
+                                        ? 'bg-blue-700 text-white'
+                                        : ''
+                                }block rounded py-2 pr-4 pl-3 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:p-0 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-white`}>
                                 Tentang Kami
-                            </a>
+                            </button>
                         </li>
                         <li>
-                            <a
-                                href="#"
+                            <button
+                                onClick={() => handleClickScroll('services')}
                                 className="block rounded py-2 pr-4 pl-3 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:p-0 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-white">
                                 Layanan
-                            </a>
+                            </button>
                         </li>
                         <li>
                             <a
