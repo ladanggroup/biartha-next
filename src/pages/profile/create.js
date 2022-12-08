@@ -51,10 +51,10 @@ export default function createCompany() {
                 url: `/api/company`,
                 data: formData,
             }).then(res => {
-                router.push('/akun')
                 toast.success(res.data.message, {
                     position: toast.POSITION.BOTTOM_RIGHT,
                 })
+                window.location.reload()
             })
         } catch (err) {
             setValidation(err.response.data.errors)
@@ -93,6 +93,9 @@ export default function createCompany() {
     }
     useEffect(() => {
         getPronvince()
+        if (user?.company_id) {
+            router.push('/dashboard')
+        }
     }, [])
     return (
         <AppLayout
@@ -249,12 +252,13 @@ export default function createCompany() {
                                     id="provinceId"
                                     label={'Provinsi'}
                                     placeholder={'Pilih Provinsi'}
-                                    onChange={e =>
+                                    onChange={e => {
                                         setCompany({
                                             ...company,
                                             companyProvinceId: e.target.value,
                                         })
-                                    }
+                                        getCity(e.target.value)
+                                    }}
                                     error={
                                         validation.province_id && (
                                             <span className="text-red-500 text-sm">
@@ -263,12 +267,7 @@ export default function createCompany() {
                                         )
                                     }>
                                     {province.map((item, index) => (
-                                        <option
-                                            key={index}
-                                            value={item.id}
-                                            onClick={e =>
-                                                getCity(e.target.value)
-                                            }>
+                                        <option key={index} value={item.id}>
                                             {item.name}
                                         </option>
                                     ))}
@@ -278,12 +277,13 @@ export default function createCompany() {
                                     id="cityId"
                                     label={'Kabupaten/Kota'}
                                     placeholder={'Pilih Kabupaten/Kota'}
-                                    onChange={e =>
+                                    onChange={e => {
                                         setCompany({
                                             ...company,
                                             companyCityId: e.target.value,
                                         })
-                                    }
+                                        getDistrict(e.target.value)
+                                    }}
                                     error={
                                         validation.city_id && (
                                             <span className="text-red-500 text-sm">
@@ -292,12 +292,7 @@ export default function createCompany() {
                                         )
                                     }>
                                     {city.map((item, index) => (
-                                        <option
-                                            key={index}
-                                            value={item.id}
-                                            onClick={e =>
-                                                getDistrict(e.target.value)
-                                            }>
+                                        <option key={index} value={item.id}>
                                             {item.name}
                                         </option>
                                     ))}

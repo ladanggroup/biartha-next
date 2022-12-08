@@ -463,12 +463,16 @@ export default function CompanyDetail() {
                                                             placeholder={
                                                                 'Pilih Provinsi'
                                                             }
-                                                            onChange={e =>
+                                                            onChange={e => {
                                                                 setCompanyProvinceId(
                                                                     e.target
                                                                         .value,
                                                                 )
-                                                            }
+                                                                getCity(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }}
                                                             value={
                                                                 companyProvinceId
                                                             }>
@@ -483,13 +487,6 @@ export default function CompanyDetail() {
                                                                         }
                                                                         value={
                                                                             item.id
-                                                                        }
-                                                                        onClick={e =>
-                                                                            getCity(
-                                                                                e
-                                                                                    .target
-                                                                                    .value,
-                                                                            )
                                                                         }>
                                                                         {
                                                                             item.name
@@ -507,12 +504,16 @@ export default function CompanyDetail() {
                                                             placeholder={
                                                                 'Pilih Kabupaten/Kota'
                                                             }
-                                                            onChange={e =>
+                                                            onChange={e => {
                                                                 setCompanyCityId(
                                                                     e.target
                                                                         .value,
                                                                 )
-                                                            }
+                                                                getDistrict(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }}
                                                             value={
                                                                 companyCityId
                                                             }>
@@ -527,13 +528,6 @@ export default function CompanyDetail() {
                                                                         }
                                                                         value={
                                                                             item.id
-                                                                        }
-                                                                        onClick={e =>
-                                                                            getDistrict(
-                                                                                e
-                                                                                    .target
-                                                                                    .value,
-                                                                            )
                                                                         }>
                                                                         {
                                                                             item.name
