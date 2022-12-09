@@ -23,7 +23,7 @@ export default function InputWithLabel({
                 value={value}
                 {...props}
             />
-            {helper}
+            <small className="text-gray-500">{helper}</small>
             {error}
         </div>
     )

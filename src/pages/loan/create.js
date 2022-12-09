@@ -414,6 +414,12 @@ export default function create() {
                                                             value={
                                                                 loan.contract_value
                                                             }
+                                                            helper={
+                                                                'Rp. ' +
+                                                                Number(
+                                                                    loan?.contract_value,
+                                                                ).toLocaleString()
+                                                            }
                                                             error={
                                                                 validation.contract_value && (
                                                                     <span className="text-red-500 text-sm">

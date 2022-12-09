@@ -1,6 +1,7 @@
 import InputSelect from '@/components/InputSelect'
 import InputWithLabel from '@/components/InputWithLabel'
 import AppLayout from '@/components/Layouts/AppLayout'
+import Loading from '@/components/Loading'
 import axios from '@/lib/axios'
 import { Dialog, Transition } from '@headlessui/react'
 import Head from 'next/head'
@@ -24,17 +25,19 @@ export default function show() {
         payment_account_name: '',
         payment_date: '',
     })
-
+    const [loading, setLoading] = React.useState(false)
     const router = useRouter()
-    const { loan_id } = router.query
+    const { id } = router.query
 
     const getLoan = async () => {
+        setLoading(true)
         const res = await axios({
             method: 'GET',
-            url: `/api/loan/${loan_id}`,
+            url: `/api/loan/${id}`,
         }).then(res => {
             setLoan(res.data.data.loan)
             setDocument(res.data.data.loan_document)
+            setLoading(false)
         })
     }
 
@@ -125,7 +128,7 @@ export default function show() {
                 data: formData,
             })
                 .then(res => {
-                    toast.success('Data berhasil disimpan', {
+                    toast.success(res.data.message, {
                         position: toast.POSITION.BOTTOM_RIGHT,
                     })
                     toggleModal()
@@ -138,6 +141,28 @@ export default function show() {
         }
     }
 
+    const handleReject = async e => {
+        e.preventDefault()
+        const formData = new FormData()
+        formData.append('status', 'LOAN_REJECTED')
+        formData.append('_method', 'PUT')
+        const res = await axios({
+            method: 'POST',
+            url: '/api/loan/edit/' + loan.loan_id,
+            data: formData,
+        })
+            .then(res => {
+                toast.success(res.data.message, {
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                })
+                getLoan()
+            })
+            .catch(error => {
+                toast.error(error.data.message, {
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                })
+            })
+    }
     useEffect(() => {
         if (!router.isReady) return
         getLoan()
@@ -190,163 +215,172 @@ export default function show() {
                         </div>
                     </h2>
                 }>
-                <div className="py-12 mx-auto flex max-w-7xl space-x-4 sm:px-6 lg:px-8">
-                    <div className="w-full">
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div>
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <div className="py-12 mx-auto flex max-w-7xl space-x-4 sm:px-6 lg:px-8">
+                        <div className="w-full">
+                            <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                                 <div>
-                                    Detail Pinjaman :{' '}
-                                    <span className="font-semibold">
-                                        {' '}
-                                        {loan.loan_number} (
-                                        {loan.status === 'LOAN_PROPOSED' &&
-                                            'Pengajuan'}
-                                        {loan.status === 'LOAN_APPROVED' &&
-                                            'Disetujui'}
-                                        {loan.status ===
-                                            'LOAN_WAITING_TRANSFERED' &&
-                                            'Pencarian Dana'}
-                                        {loan.status === 'LOAN_RUNNING' &&
-                                            'Masa Pinjaman'}
-                                        {loan.status ===
-                                            'LOAN_PAYMENT_VERIFY' &&
-                                            'Verifikasi Pembayaran'}
-                                        )
-                                    </span>
-                                </div>
-                            </div>
-
-                            {(loan.status === 'LOAN_APPROVED' ||
-                                loan.status === 'LOAN_WAITING_TRANSFERED' ||
-                                loan.status === 'LOAN_RUNNING' ||
-                                loan.status === 'LOAN_PAYMENT_VERIFY') && (
-                                <div className="mt-4 text-blue-800 bg-blue-50 p-4">
                                     <div>
-                                        Pinjaman : Rp.{' '}
+                                        Detail Pinjaman :{' '}
                                         <span className="font-semibold">
                                             {' '}
-                                            {loan.loan_value?.toLocaleString()}
+                                            {loan.loan_number} (
+                                            {loan.status === 'LOAN_PROPOSED' &&
+                                                'Pengajuan'}
+                                            {loan.status === 'LOAN_APPROVED' &&
+                                                'Disetujui'}
+                                            {loan.status ===
+                                                'LOAN_WAITING_TRANSFERED' &&
+                                                'Pencarian Dana'}
+                                            {loan.status === 'LOAN_RUNNING' &&
+                                                'Masa Pinjaman'}
+                                            {loan.status ===
+                                                'LOAN_PAYMENT_VERIFY' &&
+                                                'Verifikasi Pembayaran'}
+                                            {loan.status === 'LOAN_REJECTED' &&
+                                                'DITOLAK'}
+                                            )
                                         </span>
                                     </div>
+                                </div>
+
+                                {loan?.loan_value && (
+                                    <div className="mt-4 text-blue-800 bg-blue-50 p-4">
+                                        <div>
+                                            Pinjaman : Rp.{' '}
+                                            <span className="font-semibold">
+                                                {' '}
+                                                {loan.loan_value?.toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            Bunga : Rp.{' '}
+                                            {loan.loan_interest?.toLocaleString()}{' '}
+                                            ({loan.interest_percentage}%)
+                                        </div>
+                                        <div>
+                                            Biaya Admin : Rp.{' '}
+                                            {loan.handling_fee?.toLocaleString()}
+                                        </div>
+                                        <div>Tenor : {loan.tenor} Hari</div>
+                                        <div className="text-xl font-semibold">
+                                            Total : Rp.{' '}
+                                            {(
+                                                loan?.loan_value +
+                                                loan?.loan_interest +
+                                                loan?.handling_fee
+                                            ).toLocaleString()}{' '}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="mt-4 text-gray-600">
                                     <div>
-                                        Bunga : Rp.{' '}
-                                        {loan.loan_interest?.toLocaleString()} (
-                                        {loan.interest_percentage}%)
+                                        PIC :{' '}
+                                        <span className="font-semibold">
+                                            {loan.pic_name}
+                                        </span>
                                     </div>
-                                    <div>
-                                        Biaya Admin : Rp.{' '}
-                                        {loan.handling_fee?.toLocaleString()}
+                                    <div>Telp : {loan.pic_phone}</div>
+                                    <div>Position : {loan.pic_position}</div>
+                                </div>
+
+                                <div className="mt-4 text-gray-600">
+                                    <div className="">
+                                        Nama Proyek :{' '}
+                                        <span className="font-semibold">
+                                            {loan.contract_name}
+                                        </span>
                                     </div>
-                                    <div>Tenor : {loan.tenor} Hari</div>
-                                    <div className="text-xl font-semibold">
-                                        Total : Rp.{' '}
-                                        {(
-                                            loan?.loan_value +
-                                            loan?.loan_interest +
-                                            loan?.handling_fee
-                                        ).toLocaleString()}{' '}
+                                    <div className="">
+                                        Nomor Kontrak : {loan.contract_number}
+                                    </div>
+                                    <div className="">
+                                        Tanggal Kontrak : {loan.contract_start}{' '}
+                                        sampai {loan.contract_end}
+                                    </div>
+                                    <div className="">
+                                        Nilai Kontrak : Rp.{' '}
+                                        {loan.contract_value}
                                     </div>
                                 </div>
-                            )}
 
-                            <div className="mt-4 text-gray-600">
-                                <div>
-                                    PIC :{' '}
-                                    <span className="font-semibold">
-                                        {loan.pic_name}
-                                    </span>
-                                </div>
-                                <div>Telp : {loan.pic_phone}</div>
-                                <div>Position : {loan.pic_position}</div>
-                            </div>
-
-                            <div className="mt-4 text-gray-600">
-                                <div className="">
-                                    Nama Proyek :{' '}
-                                    <span className="font-semibold">
-                                        {loan.contract_name}
-                                    </span>
-                                </div>
-                                <div className="">
-                                    Nomor Kontrak : {loan.contract_number}
-                                </div>
-                                <div className="">
-                                    Tanggal Kontrak : {loan.contract_start}{' '}
-                                    sampai {loan.contract_end}
-                                </div>
-                                <div className="">
-                                    Nilai Kontrak : Rp. {loan.contract_value}
-                                </div>
-                            </div>
-
-                            <div className="mt-4 text-gray-600">
-                                <div>Dokumen Kontrak :</div>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {document.map((item, index) => (
-                                        <a
-                                            key={index}
-                                            href={item.file_doc}
-                                            target="_blank"
-                                            className="flex space-x-2 px-2 py-1 bg-blue-50 w-fit rounded-full items-center text-blue-800">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                strokeWidth={1.5}
-                                                stroke="currentColor"
-                                                className="w-5 h-5">
-                                                <path
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"
-                                                />
-                                            </svg>
-                                            <div>{item.name} - </div>
-                                            <div>No. {item.number}</div>
-                                        </a>
-                                    ))}
+                                <div className="mt-4 text-gray-600">
+                                    <div>Dokumen Kontrak :</div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {document.map((item, index) => (
+                                            <a
+                                                key={index}
+                                                href={item.file_doc}
+                                                target="_blank"
+                                                className="flex space-x-2 px-2 py-1 bg-blue-50 w-fit rounded-full items-center text-blue-800">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    strokeWidth={1.5}
+                                                    stroke="currentColor"
+                                                    className="w-5 h-5">
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"
+                                                    />
+                                                </svg>
+                                                <div>{item.name} - </div>
+                                                <div>No. {item.number}</div>
+                                            </a>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="w-72">
-                        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                            <div className="text-gray-600 font-bold">Aksi</div>
-                            {(loan.status === 'LOAN_PROPOSED' ||
-                                loan.status === 'LOAN_WAITING_TRANSFERED' ||
-                                loan.status === 'LOAN_PAYMENT_VERIFY') && (
-                                <span className="text-gray-500 font-light mt-4">
-                                    Tidak ada aksi yang di butuhkan
-                                </span>
-                            )}
-                            {loan.status === 'LOAN_APPROVED' && (
-                                <div className="mt-4 flex flex-col space-y-2">
-                                    <button
-                                        className="bg-blue-200 hover:bg-opacity-75 text-blue-500 py-2 px-4 rounded-full w-full shadow-sm"
-                                        onClick={toggleModal}>
-                                        Terima Pinjaman
-                                    </button>
-                                    <button className="bg-red-200 hover:bg-opacity-75 text-red-500 py-2 px-4 rounded-full w-full shadow-sm">
-                                        Tolak Pinjaman
-                                    </button>
+                        <div className="w-72">
+                            <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                                <div className="text-gray-600 font-bold">
+                                    Aksi
                                 </div>
-                            )}
-                            {loan.status === 'LOAN_RUNNING' && (
-                                <div className="mt-4 flex flex-col space-y-2">
-                                    <button
-                                        className="bg-blue-200 hover:bg-opacity-75 text-blue-500 py-2 px-4 rounded-full w-full shadow-sm"
-                                        onClick={toggleModal}>
-                                        Bayar Pinjaman
-                                    </button>
-                                    <button className="bg-red-200 hover:bg-opacity-75 text-red-500 py-2 px-4 rounded-full w-full shadow-sm">
-                                        Perpanjang
-                                    </button>
-                                </div>
-                            )}
+                                {(loan.status === 'LOAN_PROPOSED' ||
+                                    loan.status === 'LOAN_WAITING_TRANSFERED' ||
+                                    loan.status === 'LOAN_PAYMENT_VERIFY' ||
+                                    loan.status === 'LOAN_REJECTED') && (
+                                    <span className="text-gray-500 font-light mt-4">
+                                        Tidak ada aksi yang di butuhkan
+                                    </span>
+                                )}
+                                {loan.status === 'LOAN_APPROVED' && (
+                                    <div className="mt-4 flex flex-col space-y-2">
+                                        <button
+                                            className="bg-blue-200 hover:bg-opacity-75 text-blue-500 py-2 px-4 rounded-full w-full shadow-sm"
+                                            onClick={toggleModal}>
+                                            Terima Pinjaman
+                                        </button>
+                                        <button
+                                            className="bg-red-200 hover:bg-opacity-75 text-red-500 py-2 px-4 rounded-full w-full shadow-sm"
+                                            onClick={handleReject}>
+                                            Tolak Pinjaman
+                                        </button>
+                                    </div>
+                                )}
+                                {loan.status === 'LOAN_RUNNING' && (
+                                    <div className="mt-4 flex flex-col space-y-2">
+                                        <button
+                                            className="bg-blue-200 hover:bg-opacity-75 text-blue-500 py-2 px-4 rounded-full w-full shadow-sm"
+                                            onClick={toggleModal}>
+                                            Bayar Pinjaman
+                                        </button>
+                                        <button className="bg-red-200 hover:bg-opacity-75 text-red-500 py-2 px-4 rounded-full w-full shadow-sm">
+                                            Perpanjang
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </AppLayout>
             {loan.status === 'LOAN_APPROVED' && (
                 <Transition appear show={isOpen} as={Fragment}>
@@ -458,11 +492,11 @@ export default function show() {
                                                     <div className="mt-4">
                                                         <div className="flex items-center mb-4">
                                                             <input
-                                                                onClick={e =>
+                                                                onChange={e =>
                                                                     setContract(
                                                                         {
                                                                             ...contract,
-                                                                            accept: true,
+                                                                            accept: !contract.accept,
                                                                         },
                                                                     )
                                                                 }

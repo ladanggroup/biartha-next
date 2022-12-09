@@ -210,7 +210,13 @@ export default function CompanyDocument() {
                                                                     item.file_doc
                                                                 }
                                                             />
-                                                            <BtnDelete />
+                                                            <BtnDelete
+                                                                onClick={() =>
+                                                                    deleteDocument(
+                                                                        item.id,
+                                                                    )
+                                                                }
+                                                            />
                                                         </div>
                                                     </ItemDocument>
                                                 ))
@@ -218,7 +224,7 @@ export default function CompanyDocument() {
                                             <div className="text-center text-gray-500">
                                                 Anda belum upload dokumen NPWP
                                                 dan PKP, silahkan upload
-                                                terbelih dahulu.
+                                                terlebih dahulu.
                                             </div>
                                         )}
                                         <hr />
