@@ -252,25 +252,35 @@ export default function show() {
                                             Pinjaman : Rp.{' '}
                                             <span className="font-semibold">
                                                 {' '}
-                                                {loan.loan_value?.toLocaleString()}
+                                                {Number(
+                                                    loan?.loan_value,
+                                                ).toLocaleString()}
                                             </span>
                                         </div>
                                         <div>
                                             Bunga : Rp.{' '}
-                                            {loan.loan_interest?.toLocaleString()}{' '}
+                                            {Number(
+                                                loan?.loan_interest,
+                                            ).toLocaleString()}{' '}
                                             ({loan.interest_percentage}%)
                                         </div>
                                         <div>
                                             Biaya Admin : Rp.{' '}
-                                            {loan.handling_fee?.toLocaleString()}
+                                            {Number(
+                                                loan?.handling_fee,
+                                            ).toLocaleString()}
                                         </div>
                                         <div>Tenor : {loan.tenor} Hari</div>
+                                        {loan.loan_date}
+                                        <div>
+                                            Tanggal Pinjaman : {loan.loan_date}
+                                        </div>
                                         <div className="text-xl font-semibold">
                                             Total : Rp.{' '}
                                             {(
-                                                loan?.loan_value +
-                                                loan?.loan_interest +
-                                                loan?.handling_fee
+                                                Number(loan?.loan_value) +
+                                                Number(loan?.loan_interest) +
+                                                Number(loan?.handling_fee)
                                             ).toLocaleString()}{' '}
                                         </div>
                                     </div>
