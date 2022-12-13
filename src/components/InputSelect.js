@@ -1,4 +1,3 @@
-import axios from '@/lib/axios'
 import React, { useEffect } from 'react'
 
 export default function InputSelect({

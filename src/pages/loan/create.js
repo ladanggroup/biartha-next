@@ -39,6 +39,7 @@ export default function create() {
     const [listDocument, setListDocument] = React.useState([])
     const router = useRouter()
     const loan_id = router.query.loan_id
+    const [uploadProgress, setUploadProgress] = React.useState(0)
 
     const handleSubmit = async event => {
         event.preventDefault()
@@ -109,6 +110,7 @@ export default function create() {
     const uploadFile = async e => {
         e.preventDefault()
         const file = e.target.files[0]
+        setUploadProgress(0)
         if (file.size > 5000000) {
             e.target.value = null
             toast.error('Ukuran file tidak boleh lebih dari 5mb', {
@@ -132,6 +134,16 @@ export default function create() {
                 method: 'POST',
                 url: '/api/upload-file',
                 data: formData,
+                onUploadProgress: progressEvent => {
+                    setUploadProgress(
+                        parseInt(
+                            Math.round(
+                                (progressEvent.loaded / progressEvent.total) *
+                                    100,
+                            ),
+                        ),
+                    )
+                },
             }).then(res => {
                 setDocument({ ...document, file_doc: res.data.data.file_url })
             })
@@ -799,8 +811,24 @@ export default function create() {
                                                                                                 }
                                                                                             </span>
                                                                                         )
-                                                                                    }
-                                                                                />
+                                                                                    }>
+                                                                                    {uploadProgress >
+                                                                                        0 && (
+                                                                                        <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+                                                                                            <div
+                                                                                                className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                                                                                                style={{
+                                                                                                    width: `${uploadProgress}%`,
+                                                                                                }}>
+                                                                                                {
+                                                                                                    uploadProgress
+                                                                                                }
+
+                                                                                                %
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    )}
+                                                                                </InputWithLabel>
                                                                                 <input
                                                                                     hidden
                                                                                     type="text"
@@ -822,8 +850,16 @@ export default function create() {
                                                                                 Batal
                                                                             </button>
                                                                             <button
+                                                                                disabled={
+                                                                                    uploadProgress >
+                                                                                        0 &&
+                                                                                    uploadProgress <
+                                                                                        100
+                                                                                        ? true
+                                                                                        : false
+                                                                                }
                                                                                 type="submit"
-                                                                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                                                className="disabled:bg-opacity-50 disabled:text-opacity-50 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
                                                                                 Simpan
                                                                                 Data
                                                                             </button>

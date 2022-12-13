@@ -28,6 +28,7 @@ export default function show() {
     const [loading, setLoading] = React.useState(false)
     const router = useRouter()
     const { id } = router.query
+    const [uploadProgress, setUploadProgress] = React.useState(0)
 
     const getLoan = async () => {
         setLoading(true)
@@ -48,6 +49,7 @@ export default function show() {
     const uploadFile = async e => {
         e.preventDefault()
         const file = e.target.files[0]
+        setUploadProgress(0)
         if (file.size > 5000000) {
             e.target.value = null
             toast.error('Ukuran file tidak boleh lebih dari 5mb', {
@@ -71,6 +73,16 @@ export default function show() {
                 method: 'POST',
                 url: '/api/upload-file',
                 data: formData,
+                onUploadProgress: progressEvent => {
+                    setUploadProgress(
+                        parseInt(
+                            Math.round(
+                                (progressEvent.loaded / progressEvent.total) *
+                                    100,
+                            ),
+                        ),
+                    )
+                },
             }).then(res => {
                 setContract({
                     ...contract,
@@ -83,62 +95,43 @@ export default function show() {
     const handleSubmit = async e => {
         e.preventDefault()
         setValidation([])
+        let statusUpdate = ''
+        const formData = new FormData()
+        formData.append('_method', 'PUT')
         if (loan.status === 'LOAN_APPROVED') {
             if (contract.accept === true) {
-                const formData = new FormData()
-                formData.append('contract_document', contract.contract_file)
-                formData.append('status', 'LOAN_WAITING_TRANSFERED')
-                formData.append('_method', 'PUT')
-                const res = await axios({
-                    method: 'POST',
-                    url: '/api/loan/edit/' + loan.loan_id,
-                    data: formData,
-                })
-                    .then(res => {
-                        toast.success('Data berhasil disimpan', {
-                            position: toast.POSITION.BOTTOM_RIGHT,
-                        })
-                        toggleModal()
-                        getLoan()
-                    })
-                    .catch(error => {
-                        if (error.response.status !== 422) throw error
-                        setValidation(error.response.data.errors)
-                    })
+                // formData.append('contract_document', contract.contract_file)
+                statusUpdate = 'waiting-transfered'
             } else {
                 toast.error('Anda belum menyetujui Syarat dan Kententuan', {
                     position: toast.POSITION.BOTTOM_RIGHT,
                 })
+                return 0
             }
         } else if (loan.status === 'LOAN_RUNNING') {
-            const formData = new FormData()
-            formData.append('payment_method', payment.payment_method)
-            formData.append('payment_account_no', payment.payment_account_no)
-            formData.append(
-                'payment_account_name',
-                payment.payment_account_name,
-            )
-            formData.append('payment_date', payment.payment_date)
-            formData.append('payment_file', contract.payment_file)
-            formData.append('status', 'LOAN_PAYMENT_VERIFY')
-            formData.append('_method', 'PUT')
-            const res = await axios({
-                method: 'POST',
-                url: '/api/loan/edit/' + loan.loan_id,
-                data: formData,
-            })
-                .then(res => {
-                    toast.success(res.data.message, {
-                        position: toast.POSITION.BOTTOM_RIGHT,
-                    })
-                    toggleModal()
-                    getLoan()
-                })
-                .catch(error => {
-                    if (error.response.status !== 422) throw error
-                    setValidation(error.response.data.errors)
-                })
+            formData.append('bank', payment.payment_method)
+            formData.append('account_number', payment.payment_account_no)
+            formData.append('account_name', payment.payment_account_name)
+            formData.append('date', payment.payment_date)
+            formData.append('file', contract.contract_file)
+            statusUpdate = 'payment-verify'
         }
+        const res = await axios({
+            method: 'POST',
+            url: `/api/loan/${loan.loan_id}/${statusUpdate}`,
+            data: formData,
+        })
+            .then(res => {
+                toast.success(res.data.message, {
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                })
+                toggleModal()
+                getLoan()
+            })
+            .catch(error => {
+                if (error.response.status !== 422) throw error
+                setValidation(error.response.data.errors)
+            })
     }
 
     const handleReject = async e => {
@@ -240,7 +233,10 @@ export default function show() {
                                                 'LOAN_PAYMENT_VERIFY' &&
                                                 'Verifikasi Pembayaran'}
                                             {loan.status === 'LOAN_REJECTED' &&
-                                                'DITOLAK'}
+                                                'Ditolak'}
+                                            {loan.status ===
+                                                'LOAN_PAYMENT_VERIFIED' &&
+                                                'Lunas'}
                                             )
                                         </span>
                                     </div>
@@ -271,9 +267,15 @@ export default function show() {
                                             ).toLocaleString()}
                                         </div>
                                         <div>Tenor : {loan.tenor} Hari</div>
-                                        {loan.loan_date}
                                         <div>
                                             Tanggal Pinjaman : {loan.loan_date}
+                                        </div>
+                                        <div>
+                                            Tanggal{' '}
+                                            <span className="font-semibold">
+                                                Akhir
+                                            </span>{' '}
+                                            Pembayaran : {loan.loan_end_date}
                                         </div>
                                         <div className="text-xl font-semibold">
                                             Total : Rp.{' '}
@@ -356,7 +358,9 @@ export default function show() {
                                 {(loan.status === 'LOAN_PROPOSED' ||
                                     loan.status === 'LOAN_WAITING_TRANSFERED' ||
                                     loan.status === 'LOAN_PAYMENT_VERIFY' ||
-                                    loan.status === 'LOAN_REJECTED') && (
+                                    loan.status === 'LOAN_REJECTED' ||
+                                    loan.status ===
+                                        'LOAN_PAYMENT_VERIFIED') && (
                                     <span className="text-gray-500 font-light mt-4">
                                         Tidak ada aksi yang di butuhkan
                                     </span>
@@ -430,74 +434,10 @@ export default function show() {
                                             <div className="mt-2">
                                                 <div className="text-gray-600">
                                                     <div className="border-b-2 border-gray-100 py-2">
-                                                        Pinjaman telah
-                                                        disetujui, silahkan
-                                                        download file PDF
-                                                        berikut dan upload
-                                                        kembali file yang sudah
-                                                        bertanda tangan.
-                                                    </div>
-                                                    <div className="mt-4">
-                                                        <a
-                                                            href="#"
-                                                            className="text-blue-500 flex">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                strokeWidth={
-                                                                    1.5
-                                                                }
-                                                                stroke="currentColor"
-                                                                className="w-6 h-6">
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    d="M9 13.5l3 3m0 0l3-3m-3 3v-6m1.06-4.19l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z"
-                                                                />
-                                                            </svg>
-                                                            Download File
-                                                            Kontrak
-                                                        </a>
-                                                    </div>
-                                                    <div className="mt-4">
-                                                        <InputWithLabel
-                                                            id="cardImage"
-                                                            label={
-                                                                'Upload Dokumen'
-                                                            }
-                                                            type="file"
-                                                            onChange={
-                                                                uploadFile
-                                                            }
-                                                            accept="image/*, .pdf"
-                                                            helper={
-                                                                <p
-                                                                    className="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                                                                    id="file_input_help">
-                                                                    PNG, JPG,
-                                                                    atau PDF
-                                                                    (Maks 5MB)
-                                                                </p>
-                                                            }
-                                                            error={
-                                                                validation.file_doc && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.file_doc
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                        />
-                                                        <input
-                                                            hidden
-                                                            type="text"
-                                                            value={
-                                                                contract.contract_file ||
-                                                                ''
-                                                            }
-                                                        />
+                                                        Pinjaman telah disetujui
+                                                        Admin. Apakah Anda yakin
+                                                        akan menerima pinjaman
+                                                        ini?
                                                     </div>
                                                     <div className="mt-4">
                                                         <div className="flex items-center mb-4">
@@ -595,9 +535,15 @@ export default function show() {
                                                             {' '}
                                                             Rp.{' '}
                                                             {(
-                                                                loan?.loan_value +
-                                                                loan?.loan_interest +
-                                                                loan?.handling_fee
+                                                                Number(
+                                                                    loan?.loan_value,
+                                                                ) +
+                                                                Number(
+                                                                    loan?.loan_interest,
+                                                                ) +
+                                                                Number(
+                                                                    loan?.handling_fee,
+                                                                )
                                                             ).toLocaleString()}
                                                         </span>
                                                     </div>
@@ -759,8 +705,23 @@ export default function show() {
                                                                             }
                                                                         </span>
                                                                     )
-                                                                }
-                                                            />
+                                                                }>
+                                                                {uploadProgress >
+                                                                    0 && (
+                                                                    <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+                                                                        <div
+                                                                            className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                                                                            style={{
+                                                                                width: `${uploadProgress}%`,
+                                                                            }}>
+                                                                            {
+                                                                                uploadProgress
+                                                                            }
+                                                                            %
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </InputWithLabel>
                                                         </div>
 
                                                         <input

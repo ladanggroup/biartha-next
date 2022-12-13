@@ -342,6 +342,30 @@ export default function loan() {
                                                                                 </div>
                                                                             )}
                                                                             {item.status ===
+                                                                                'LOAN_REJECTED' && (
+                                                                                <div className="flex space-x-1 text-sm text-red-600">
+                                                                                    <svg
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        fill="none"
+                                                                                        viewBox="0 0 24 24"
+                                                                                        strokeWidth={
+                                                                                            1.5
+                                                                                        }
+                                                                                        stroke="currentColor"
+                                                                                        className="w-5 h-5">
+                                                                                        <path
+                                                                                            strokeLinecap="round"
+                                                                                            strokeLinejoin="round"
+                                                                                            d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                                                        />
+                                                                                    </svg>
+
+                                                                                    <div>
+                                                                                        Ditolak
+                                                                                    </div>
+                                                                                </div>
+                                                                            )}
+                                                                            {item.status ===
                                                                                 'LOAN_PAYMENT_VERIFY' && (
                                                                                 <div className="flex space-x-1 text-sm text-gray-600">
                                                                                     <svg
@@ -367,7 +391,7 @@ export default function loan() {
                                                                                 </div>
                                                                             )}
                                                                             {item.status ===
-                                                                                'PAID' && (
+                                                                                'LOAN_PAYMENT_VERIFIED' && (
                                                                                 <div className="flex space-x-1 text-sm text-green-500">
                                                                                     <svg
                                                                                         xmlns="http://www.w3.org/2000/svg"
@@ -390,14 +414,16 @@ export default function loan() {
                                                                             )}
                                                                         </div>
                                                                         <div className="text-sm text-gray-700">
-                                                                            Mulai
-                                                                            Pinjaman
-                                                                            :{' '}
-                                                                            <span className="text-primary">
-                                                                                {item.loan_date
-                                                                                    ? item.loan_date
-                                                                                    : '-'}
-                                                                            </span>
+                                                                            <div>
+                                                                                Jatuh
+                                                                                Tempo
+                                                                                :{' '}
+                                                                                <span className="text-primary">
+                                                                                    {item.loan_end_date
+                                                                                        ? item.loan_end_date
+                                                                                        : '-'}
+                                                                                </span>
+                                                                            </div>
                                                                             <div className="text-secondary my-2 text-xl font-semibold">
                                                                                 {item.loan_value
                                                                                     ? 'Rp. ' +

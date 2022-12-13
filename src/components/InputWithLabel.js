@@ -7,6 +7,7 @@ export default function InputWithLabel({
     value,
     error,
     helper,
+    children,
     ...props
 }) {
     return (
@@ -25,6 +26,7 @@ export default function InputWithLabel({
             />
             <small className="text-gray-500">{helper}</small>
             {error}
+            {children}
         </div>
     )
 }
