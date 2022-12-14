@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'
 import InputWithLabel from './InputWithLabel'
 import CreatableSelect from 'react-select/creatable'
 import LoadingUser from './LoadingUser'
+import { useRouter } from 'next/router'
 
 export default function CompanyDocument() {
     const [isOpen, setIsOpen] = React.useState(false)
@@ -16,6 +17,8 @@ export default function CompanyDocument() {
     const [validation, setValidation] = React.useState([])
     const [companyDocument, setCompanyDocument] = React.useState([])
     const [loading, setLoading] = React.useState(true)
+    const [uploadProgress, setUploadProgress] = React.useState(0)
+    const router = useRouter()
     const filterDocument = ['NPWP', 'SIUP']
     const documentOption = [
         { value: 'NPWP', label: 'NPWP' },
@@ -30,6 +33,7 @@ export default function CompanyDocument() {
     const uploadFile = async e => {
         e.preventDefault()
         const file = e.target.files[0]
+        setUploadProgress(0)
         if (file.size > 5000000) {
             e.target.value = null
             toast.error('Ukuran file tidak boleh lebih dari 5mb', {
@@ -53,6 +57,16 @@ export default function CompanyDocument() {
                 method: 'POST',
                 url: '/api/upload-file',
                 data: formData,
+                onUploadProgress: progressEvent => {
+                    setUploadProgress(
+                        parseInt(
+                            Math.round(
+                                (progressEvent.loaded / progressEvent.total) *
+                                    100,
+                            ),
+                        ),
+                    )
+                },
             }).then(res => {
                 setDoc(res.data.data.file_url)
             })
@@ -149,8 +163,9 @@ export default function CompanyDocument() {
         }
     }
     useEffect(() => {
+        if (!router.isReady) return
         getCompanyDocument()
-    }, [])
+    }, [router.isReady])
 
     return (
         <div>
@@ -445,8 +460,23 @@ export default function CompanyDocument() {
                                                                         }
                                                                     </span>
                                                                 )
-                                                            }
-                                                        />
+                                                            }>
+                                                            {uploadProgress >
+                                                                0 && (
+                                                                <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+                                                                    <div
+                                                                        className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                                                                        style={{
+                                                                            width: `${uploadProgress}%`,
+                                                                        }}>
+                                                                        {
+                                                                            uploadProgress
+                                                                        }
+                                                                        %
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </InputWithLabel>
                                                         <input
                                                             hidden
                                                             type="text"

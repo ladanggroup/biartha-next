@@ -1,5 +1,6 @@
 import axios from '@/lib/axios'
 import { Dialog, Transition } from '@headlessui/react'
+import { useRouter } from 'next/router'
 import React, { Fragment, useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import InputSelect from './InputSelect'
@@ -22,7 +23,7 @@ export default function CompanyDetail() {
     const [companyCityId, setCompanyCityId] = useState('')
     const [companyDistrictId, setCompanyDistrictId] = useState('')
     const [companyPostalCode, setCompanyPostalCode] = useState('')
-
+    const router = useRouter()
     const [province, setProvince] = useState([])
     const [city, setCity] = useState([])
     const [district, setDistrict] = useState([])
@@ -127,8 +128,9 @@ export default function CompanyDetail() {
     }
 
     useEffect(() => {
+        if (!router.isReady) return
         getCompanyDetail()
-    }, [])
+    }, [router.isReady])
 
     return (
         <>
@@ -564,6 +566,9 @@ export default function CompanyDetail() {
                                                                             item.id
                                                                         }>
                                                                         {
+                                                                            item.type
+                                                                        }{' '}
+                                                                        {
                                                                             item.name
                                                                         }
                                                                     </option>
@@ -595,6 +600,7 @@ export default function CompanyDetail() {
                                                                     </span>
                                                                 )
                                                             }
+                                                            maxLenght={5}
                                                         />
                                                         <InputWithLabel
                                                             id="companyAddress"

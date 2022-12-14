@@ -1,5 +1,6 @@
 import axios from '@/lib/axios'
 import { Dialog, Transition } from '@headlessui/react'
+import { useRouter } from 'next/router'
 import React, { Fragment, useEffect, useState } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
 import InputSelect from './InputSelect'
@@ -15,7 +16,6 @@ export default function UserDetail() {
     const [cardNumber, setCardNumber] = useState('')
     const [cardImage, setCardImage] = useState('')
     const [companyPosition, setCompanyPosition] = useState('')
-    const [companyDevision, setCompanyDevision] = useState('')
     const [provinceId, setProvinceId] = useState('')
     const [cityId, setCityId] = useState('')
     const [districtId, setDistrictId] = useState('')
@@ -25,7 +25,8 @@ export default function UserDetail() {
     const [province, setProvince] = useState([])
     const [city, setCity] = useState([])
     const [district, setDistrict] = useState([])
-
+    const [uploadProgress, setUploadProgress] = React.useState(0)
+    const router = useRouter()
     const getPronvince = async () => {
         const res = await axios({
             method: 'GET',
@@ -48,13 +49,6 @@ export default function UserDetail() {
         } catch (error) {
             console.log(error)
         }
-
-        // const res = await axios({
-        //     method: 'GET',
-        //     url: '/api/get/city/' + id,
-        // }).then(res => {
-        //     setCity(res.data)
-        // })
     }
 
     const getDistrict = async id => {
@@ -75,6 +69,7 @@ export default function UserDetail() {
     const uploadFile = async e => {
         e.preventDefault()
         const file = e.target.files[0]
+        setUploadProgress(0)
         if (file.size > 2000000) {
             e.target.value = null
             toast.error('Ukuran file tidak boleh lebih dari 2mb', {
@@ -94,6 +89,16 @@ export default function UserDetail() {
                 method: 'POST',
                 url: '/api/upload-file',
                 data: formData,
+                onUploadProgress: progressEvent => {
+                    setUploadProgress(
+                        parseInt(
+                            Math.round(
+                                (progressEvent.loaded / progressEvent.total) *
+                                    100,
+                            ),
+                        ),
+                    )
+                },
             }).then(res => {
                 setCardImage(res.data.data.file_url)
             })
@@ -111,7 +116,6 @@ export default function UserDetail() {
                 setCardNumber(res.data.data.card_number)
                 setCardImage(res.data.data.card_image)
                 setCompanyPosition(res.data.data.company_position)
-                setCompanyDevision(res.data.data.company_division)
                 setProvinceId(res.data.data.province_id)
                 setCityId(res.data.data.city_id)
                 setDistrictId(res.data.data.district_id)
@@ -145,7 +149,6 @@ export default function UserDetail() {
         formData.append('card_number', cardNumber)
         formData.append('card_image', cardImage)
         formData.append('company_position', companyPosition)
-        formData.append('company_division', companyDevision)
         formData.append('province_id', provinceId)
         formData.append('city_id', cityId)
         formData.append('district_id', districtId)
@@ -188,8 +191,9 @@ export default function UserDetail() {
         }
     }
     useEffect(() => {
+        if (!router.isReady) return
         getUserDetail()
-    }, [])
+    }, [router.isReady])
 
     return (
         <>
@@ -239,24 +243,6 @@ export default function UserDetail() {
                                             )}
                                         </div>
                                         <div className="flex space-x-2">
-                                            <div className="w-64">
-                                                Posisi di Perusahaan
-                                            </div>
-                                            <div className="">
-                                                {userDetail?.company_position ||
-                                                    '-'}
-                                            </div>
-                                        </div>
-                                        <div className="flex space-x-2">
-                                            <div className="w-64">
-                                                Jenis Perusahan
-                                            </div>
-                                            <div className="">
-                                                {userDetail?.company_division ||
-                                                    '-'}
-                                            </div>
-                                        </div>
-                                        <div className="flex space-x-2">
                                             <div className="w-64">Kode POS</div>
                                             <div className="">
                                                 {userDetail?.postal_code || '-'}
@@ -273,7 +259,8 @@ export default function UserDetail() {
                                                 Kecamatan
                                             </div>
                                             <div className="">
-                                                {userDetail?.district || '-'}
+                                                {userDetail?.district_name ||
+                                                    '-'}
                                             </div>
                                         </div>
                                         <div className="flex space-x-2">
@@ -281,13 +268,14 @@ export default function UserDetail() {
                                                 Kabupaten/Kota
                                             </div>
                                             <div className="">
-                                                {userDetail?.city || '-'}
+                                                {userDetail?.city_name || '-'}
                                             </div>
                                         </div>
                                         <div className="flex space-x-2">
                                             <div className="w-64">Provinsi</div>
                                             <div className="">
-                                                {userDetail?.province || '-'}
+                                                {userDetail?.province_name ||
+                                                    '-'}
                                             </div>
                                         </div>
                                     </div>
@@ -331,27 +319,6 @@ export default function UserDetail() {
                                             <form onSubmit={handleSubmit}>
                                                 <div className="mt-2">
                                                     <div className="grid grid-cols-2 gap-4">
-                                                        {/* <InputWithLabel
-                                                    id="email"
-                                                    label={'Email'}
-                                                    placeholder={
-                                                        'emailanda@gmail.com'
-                                                    }
-                                                    type="email"
-                                                    onChange={e =>
-                                                        setEmail(e.target.value)
-                                                    }
-                                                    value={email}
-                                                    error={
-                                                        validation.email && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.email
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                /> */}
                                                         <InputWithLabel
                                                             id="phone"
                                                             label={'Nomor Hp'}
@@ -427,6 +394,29 @@ export default function UserDetail() {
                                                                         }
                                                                     </span>
                                                                 )
+                                                            }>
+                                                            {uploadProgress >
+                                                                0 && (
+                                                                <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+                                                                    <div
+                                                                        className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                                                                        style={{
+                                                                            width: `${uploadProgress}%`,
+                                                                        }}>
+                                                                        {
+                                                                            uploadProgress
+                                                                        }
+                                                                        %
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </InputWithLabel>
+                                                        <input
+                                                            hidden
+                                                            type="text"
+                                                            value={
+                                                                setUserDetail.card_image ||
+                                                                ''
                                                             }
                                                         />
                                                         <InputWithLabel
@@ -457,46 +447,22 @@ export default function UserDetail() {
                                                                 )
                                                             }
                                                         />
-                                                        <InputWithLabel
-                                                            id="companyDevision"
-                                                            label={
-                                                                'Jenis Perusahaan'
-                                                            }
-                                                            placeholder={
-                                                                'Penjualan & Retail'
-                                                            }
-                                                            type="text"
-                                                            onChange={e =>
-                                                                setCompanyDevision(
-                                                                    e.target
-                                                                        .value,
-                                                                )
-                                                            }
-                                                            value={
-                                                                companyDevision
-                                                            }
-                                                            error={
-                                                                validation.company_division && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.company_division
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                        />
                                                         <InputSelect
                                                             id="provinceId"
                                                             label={'Provinsi'}
                                                             placeholder={
                                                                 'Pilih Provinsi'
                                                             }
-                                                            onChange={e =>
+                                                            onChange={e => {
                                                                 setProvinceId(
                                                                     e.target
                                                                         .value,
-                                                                )
-                                                            }
+                                                                ),
+                                                                    getCity(
+                                                                        e.target
+                                                                            .value,
+                                                                    )
+                                                            }}
                                                             value={provinceId}
                                                             error={
                                                                 validation.province_id && (
@@ -518,14 +484,10 @@ export default function UserDetail() {
                                                                         }
                                                                         value={
                                                                             item.id
-                                                                        }
-                                                                        onClick={e =>
-                                                                            getCity(
-                                                                                e
-                                                                                    .target
-                                                                                    .value,
-                                                                            )
                                                                         }>
+                                                                        {
+                                                                            item.type
+                                                                        }{' '}
                                                                         {
                                                                             item.name
                                                                         }
@@ -542,12 +504,16 @@ export default function UserDetail() {
                                                             placeholder={
                                                                 'Pilih Kabupaten/Kota'
                                                             }
-                                                            onChange={e =>
+                                                            onChange={e => {
                                                                 setCityId(
                                                                     e.target
                                                                         .value,
-                                                                )
-                                                            }
+                                                                ),
+                                                                    getDistrict(
+                                                                        e.target
+                                                                            .value,
+                                                                    )
+                                                            }}
                                                             value={cityId}
                                                             error={
                                                                 validation.city_id && (
@@ -569,13 +535,6 @@ export default function UserDetail() {
                                                                         }
                                                                         value={
                                                                             item.id
-                                                                        }
-                                                                        onClick={e =>
-                                                                            getDistrict(
-                                                                                e
-                                                                                    .target
-                                                                                    .value,
-                                                                            )
                                                                         }>
                                                                         {
                                                                             item.name
@@ -648,6 +607,7 @@ export default function UserDetail() {
                                                                     </span>
                                                                 )
                                                             }
+                                                            maxLength="5"
                                                         />
                                                         <InputWithLabel
                                                             id="address"
@@ -686,8 +646,15 @@ export default function UserDetail() {
                                                         Batal
                                                     </button>
                                                     <button
+                                                        disabled={
+                                                            uploadProgress >
+                                                                0 &&
+                                                            uploadProgress < 100
+                                                                ? true
+                                                                : false
+                                                        }
                                                         type="submit"
-                                                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                        className="disabled:bg-opacity-50 disabled:text-opacity-50 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
                                                         Simpan Data
                                                     </button>
                                                 </div>

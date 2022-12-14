@@ -115,7 +115,7 @@ export default function register() {
 
                                 <div className="w-full flex flex-col space-y-4">
                                     {/* Data Detail User */}
-                                    
+
                                     <UserDetail />
                                     <CompanyDetail />
                                     <CompanyDocument />

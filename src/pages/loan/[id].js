@@ -108,7 +108,10 @@ export default function show() {
                 })
                 return 0
             }
-        } else if (loan.status === 'LOAN_RUNNING') {
+        } else if (
+            loan.status === 'LOAN_RUNNING' ||
+            loan.status === 'LOAN_PAYMENT_PROBLEM'
+        ) {
             formData.append('bank', payment.payment_method)
             formData.append('account_number', payment.payment_account_no)
             formData.append('account_name', payment.payment_account_name)
@@ -232,6 +235,9 @@ export default function show() {
                                             {loan.status ===
                                                 'LOAN_PAYMENT_VERIFY' &&
                                                 'Verifikasi Pembayaran'}
+                                            {loan.status ===
+                                                'LOAN_PAYMENT_PROBLEM' &&
+                                                'Pembayaran Bermasalah'}
                                             {loan.status === 'LOAN_REJECTED' &&
                                                 'Ditolak'}
                                             {loan.status ===
@@ -241,7 +247,54 @@ export default function show() {
                                         </span>
                                     </div>
                                 </div>
-
+                                {loan.status === 'LOAN_PROPOSED' && (
+                                    <div className="mt-4 bg-yellow-50 p-4 rounded-md shadow-md">
+                                        <div className="font-semibold text-yellow-600">
+                                            Catatan :
+                                        </div>
+                                        <div className="text-yellow-600">
+                                            Pinjaman sedang dalam proses
+                                            peninjauan. Tunggu dalam 1x24 jam
+                                            hari kerja untuk mendapatkan respon
+                                            dari kami.
+                                        </div>
+                                    </div>
+                                )}
+                                {loan.status === 'LOAN_WAITING_TRANSFERED' && (
+                                    <div className="mt-4 bg-green-100 p-4 rounded-md shadow-md">
+                                        <div className="font-semibold text-green-600">
+                                            Catatan :
+                                        </div>
+                                        <div className="text-green-600">
+                                            Pinjaman sudah disetujui, tunggu
+                                            1x24 jam hari kerja uang akan segera
+                                            masuk ke rekening anda.
+                                        </div>
+                                    </div>
+                                )}
+                                {loan.status === 'LOAN_PAYMENT_VERIFY' && (
+                                    <div className="mt-4 bg-yellow-50 p-4 rounded-md shadow-md">
+                                        <div className="font-semibold text-yellow-600">
+                                            Catatan :
+                                        </div>
+                                        <div className="text-yellow-600">
+                                            Pembayaran akan diverifikasi dalam
+                                            1x24 jam di hari dan jam kerja.
+                                        </div>
+                                    </div>
+                                )}
+                                {loan.status === 'LOAN_PAYMENT_PROBLEM' && (
+                                    <div className="mt-4 bg-red-50 p-4 rounded-md shadow-md">
+                                        <div className="font-semibold text-red-600">
+                                            Catatan :
+                                        </div>
+                                        <div className="text-red-600">
+                                            Pembayaran tidak ditemukan, silahkan
+                                            hubungi Admin untuk informasi lebih
+                                            lanjut.
+                                        </div>
+                                    </div>
+                                )}
                                 {loan?.loan_value && (
                                     <div className="mt-4 text-blue-800 bg-blue-50 p-4">
                                         <div>
@@ -301,7 +354,7 @@ export default function show() {
 
                                 <div className="mt-4 text-gray-600">
                                     <div className="">
-                                        Nama Proyek :{' '}
+                                        Nama Kontrak :{' '}
                                         <span className="font-semibold">
                                             {loan.contract_name}
                                         </span>
@@ -388,6 +441,15 @@ export default function show() {
                                         </button>
                                         <button className="bg-red-200 hover:bg-opacity-75 text-red-500 py-2 px-4 rounded-full w-full shadow-sm">
                                             Perpanjang
+                                        </button>
+                                    </div>
+                                )}
+                                {loan.status === 'LOAN_PAYMENT_PROBLEM' && (
+                                    <div className="mt-4 flex flex-col space-y-2">
+                                        <button
+                                            className="bg-blue-200 hover:bg-opacity-75 text-blue-500 py-2 px-4 rounded-full w-full shadow-sm"
+                                            onClick={toggleModal}>
+                                            Upload Ulang
                                         </button>
                                     </div>
                                 )}
@@ -529,23 +591,288 @@ export default function show() {
                                         <form onSubmit={handleSubmit}>
                                             <div className="mt-2">
                                                 <div className="text-gray-600">
-                                                    <div className="border-b-2 border-gray-100 py-2">
-                                                        Tagihan :{' '}
-                                                        <span className="font-semibold">
-                                                            {' '}
-                                                            Rp.{' '}
-                                                            {(
-                                                                Number(
-                                                                    loan?.loan_value,
-                                                                ) +
-                                                                Number(
-                                                                    loan?.loan_interest,
-                                                                ) +
-                                                                Number(
-                                                                    loan?.handling_fee,
+                                                    <div className="mt-4">
+                                                        <div className=" text-lg border-2 border-violet-500 p-2 rounded-lg bg-violet-100 text-violet-600">
+                                                            Total Tagihan : Rp.{' '}
+                                                            <span className="font-semibold">
+                                                                {(
+                                                                    Number(
+                                                                        loan?.loan_value,
+                                                                    ) +
+                                                                    Number(
+                                                                        loan?.loan_interest,
+                                                                    ) +
+                                                                    Number(
+                                                                        loan?.handling_fee,
+                                                                    )
+                                                                ).toLocaleString()}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="mt-4 flex flex-col space-y-4">
+                                                        <InputSelect
+                                                            id="payment_method"
+                                                            label={
+                                                                'Pilih Metode Pembayaran'
+                                                            }
+                                                            placeholder={
+                                                                'Pilih Metode Pembayaran'
+                                                            }
+                                                            error={
+                                                                validation.payment_method && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.payment_method
+                                                                        }
+                                                                    </span>
                                                                 )
-                                                            ).toLocaleString()}
-                                                        </span>
+                                                            }
+                                                            onChange={e =>
+                                                                setPayment({
+                                                                    ...payment,
+                                                                    payment_method:
+                                                                        e.target
+                                                                            .value,
+                                                                })
+                                                            }>
+                                                            <option value="Bank Jatim">
+                                                                Bank Jatim -
+                                                                1234567890 - a/n
+                                                                PT. Biartha
+                                                            </option>
+                                                            <option value="Bank Jateng">
+                                                                Bank Jateng -
+                                                                1234567890 - a/n
+                                                                PT. Biartha
+                                                            </option>
+                                                        </InputSelect>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <InputWithLabel
+                                                                id="paymentAccountName"
+                                                                label={
+                                                                    'Nama Bank Pengirim'
+                                                                }
+                                                                placeholder={
+                                                                    'PT Langgeng Jaya'
+                                                                }
+                                                                type="text"
+                                                                onChange={e =>
+                                                                    setPayment({
+                                                                        ...payment,
+                                                                        payment_account_name:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    payment.payment_account_name
+                                                                }
+                                                                error={
+                                                                    validation.payment_account_name && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.payment_account_name
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            />
+                                                            <InputWithLabel
+                                                                id="paymentAccountNumber"
+                                                                label={
+                                                                    'Nomor Bank Pengirim'
+                                                                }
+                                                                placeholder={
+                                                                    '1234567890'
+                                                                }
+                                                                type="number"
+                                                                onChange={e =>
+                                                                    setPayment({
+                                                                        ...payment,
+                                                                        payment_account_no:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    payment.payment_account_no
+                                                                }
+                                                                error={
+                                                                    validation.payment_account_no && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.payment_account_no
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            />
+                                                            <InputWithLabel
+                                                                id="paymentTransferDate"
+                                                                label={
+                                                                    'Tanggal Transfer'
+                                                                }
+                                                                type="date"
+                                                                onChange={e =>
+                                                                    setPayment({
+                                                                        ...payment,
+                                                                        payment_date:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    payment.payment_date
+                                                                }
+                                                                error={
+                                                                    validation.payment_date && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.payment_date
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            />
+                                                            <InputWithLabel
+                                                                id="cardImage"
+                                                                label={
+                                                                    'Upload Bukti Bayar'
+                                                                }
+                                                                type="file"
+                                                                onChange={
+                                                                    uploadFile
+                                                                }
+                                                                defaultValue=""
+                                                                accept="image/*, .pdf"
+                                                                helper={
+                                                                    <p
+                                                                        className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                                                                        id="file_input_help">
+                                                                        PNG,
+                                                                        JPG,
+                                                                        atau PDF
+                                                                        (Maks
+                                                                        5MB)
+                                                                    </p>
+                                                                }
+                                                                error={
+                                                                    validation.file_doc && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.file_doc
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }>
+                                                                {uploadProgress >
+                                                                    0 && (
+                                                                    <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+                                                                        <div
+                                                                            className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                                                                            style={{
+                                                                                width: `${uploadProgress}%`,
+                                                                            }}>
+                                                                            {
+                                                                                uploadProgress
+                                                                            }
+                                                                            %
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </InputWithLabel>
+                                                        </div>
+
+                                                        <input
+                                                            hidden
+                                                            type="text"
+                                                            value={
+                                                                contract.payment_file ||
+                                                                ''
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4 flex justify-end space-x-2">
+                                                <button
+                                                    type="button"
+                                                    className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                                                    onClick={toggleModal}>
+                                                    Batal
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                    Simpan Data
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </Dialog.Panel>
+                                </Transition.Child>
+                            </div>
+                        </div>
+                    </Dialog>
+                </Transition>
+            )}
+            {loan.status === 'LOAN_PAYMENT_PROBLEM' && (
+                <Transition appear show={isOpen} as={Fragment}>
+                    <Dialog
+                        open={isOpen}
+                        as="div"
+                        className="relative z-10"
+                        onClose={toggleModal}>
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0"
+                            enterTo="opacity-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100"
+                            leaveTo="opacity-0">
+                            <div className="fixed inset-0 bg-black bg-opacity-25" />
+                        </Transition.Child>
+
+                        <div className="fixed inset-0 overflow-y-auto">
+                            <div className="flex min-h-full items-center justify-center p-4 text-center">
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0 scale-95"
+                                    enterTo="opacity-100 scale-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100 scale-100"
+                                    leaveTo="opacity-0 scale-95">
+                                    <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                        <Dialog.Title
+                                            as="h3"
+                                            className="text-lg font-medium leading-6 text-gray-900">
+                                            Bayar Pinjaman
+                                        </Dialog.Title>
+                                        <form onSubmit={handleSubmit}>
+                                            <div className="mt-2">
+                                                <div className="text-gray-600">
+                                                    <div className="mt-4">
+                                                        <div className=" text-lg border-2 border-violet-500 p-2 rounded-lg bg-violet-100 text-violet-600">
+                                                            Total Tagihan : Rp.{' '}
+                                                            <span className="font-semibold">
+                                                                {(
+                                                                    Number(
+                                                                        loan?.loan_value,
+                                                                    ) +
+                                                                    Number(
+                                                                        loan?.loan_interest,
+                                                                    ) +
+                                                                    Number(
+                                                                        loan?.handling_fee,
+                                                                    )
+                                                                ).toLocaleString()}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                     <div className="mt-4 flex flex-col space-y-4">
                                                         <InputSelect
