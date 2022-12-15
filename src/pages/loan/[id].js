@@ -268,7 +268,20 @@ export default function show() {
                                         <div className="text-green-600">
                                             Pinjaman sudah disetujui, tunggu
                                             1x24 jam hari kerja uang akan segera
-                                            masuk ke rekening anda.
+                                            masuk ke rekening{' '}
+                                            <span className="font-semibold">
+                                                {loan.bank_info.bank_name} -{' '}
+                                                {
+                                                    loan.bank_info
+                                                        .bank_account_number
+                                                }{' '}
+                                                a/n.{' '}
+                                                {
+                                                    loan.bank_info
+                                                        .bank_account_name
+                                                }
+                                                .
+                                            </span>
                                         </div>
                                     </div>
                                 )}

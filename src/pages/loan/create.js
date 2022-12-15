@@ -35,11 +35,19 @@ export default function create() {
         pic_name: '',
         pic_phone: '',
         pic_position: '',
+        bank_id: '',
     })
     const [listDocument, setListDocument] = React.useState([])
     const router = useRouter()
     const loan_id = router.query.loan_id
     const [uploadProgress, setUploadProgress] = React.useState(0)
+    const [listBank, setListBank] = React.useState([])
+    const [newBank, setNewBank] = React.useState({
+        bank_name: '',
+        account_name: '',
+        account_number: '',
+        status: false,
+    })
 
     const handleSubmit = async event => {
         event.preventDefault()
@@ -62,9 +70,6 @@ export default function create() {
                     )
                     router.push('/loan')
                     setDocument({})
-                    // router.push({
-                    //     pathname: '/loan',
-                    // })
                 })
                 .catch(error => {
                     if (error.response.status !== 422) throw error
@@ -81,6 +86,7 @@ export default function create() {
             formData.append('pic_phone', loan.pic_phone)
             formData.append('tenor', loan.tenor)
             formData.append('pic_position', loan.pic_position)
+            formData.append('bank_id', loan.bank_id)
             await axios({
                 method: 'POST',
                 url: '/api/loan',
@@ -103,6 +109,7 @@ export default function create() {
                 })
         }
     }
+
     function toggleModal() {
         setIsOpen(isOpen => !isOpen)
     }
@@ -197,15 +204,45 @@ export default function create() {
         }
     }
 
+    const getBank = async () => {
+        await axios({
+            method: 'GET',
+            url: '/api/company/bank',
+        }).then(res => {
+            setListBank(res.data.data)
+            if (res.data.data.length === 0) {
+                toggleModal()
+            }
+        })
+    }
+
+    const createBank = async e => {
+        e.preventDefault()
+        const res = await axios({
+            method: 'POST',
+            url: '/api/company/bank',
+            data: newBank,
+        }).then(res => {
+            setNewBank({})
+            toast.success('Nomor rekening berhasil di tambahkan', {
+                position: toast.POSITION.BOTTOM_RIGHT,
+            })
+            getBank()
+            toggleModal()
+        })
+    }
+
     useEffect(() => {
+        if (!router.isReady) return
+        getBank()
         if (loan_id) {
             setDocument(document => ({ ...document, loan_id: loan_id }))
         }
-    }, [loan_id])
+    }, [loan_id, router.isReady])
 
     useEffect(() => {
         getDocument()
-    }, [document.loan_id])
+    }, [document.loan_id, listBank])
 
     return (
         <>
@@ -319,6 +356,7 @@ export default function create() {
                                                                     </span>
                                                                 )
                                                             }
+                                                            required
                                                         />
                                                         <InputWithLabel
                                                             id="contractNumber"
@@ -349,6 +387,7 @@ export default function create() {
                                                                     </span>
                                                                 )
                                                             }
+                                                            required
                                                         />
                                                         <InputWithLabel
                                                             id="contractStartDate"
@@ -377,6 +416,7 @@ export default function create() {
                                                                     </span>
                                                                 )
                                                             }
+                                                            required
                                                         />
                                                         <InputWithLabel
                                                             id="contractEndDate"
@@ -405,6 +445,7 @@ export default function create() {
                                                                     </span>
                                                                 )
                                                             }
+                                                            required
                                                         />
                                                         <InputWithLabel
                                                             id="contractValue"
@@ -466,7 +507,8 @@ export default function create() {
                                                                         }
                                                                     </span>
                                                                 )
-                                                            }>
+                                                            }
+                                                            required>
                                                             <option value={30}>
                                                                 30 Hari - Bunga
                                                                 1%
@@ -563,7 +605,64 @@ export default function create() {
                                                                     </span>
                                                                 )
                                                             }
+                                                            required
                                                         />
+                                                        <InputSelect
+                                                            id="companyBank"
+                                                            label={
+                                                                'Pilih Akun Bank'
+                                                            }
+                                                            placeholder={
+                                                                'Pilih Akun Bank'
+                                                            }
+                                                            onChange={e =>
+                                                                setLoan({
+                                                                    ...loan,
+                                                                    bank_id:
+                                                                        e.target
+                                                                            .value,
+                                                                })
+                                                            }
+                                                            error={
+                                                                validation.bank_id && (
+                                                                    <span className="text-red-500 text-sm">
+                                                                        {
+                                                                            validation.bank_id
+                                                                        }
+                                                                    </span>
+                                                                )
+                                                            }
+                                                            required>
+                                                            {listBank.map(
+                                                                (
+                                                                    item,
+                                                                    index,
+                                                                ) => (
+                                                                    <option
+                                                                        key={
+                                                                            index
+                                                                        }
+                                                                        value={
+                                                                            item.id
+                                                                        }
+                                                                        selected={
+                                                                            item.status
+                                                                        }>
+                                                                        {
+                                                                            item.bank_name
+                                                                        }{' '}
+                                                                        -{' '}
+                                                                        {
+                                                                            item.account_number
+                                                                        }
+                                                                        a/n.{' '}
+                                                                        {
+                                                                            item.account_name
+                                                                        }
+                                                                    </option>
+                                                                ),
+                                                            )}
+                                                        </InputSelect>
                                                     </div>
                                                 </div>
                                                 <div className="mt-4 flex justify-end space-x-2">
@@ -577,6 +676,166 @@ export default function create() {
                                         </div>
                                     </div>
                                 </div>
+                                <Transition appear show={isOpen} as={Fragment}>
+                                    <Dialog
+                                        open={isOpen}
+                                        as="div"
+                                        className="relative z-10"
+                                        onClose={() => toggleModal}>
+                                        <Transition.Child
+                                            as={Fragment}
+                                            enter="ease-out duration-300"
+                                            enterFrom="opacity-0"
+                                            enterTo="opacity-100"
+                                            leave="ease-in duration-200"
+                                            leaveFrom="opacity-100"
+                                            leaveTo="opacity-0">
+                                            <div className="fixed inset-0 bg-black bg-opacity-25" />
+                                        </Transition.Child>
+
+                                        <div className="fixed inset-0 overflow-y-auto">
+                                            <div className="flex min-h-full items-center justify-center p-4 text-center">
+                                                <Transition.Child
+                                                    as={Fragment}
+                                                    enter="ease-out duration-300"
+                                                    enterFrom="opacity-0 scale-95"
+                                                    enterTo="opacity-100 scale-100"
+                                                    leave="ease-in duration-200"
+                                                    leaveFrom="opacity-100 scale-100"
+                                                    leaveTo="opacity-0 scale-95">
+                                                    <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                                        <Dialog.Title
+                                                            as="h3"
+                                                            className="text-lg font-medium leading-6 text-gray-900">
+                                                            Tambah Nomor
+                                                            Rekening Terlebih
+                                                            Dahulu
+                                                        </Dialog.Title>
+                                                        <form
+                                                            onSubmit={
+                                                                createBank
+                                                            }>
+                                                            <div className="mt-2">
+                                                                <InputWithLabel
+                                                                    id="bankName"
+                                                                    label={
+                                                                        'Nama Bank'
+                                                                    }
+                                                                    placeholder={
+                                                                        'BCA'
+                                                                    }
+                                                                    type="text"
+                                                                    onChange={e =>
+                                                                        setNewBank(
+                                                                            {
+                                                                                ...newBank,
+                                                                                bank_name:
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                    value={
+                                                                        newBank.bank_name
+                                                                    }
+                                                                    error={
+                                                                        validation.bank_name && (
+                                                                            <span className="text-red-500 text-sm">
+                                                                                {
+                                                                                    validation.bank_name
+                                                                                }
+                                                                            </span>
+                                                                        )
+                                                                    }
+                                                                    required
+                                                                />
+                                                                <div className="grid grid-cols-2 gap-4 mt-4">
+                                                                    <InputWithLabel
+                                                                        id="bankAccountNumber"
+                                                                        label={
+                                                                            'Nomor Rekening'
+                                                                        }
+                                                                        placeholder={
+                                                                            '1234567890'
+                                                                        }
+                                                                        type="number"
+                                                                        onChange={e =>
+                                                                            setNewBank(
+                                                                                {
+                                                                                    ...newBank,
+                                                                                    account_number:
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                },
+                                                                            )
+                                                                        }
+                                                                        value={
+                                                                            newBank.account_number
+                                                                        }
+                                                                        error={
+                                                                            validation.account_number && (
+                                                                                <span className="text-red-500 text-sm">
+                                                                                    {
+                                                                                        validation.account_number
+                                                                                    }
+                                                                                </span>
+                                                                            )
+                                                                        }
+                                                                        required
+                                                                    />
+                                                                    <InputWithLabel
+                                                                        id="bankAccountName"
+                                                                        label={
+                                                                            'Nama Pemilik Rekening'
+                                                                        }
+                                                                        placeholder={
+                                                                            'PT. Karya Utama'
+                                                                        }
+                                                                        type="text"
+                                                                        onChange={e =>
+                                                                            setNewBank(
+                                                                                {
+                                                                                    ...newBank,
+                                                                                    account_name:
+                                                                                        e
+                                                                                            .target
+                                                                                            .value,
+                                                                                },
+                                                                            )
+                                                                        }
+                                                                        value={
+                                                                            newBank.account_name
+                                                                        }
+                                                                        error={
+                                                                            validation.account_name && (
+                                                                                <span className="text-red-500 text-sm">
+                                                                                    {
+                                                                                        validation.account_name
+                                                                                    }
+                                                                                </span>
+                                                                            )
+                                                                        }
+                                                                        required
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="mt-4 flex justify-end space-x-2">
+                                                                <button
+                                                                    type="submit"
+                                                                    className="disabled:bg-opacity-50 disabled:text-opacity-50 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                                    Simpan Data
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </Dialog.Panel>
+                                                </Transition.Child>
+                                            </div>
+                                        </div>
+                                    </Dialog>
+                                </Transition>
                             </div>
                         )}
 

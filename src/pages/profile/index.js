@@ -1,3 +1,4 @@
+import CompanyBank from '@/components/CompanyBank'
 import CompanyDetail from '@/components/CompanyDetail'
 import CompanyDocument from '@/components/CompanyDocument'
 import AppLayout from '@/components/Layouts/AppLayout'
@@ -118,6 +119,7 @@ export default function register() {
 
                                     <UserDetail />
                                     <CompanyDetail />
+                                    <CompanyBank />
                                     <CompanyDocument />
                                 </div>
                             </div>

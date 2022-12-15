@@ -45,6 +45,7 @@ export default function createCompany() {
     const [validation, setValidation] = React.useState([])
     const router = useRouter()
     const [uploadProgress, setUploadProgress] = React.useState(0)
+    
     const handleSubmit = async e => {
         e.preventDefault()
         // setValidation([])
