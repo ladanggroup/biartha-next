@@ -19,7 +19,7 @@ function Navigation(props) {
         window.addEventListener('scroll', changeNavbarColor)
     }
     const handleClickScroll = targetElement => {
-        const element = document.getElementById(targetElement)
+        const element = '#services'
         if (element) {
             // 👇 Will scroll smoothly to the top of the next section
             element.scrollIntoView({ behavior: 'smooth' })
@@ -31,12 +31,12 @@ function Navigation(props) {
                 colorChange ? 'bg-white shadow-md' : 'bg-transparent'
             } duration-400 fixed top-0 left-0 z-20 w-full px-2 py-2.5 transition-all  dark:border-gray-600 dark:bg-gray-900 sm:px-4`}>
             <div className="container mx-auto flex flex-wrap items-center justify-between">
-                <a href="https://flowbite.com/" className="flex items-center">
+                <Link href="/" className="flex items-center">
                     <ApplicationLogoText className="block h-10 w-auto" />
                     {/* <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
                         {process.env.appName}
                     </span> */}
-                </a>
+                </Link>
                 <div className="flex space-x-2 md:order-2">
                     <Link
                         href={'/login'}
@@ -72,37 +72,37 @@ function Navigation(props) {
                     id="navbar-sticky">
                     <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:text-sm md:font-medium md:dark:bg-gray-900">
                         <li>
-                            <button
-                                onClick={() => handleClickScroll('home')}
-                                className="block rounded bg-blue-700 py-2 pr-4 pl-3 text-white dark:text-white md:bg-transparent md:p-0 md:text-blue-700"
-                                aria-current="page">
-                                Home
-                            </button>
-                        </li>
-                        <li>
-                            <button
-                                onClick={() => handleClickScroll('about')}
+                            <Link
+                                href={'/#tentang-kami'}
                                 className={`${
-                                    router.asPath === '/#about'
-                                        ? 'bg-blue-700 text-white'
-                                        : ''
-                                }block rounded py-2 pr-4 pl-3 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:p-0 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-white`}>
+                                    router.asPath === '/#tentang-kami'
+                                        ? ' bg-blue-700  text-white dark:text-white md:bg-transparent md:text-blue-700'
+                                        : '  text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white  md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-white'
+                                } block rounded py-2 pr-4 pl-3 md:p-0`}>
                                 Tentang Kami
-                            </button>
+                            </Link>
                         </li>
                         <li>
-                            <button
-                                onClick={() => handleClickScroll('services')}
-                                className="block rounded py-2 pr-4 pl-3 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:p-0 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-white">
+                            <Link
+                                href={'/#layanan'}
+                                className={`${
+                                    router.asPath === '/#layanan'
+                                        ? ' bg-blue-700  text-white dark:text-white md:bg-transparent md:text-blue-700'
+                                        : '  text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white  md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-white'
+                                } block rounded py-2 pr-4 pl-3 md:p-0`}>
                                 Layanan
-                            </button>
+                            </Link>
                         </li>
                         <li>
-                            <a
-                                href="#"
-                                className="block rounded py-2 pr-4 pl-3 text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:p-0 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-white">
+                            <Link
+                                href="/hubungi-kami"
+                                className={`${
+                                    router.asPath === '/hubungi-kami'
+                                        ? ' bg-blue-700  text-white dark:text-white md:bg-transparent md:text-blue-700'
+                                        : '  text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white  md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-white'
+                                } block rounded py-2 pr-4 pl-3 md:p-0`}>
                                 Hubungi Kami
-                            </a>
+                            </Link>
                         </li>
                     </ul>
                 </div>

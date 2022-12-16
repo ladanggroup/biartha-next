@@ -4,7 +4,7 @@ const nextConfig = {
     swcMinify: true,
 
     env: {
-        appName: 'Bi`Artha',
+        appName: 'B`artha',
     },
 
     images: {
@@ -20,6 +20,10 @@ const nextConfig = {
             {
                 source: '/pinjaman',
                 destination: '/loan',
+            },
+            {
+                source: '/hubungi-kami',
+                destination: '/contact-us',
             },
             {
                 source: '/pinjaman/buat-pengajuan',
