@@ -72,7 +72,7 @@ export default function create() {
                     setDocument({})
                 })
                 .catch(error => {
-                    if (error.response.status !== 422) throw error
+                    // if (error.response.status !== 422) throw error
                     setValidation(error.response.data.errors)
                     setShow(false)
                 })
@@ -211,7 +211,7 @@ export default function create() {
         }).then(res => {
             setListBank(res.data.data)
             if (res.data.data.length === 0) {
-                toggleModal()
+                setIsOpen(true)
             }
         })
     }
@@ -318,364 +318,380 @@ export default function create() {
                         }>
                         {!document.loan_id && (
                             <div className="py-12">
-                                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                                        <div className="border-b border-gray-200 bg-white p-6">
-                                            <div className="text-xl font-semibold text-gray-700">
-                                                Form Pengajuan Pinjaman
-                                            </div>
-                                            <form onSubmit={handleSubmit}>
-                                                <div className="mt-2">
-                                                    <div className="grid grid-cols-2 gap-4">
-                                                        <InputWithLabel
-                                                            id="contractName"
-                                                            label={
-                                                                'Nama Kontrak'
-                                                            }
-                                                            placeholder={
-                                                                'Proyek SIPLah SMK Negeri 2 Surabaya'
-                                                            }
-                                                            type="text"
-                                                            onChange={e =>
-                                                                setLoan({
-                                                                    ...loan,
-                                                                    contract_name:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            value={
-                                                                loan.contract_name
-                                                            }
-                                                            error={
-                                                                validation.contract_name && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.contract_name
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                            required
-                                                        />
-                                                        <InputWithLabel
-                                                            id="contractNumber"
-                                                            label={
-                                                                'Nomor Kontrak'
-                                                            }
-                                                            placeholder={
-                                                                'PO/2021/0001'
-                                                            }
-                                                            type="text"
-                                                            onChange={e =>
-                                                                setLoan({
-                                                                    ...loan,
-                                                                    contract_number:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            value={
-                                                                loan.contract_number
-                                                            }
-                                                            error={
-                                                                validation.contract_number && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.contract_number
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                            required
-                                                        />
-                                                        <InputWithLabel
-                                                            id="contractStartDate"
-                                                            label={
-                                                                'Tanggal Mulai Kontrak'
-                                                            }
-                                                            placeholder={''}
-                                                            type="date"
-                                                            onChange={e =>
-                                                                setLoan({
-                                                                    ...loan,
-                                                                    contract_start_date:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            value={
-                                                                loan.contract_start_date
-                                                            }
-                                                            error={
-                                                                validation.contract_start_date && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.contract_start_date
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                            required
-                                                        />
-                                                        <InputWithLabel
-                                                            id="contractEndDate"
-                                                            label={
-                                                                'Tanggal Akhir Kontrak'
-                                                            }
-                                                            placeholder={''}
-                                                            type="date"
-                                                            onChange={e =>
-                                                                setLoan({
-                                                                    ...loan,
-                                                                    contract_end_date:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            value={
-                                                                loan.contract_end_date
-                                                            }
-                                                            error={
-                                                                validation.contract_end_date && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.contract_end_date
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                            required
-                                                        />
-                                                        <InputWithLabel
-                                                            id="contractValue"
-                                                            label={
-                                                                'Nilai Kontrak'
-                                                            }
-                                                            placeholder={
-                                                                '100000000'
-                                                            }
-                                                            type="number"
-                                                            onChange={e =>
-                                                                setLoan({
-                                                                    ...loan,
-                                                                    contract_value:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            value={
-                                                                loan.contract_value
-                                                            }
-                                                            helper={
-                                                                'Rp. ' +
-                                                                Number(
-                                                                    loan?.contract_value,
-                                                                ).toLocaleString()
-                                                            }
-                                                            error={
-                                                                validation.contract_value && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.contract_value
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                        />
-                                                        <InputSelect
-                                                            id="tenor"
-                                                            label={
-                                                                'Tenor Pinjaman'
-                                                            }
-                                                            placeholder={
-                                                                'Pilih Tenor'
-                                                            }
-                                                            onChange={e =>
-                                                                setLoan({
-                                                                    ...loan,
-                                                                    tenor:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            error={
-                                                                validation.tenor && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.tenor
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                            required>
-                                                            <option value={30}>
-                                                                30 Hari - Bunga
-                                                                1%
-                                                            </option>
-                                                            <option value={60}>
-                                                                60 Hari - Bunga
-                                                                1.5%
-                                                            </option>
-                                                        </InputSelect>
-                                                        <InputWithLabel
-                                                            id="picName"
-                                                            label={'Nama PIC'}
-                                                            placeholder={
-                                                                'Budi Santoso'
-                                                            }
-                                                            type="text"
-                                                            onChange={e =>
-                                                                setLoan({
-                                                                    ...loan,
-                                                                    pic_name:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            value={
-                                                                loan.pic_name
-                                                            }
-                                                            error={
-                                                                validation.pic_name && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.pic_name
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                        />
-                                                        <InputWithLabel
-                                                            id="picPhone"
-                                                            label={
-                                                                'Nomor Telepon PIC'
-                                                            }
-                                                            placeholder={
-                                                                '081234567890'
-                                                            }
-                                                            type="text"
-                                                            onChange={e =>
-                                                                setLoan({
-                                                                    ...loan,
-                                                                    pic_phone:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            value={
-                                                                loan.pic_phone
-                                                            }
-                                                            error={
-                                                                validation.pic_phone && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.pic_phone
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                        />
-                                                        <InputWithLabel
-                                                            id="picPosition"
-                                                            label={
-                                                                'Jabatan PIC'
-                                                            }
-                                                            placeholder={
-                                                                'Wakil Direktur'
-                                                            }
-                                                            type="text"
-                                                            onChange={e =>
-                                                                setLoan({
-                                                                    ...loan,
-                                                                    pic_position:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            value={
-                                                                loan.pic_position
-                                                            }
-                                                            error={
-                                                                validation.pic_position && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.pic_position
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                            required
-                                                        />
-                                                        <InputSelect
-                                                            id="companyBank"
-                                                            label={
-                                                                'Pilih Akun Bank'
-                                                            }
-                                                            placeholder={
-                                                                'Pilih Akun Bank'
-                                                            }
-                                                            onChange={e =>
-                                                                setLoan({
-                                                                    ...loan,
-                                                                    bank_id:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }
-                                                            error={
-                                                                validation.bank_id && (
-                                                                    <span className="text-red-500 text-sm">
-                                                                        {
-                                                                            validation.bank_id
-                                                                        }
-                                                                    </span>
-                                                                )
-                                                            }
-                                                            required>
-                                                            {listBank.map(
-                                                                (
-                                                                    item,
-                                                                    index,
-                                                                ) => (
-                                                                    <option
-                                                                        key={
-                                                                            index
-                                                                        }
-                                                                        value={
-                                                                            item.id
-                                                                        }
-                                                                        selected={
-                                                                            item.status
-                                                                        }>
-                                                                        {
-                                                                            item.bank_name
-                                                                        }{' '}
-                                                                        -{' '}
-                                                                        {
-                                                                            item.account_number
-                                                                        }
-                                                                        a/n.{' '}
-                                                                        {
-                                                                            item.account_name
-                                                                        }
-                                                                    </option>
-                                                                ),
-                                                            )}
-                                                        </InputSelect>
+                                {listBank.length !== 0 && (
+                                    <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                                        <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+                                            <div className="border-b border-gray-200 bg-white p-6">
+                                                <div className="text-xl font-semibold text-gray-700">
+                                                    Form Pengajuan Pinjaman
+                                                </div>
+                                                <form onSubmit={handleSubmit}>
+                                                    <div className="mt-2">
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <InputWithLabel
+                                                                id="contractName"
+                                                                label={
+                                                                    'Nama Kontrak'
+                                                                }
+                                                                placeholder={
+                                                                    'Proyek SIPLah SMK Negeri 2 Surabaya'
+                                                                }
+                                                                type="text"
+                                                                onChange={e =>
+                                                                    setLoan({
+                                                                        ...loan,
+                                                                        contract_name:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    loan.contract_name
+                                                                }
+                                                                error={
+                                                                    validation.contract_name && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.contract_name
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                                required
+                                                            />
+                                                            <InputWithLabel
+                                                                id="contractNumber"
+                                                                label={
+                                                                    'Nomor Kontrak'
+                                                                }
+                                                                placeholder={
+                                                                    'PO/2021/0001'
+                                                                }
+                                                                type="text"
+                                                                onChange={e =>
+                                                                    setLoan({
+                                                                        ...loan,
+                                                                        contract_number:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    loan.contract_number
+                                                                }
+                                                                error={
+                                                                    validation.contract_number && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.contract_number
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                                required
+                                                            />
+                                                            <InputWithLabel
+                                                                id="contractStartDate"
+                                                                label={
+                                                                    'Tanggal Mulai Kontrak'
+                                                                }
+                                                                placeholder={''}
+                                                                type="date"
+                                                                onChange={e =>
+                                                                    setLoan({
+                                                                        ...loan,
+                                                                        contract_start_date:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    loan.contract_start_date
+                                                                }
+                                                                error={
+                                                                    validation.contract_start_date && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.contract_start_date
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                                required
+                                                            />
+                                                            <InputWithLabel
+                                                                id="contractEndDate"
+                                                                label={
+                                                                    'Tanggal Akhir Kontrak'
+                                                                }
+                                                                placeholder={''}
+                                                                type="date"
+                                                                onChange={e =>
+                                                                    setLoan({
+                                                                        ...loan,
+                                                                        contract_end_date:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    loan.contract_end_date
+                                                                }
+                                                                error={
+                                                                    validation.contract_end_date && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.contract_end_date
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                                required
+                                                            />
+                                                            <InputWithLabel
+                                                                id="contractValue"
+                                                                label={
+                                                                    'Nilai Kontrak'
+                                                                }
+                                                                placeholder={
+                                                                    '100000000'
+                                                                }
+                                                                type="number"
+                                                                onChange={e =>
+                                                                    setLoan({
+                                                                        ...loan,
+                                                                        contract_value:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    loan.contract_value
+                                                                }
+                                                                helper={
+                                                                    'Rp. ' +
+                                                                    Number(
+                                                                        loan?.contract_value,
+                                                                    ).toLocaleString()
+                                                                }
+                                                                error={
+                                                                    validation.contract_value && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.contract_value
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            />
+                                                            <InputSelect
+                                                                id="tenor"
+                                                                label={
+                                                                    'Tenor Pinjaman'
+                                                                }
+                                                                placeholder={
+                                                                    'Pilih Tenor'
+                                                                }
+                                                                onChange={e =>
+                                                                    setLoan({
+                                                                        ...loan,
+                                                                        tenor:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                error={
+                                                                    validation.tenor && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.tenor
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                                required>
+                                                                <option
+                                                                    value={30}>
+                                                                    30 Hari -
+                                                                    Bunga 1%
+                                                                </option>
+                                                                <option
+                                                                    value={60}>
+                                                                    60 Hari -
+                                                                    Bunga 1.5%
+                                                                </option>
+                                                            </InputSelect>
+                                                            <InputWithLabel
+                                                                id="picName"
+                                                                label={
+                                                                    'Nama PIC'
+                                                                }
+                                                                placeholder={
+                                                                    'Budi Santoso'
+                                                                }
+                                                                type="text"
+                                                                onChange={e =>
+                                                                    setLoan({
+                                                                        ...loan,
+                                                                        pic_name:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    loan.pic_name
+                                                                }
+                                                                error={
+                                                                    validation.pic_name && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.pic_name
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            />
+                                                            <InputWithLabel
+                                                                id="picPhone"
+                                                                label={
+                                                                    'Nomor Telepon PIC'
+                                                                }
+                                                                placeholder={
+                                                                    '081234567890'
+                                                                }
+                                                                type="text"
+                                                                onChange={e =>
+                                                                    setLoan({
+                                                                        ...loan,
+                                                                        pic_phone:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    loan.pic_phone
+                                                                }
+                                                                error={
+                                                                    validation.pic_phone && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.pic_phone
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                            />
+                                                            <InputWithLabel
+                                                                id="picPosition"
+                                                                label={
+                                                                    'Jabatan PIC'
+                                                                }
+                                                                placeholder={
+                                                                    'Wakil Direktur'
+                                                                }
+                                                                type="text"
+                                                                onChange={e =>
+                                                                    setLoan({
+                                                                        ...loan,
+                                                                        pic_position:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                value={
+                                                                    loan.pic_position
+                                                                }
+                                                                error={
+                                                                    validation.pic_position && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.pic_position
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                                required
+                                                            />
+                                                            <InputSelect
+                                                                id="companyBank"
+                                                                label={
+                                                                    'Pilih Akun Bank'
+                                                                }
+                                                                placeholder={
+                                                                    'Pilih Akun Bank'
+                                                                }
+                                                                onChange={e =>
+                                                                    setLoan({
+                                                                        ...loan,
+                                                                        bank_id:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }
+                                                                error={
+                                                                    validation.bank_id && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.bank_id
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                                required>
+                                                                {listBank.map(
+                                                                    (
+                                                                        item,
+                                                                        index,
+                                                                    ) => (
+                                                                        <option
+                                                                            key={
+                                                                                index
+                                                                            }
+                                                                            value={
+                                                                                item.id
+                                                                            }
+                                                                            selected={
+                                                                                item.status
+                                                                            }>
+                                                                            {
+                                                                                item.bank_name
+                                                                            }{' '}
+                                                                            -{' '}
+                                                                            {
+                                                                                item.account_number
+                                                                            }
+                                                                            a/n.{' '}
+                                                                            {
+                                                                                item.account_name
+                                                                            }
+                                                                        </option>
+                                                                    ),
+                                                                )}
+                                                            </InputSelect>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <div className="mt-4 flex justify-end space-x-2">
-                                                    <button
-                                                        type="submit"
-                                                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-                                                        Simpan Data
-                                                    </button>
-                                                </div>
-                                            </form>
+                                                    <div className="mt-4 flex justify-end space-x-2">
+                                                        <button
+                                                            type="submit"
+                                                            className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                            Simpan Data
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
                                 <Transition appear show={isOpen} as={Fragment}>
                                     <Dialog
                                         open={isOpen}

@@ -25,6 +25,7 @@ export default function show() {
         payment_account_name: '',
         payment_date: '',
     })
+    const [loanMutation, setLoanMutation] = React.useState([])
     const [loading, setLoading] = React.useState(false)
     const router = useRouter()
     const { id } = router.query
@@ -38,6 +39,7 @@ export default function show() {
         }).then(res => {
             setLoan(res.data.data.loan)
             setDocument(res.data.data.loan_document)
+            setLoanMutation(res.data.data.loan_note)
             setLoading(false)
         })
     }
@@ -302,9 +304,7 @@ export default function show() {
                                             Catatan :
                                         </div>
                                         <div className="text-red-600">
-                                            Pembayaran tidak ditemukan, silahkan
-                                            hubungi Admin untuk informasi lebih
-                                            lanjut.
+                                            {loanMutation}
                                         </div>
                                     </div>
                                 )}
