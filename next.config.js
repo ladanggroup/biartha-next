@@ -16,30 +16,30 @@ const nextConfig = {
             //     source: '/:path*',
             //     destination: 'http://localhost:8000/:path*',
             // },
-            {
-                source: '/pinjaman',
-                destination: '/loan',
-            },
-            {
-                source: '/hubungi-kami',
-                destination: '/contact-us',
-            },
-            {
-                source: '/pinjaman/buat-pengajuan',
-                destination: '/loan/create',
-            },
-            {
-                source: '/pinjaman/detail/:id',
-                destination: '/loan/:id',
-            },
-            {
-                source: '/akun',
-                destination: '/profile',
-            },
-            {
-                source: '/akun/buat-data',
-                destination: '/profile/create',
-            },
+            // {
+            //     source: '/pinjaman',
+            //     destination: '/loan',
+            // },
+            // {
+            //     source: '/hubungi-kami',
+            //     destination: '/contact-us',
+            // },
+            // {
+            //     source: '/pinjaman/buat-pengajuan',
+            //     destination: '/loan/create',
+            // },
+            // {
+            //     source: '/pinjaman/detail/:id',
+            //     destination: '/loan/:id',
+            // },
+            // {
+            //     source: '/akun',
+            //     destination: '/profile',
+            // },
+            // {
+            //     source: '/akun/buat-data',
+            //     destination: '/profile/create',
+            // },
         ]
     },
 }
