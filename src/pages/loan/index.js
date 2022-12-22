@@ -475,7 +475,7 @@ export default function loan() {
                                                                         {item.status !==
                                                                             'LOAN_CREATED' && (
                                                                             <Link
-                                                                                href={`/pinjaman/detail/${item.loan_id}`}
+                                                                                href={`/loan/${item.loan_id}`}
                                                                                 className="block text-center border-primary text-primary hover:bg-primary mt-4 w-full rounded-md border-2 py-1 transition-all duration-300 hover:text-white">
                                                                                 Lihat
                                                                                 detail

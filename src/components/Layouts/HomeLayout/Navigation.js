@@ -95,9 +95,9 @@ function Navigation(props) {
                         </li>
                         <li>
                             <Link
-                                href="/hubungi-kami"
+                                href="/contact-us"
                                 className={`${
-                                    router.asPath === '/hubungi-kami'
+                                    router.asPath === '/contact-us'
                                         ? ' bg-blue-700  text-white dark:text-white md:bg-transparent md:text-blue-700'
                                         : '  text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white  md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-white'
                                 } block rounded py-2 pr-4 pl-3 md:p-0`}>
