@@ -14,6 +14,7 @@ import { toast } from 'react-toastify'
 
 export default function show() {
     const [loan, setLoan] = React.useState([])
+    const [loanRenewal, setLoanRenewal] = React.useState([])
     const [document, setDocument] = React.useState([])
     const [isOpen, setIsOpen] = React.useState(false)
     const [validation, setValidation] = React.useState([])
@@ -32,7 +33,13 @@ export default function show() {
     const router = useRouter()
     const { id } = router.query
     const [uploadProgress, setUploadProgress] = React.useState(0)
-    const [modalType, setModalType] = React.useState('')
+    const [renewal, setRenewal] = React.useState({
+        is_renewal: false,
+        tenor: 30,
+        interest_presentage: 1,
+        handling_fee: 5000,
+        note: '',
+    })
     const getLoan = async () => {
         setLoading(true)
         const res = await axios({
@@ -42,6 +49,7 @@ export default function show() {
             setLoan(res.data.data.loan)
             setDocument(res.data.data.loan_document)
             setLoanMutation(res.data.data.loan_note)
+            setLoanRenewal(res.data.data.loan_renewal)
             setLoading(false)
         })
     }
@@ -49,8 +57,12 @@ export default function show() {
     const toggleModal = async () => {
         setIsOpen(!isOpen)
     }
+
     const toggleModalRenewal = async () => {
-        setModalType('renewal')
+        setRenewal({
+            ...renewal,
+            is_renewal: !renewal.is_renewal,
+        })
         setIsOpen(!isOpen)
     }
 
@@ -137,6 +149,36 @@ export default function show() {
                     position: toast.POSITION.BOTTOM_RIGHT,
                 })
                 toggleModal()
+                getLoan()
+            })
+            .catch(error => {
+                if (error.response.status !== 422) throw error
+                setValidation(error.response.data.errors)
+                console.log(error)
+            })
+    }
+
+    const handleRenewal = async e => {
+        e.preventDefault()
+        setValidation([])
+        const formData = new FormData()
+        formData.append('tenor', renewal.tenor)
+        formData.append(
+            'loan_interest',
+            (loan.loan_value * renewal.interest_presentage) / 100,
+        )
+        formData.append('handling_fee', renewal.handling_fee)
+        formData.append('note', renewal.note)
+        const res = await axios({
+            method: 'POST',
+            url: `/api/loan/renewal/${loan.loan_id}`,
+            data: formData,
+        })
+            .then(res => {
+                toast.success(res.data.message, {
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                })
+                toggleModalRenewal()
                 getLoan()
             })
             .catch(error => {
@@ -252,6 +294,9 @@ export default function show() {
                                             {loan.status ===
                                                 'LOAN_PAYMENT_VERIFIED' &&
                                                 'Lunas'}
+                                            {loan.status ===
+                                                'LOAN_RENEWAL_PROPOSED' &&
+                                                'Pengajuan Perpanjang Masa Pinjam'}
                                             )
                                         </span>
                                     </div>
@@ -337,7 +382,7 @@ export default function show() {
                                             </div>
                                         </div>
                                     )}
-                                {loan?.loan_value && (
+                                {loan?.loan_value && loanRenewal.length === 0 && (
                                     <div className="mt-4 text-blue-800 bg-blue-50 p-4">
                                         <div>
                                             Pinjaman : Rp.{' '}
@@ -378,6 +423,62 @@ export default function show() {
                                                 Number(loan?.loan_value) +
                                                 Number(loan?.loan_interest) +
                                                 Number(loan?.handling_fee)
+                                            ).toLocaleString()}{' '}
+                                        </div>
+                                    </div>
+                                )}
+                                {loan?.loan_value && loanRenewal.length !== 0 && (
+                                    <div className="mt-4 text-blue-800 bg-blue-50 p-4">
+                                        <div>
+                                            Pinjaman : Rp.{' '}
+                                            <span className="font-semibold">
+                                                {' '}
+                                                {Number(
+                                                    loan?.loan_value,
+                                                ).toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            Bunga : Rp.{' '}
+                                            {Number(
+                                                loan?.loan_interest,
+                                            ).toLocaleString()}{' '}
+                                            ({loan.interest_percentage}%)
+                                        </div>
+                                        <div>
+                                            Bunga Perpanjangan: Rp.{' '}
+                                            {Number(
+                                                loanRenewal.loan_interest,
+                                            ).toLocaleString()}{' '}
+                                            ({renewal.interest_presentage}%)
+                                        </div>
+                                        <div>
+                                            Biaya Penanganan : Rp.{' '}
+                                            {Number(
+                                                loan?.handling_fee +
+                                                    loanRenewal.handling_fee,
+                                            ).toLocaleString()}
+                                        </div>
+                                        <div>
+                                            Tenor :{' '}
+                                            {loan.tenor + loanRenewal.tenor}{' '}
+                                            Hari
+                                        </div>
+                                        <div>
+                                            Tanggal Pinjaman : {loan.loan_date}
+                                        </div>
+                                        <div>
+                                            Tanggal{' '}
+                                            <span className="font-semibold">
+                                                Akhir
+                                            </span>{' '}
+                                            Pembayaran :{' '}
+                                            {loanRenewal.loan_renewal_end_date}
+                                        </div>
+                                        <div className="text-xl font-semibold">
+                                            Total : Rp.{' '}
+                                            {Number(
+                                                loanRenewal?.grand_total,
                                             ).toLocaleString()}{' '}
                                         </div>
                                     </div>
@@ -454,8 +555,9 @@ export default function show() {
                                     loan.status === 'LOAN_WAITING_TRANSFERED' ||
                                     loan.status === 'LOAN_PAYMENT_VERIFY' ||
                                     loan.status === 'LOAN_REJECTED' ||
+                                    loan.status === 'LOAN_PAYMENT_VERIFIED' ||
                                     loan.status ===
-                                        'LOAN_PAYMENT_VERIFIED') && (
+                                        'LOAN_RENEWAL_PROPOSED') && (
                                     <span className="text-gray-500 font-light mt-4">
                                         Tidak ada aksi yang di butuhkan
                                     </span>
@@ -609,7 +711,11 @@ export default function show() {
                         open={isOpen}
                         as="div"
                         className="relative z-10"
-                        onClose={toggleModal}>
+                        onClose={
+                            renewal.is_renewal
+                                ? toggleModalRenewal
+                                : toggleModal
+                        }>
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -620,7 +726,7 @@ export default function show() {
                             leaveTo="opacity-0">
                             <div className="fixed inset-0 bg-black bg-opacity-25" />
                         </Transition.Child>
-                        {modalType === 'renewal' ? (
+                        {renewal.is_renewal ? (
                             <div className="fixed inset-0 overflow-y-auto">
                                 <div className="flex min-h-full items-center justify-center p-4 text-center">
                                     <Transition.Child
@@ -631,15 +737,15 @@ export default function show() {
                                         leave="ease-in duration-200"
                                         leaveFrom="opacity-100 scale-100"
                                         leaveTo="opacity-0 scale-95">
-                                        <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                        <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                                             <Dialog.Title
                                                 as="h3"
                                                 className="text-lg font-medium leading-6 text-gray-900">
                                                 Perbarui Kontrak
                                             </Dialog.Title>
-                                            <form onSubmit={handleSubmit}>
+                                            <form onSubmit={handleRenewal}>
                                                 <div className="mt-2">
-                                                    <div className="text-gray-600">
+                                                    <div className="text-gray-600 grid grid-cols-2 gap-2">
                                                         <div className="mt-4">
                                                             <div className="border-2 border-gray-200 p-2 rounded-lg  text-gray-600">
                                                                 <div className="font-semibold text-gray-700 mb-2 border-b-2">
@@ -745,7 +851,10 @@ export default function show() {
                                                                         {
                                                                             loan?.tenor
                                                                         }{' '}
-                                                                        + 30
+                                                                        +{' '}
+                                                                        {
+                                                                            renewal.tenor
+                                                                        }{' '}
                                                                         Hari
                                                                     </span>
                                                                 </div>
@@ -758,7 +867,7 @@ export default function show() {
                                                                             loan.loan_end_date,
                                                                         )
                                                                             .add(
-                                                                                30,
+                                                                                renewal.tenor,
                                                                                 'days',
                                                                             )
                                                                             .format(
@@ -784,7 +893,7 @@ export default function show() {
                                                                         + Rp.{' '}
                                                                         {Number(
                                                                             (loan.loan_value *
-                                                                                1) /
+                                                                                renewal.interest_presentage) /
                                                                                 100,
                                                                         ).toLocaleString(
                                                                             undefined,
@@ -804,53 +913,117 @@ export default function show() {
                                                                             loan?.loan_interest,
                                                                         ).toLocaleString()}{' '}
                                                                         + Rp.
-                                                                        5,000
+                                                                        {Number(
+                                                                            renewal.handling_fee,
+                                                                        ).toLocaleString()}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    Total
+                                                                    Tagihan
+                                                                    Akhir : Rp.{' '}
+                                                                    <span className="font-semibold">
+                                                                        {(
+                                                                            Number(
+                                                                                loan?.loan_value,
+                                                                            ) +
+                                                                            Number(
+                                                                                loan?.loan_interest,
+                                                                            ) +
+                                                                            Number(
+                                                                                loan?.handling_fee,
+                                                                            ) +
+                                                                            (Number(
+                                                                                (loan.loan_value *
+                                                                                    renewal.interest_presentage) /
+                                                                                    100,
+                                                                            ) +
+                                                                                Number(
+                                                                                    renewal.handling_fee,
+                                                                                ))
+                                                                        ) // handling fee
+                                                                            .toLocaleString(
+                                                                                undefined,
+                                                                                {
+                                                                                    minimumFractionDigits: 0,
+                                                                                    maximumFractionDigits: 0,
+                                                                                },
+                                                                            )}
                                                                     </span>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div className="mt-4">
-                                                            <div className=" text-lg border-2 border-violet-500 p-2 rounded-lg bg-violet-100 text-violet-600">
-                                                                Total Tagihan
-                                                                Akhir : Rp.{' '}
-                                                                <span className="font-semibold">
-                                                                    {(
+                                                    </div>
+                                                    <div className="mt-4">
+                                                        <div className=" text-lg border-2 border-violet-500 p-2 rounded-lg bg-violet-100 text-violet-600">
+                                                            Total Tagihan Akhir
+                                                            : Rp.{' '}
+                                                            <span className="font-semibold">
+                                                                {(
+                                                                    Number(
+                                                                        loan?.loan_value,
+                                                                    ) +
+                                                                    Number(
+                                                                        loan?.loan_interest,
+                                                                    ) +
+                                                                    Number(
+                                                                        loan?.handling_fee,
+                                                                    ) +
+                                                                    (Number(
+                                                                        (loan.loan_value *
+                                                                            renewal.interest_presentage) /
+                                                                            100,
+                                                                    ) +
                                                                         Number(
-                                                                            loan?.loan_value,
-                                                                        ) +
-                                                                        Number(
-                                                                            loan?.loan_interest,
-                                                                        ) +
-                                                                        Number(
-                                                                            loan?.handling_fee,
-                                                                        ) +
-                                                                        (Number(
-                                                                            (loan.loan_value *
-                                                                                1) /
-                                                                                100,
-                                                                        ) +
-                                                                            Number(
-                                                                                5000,
-                                                                            ))
-                                                                    ) // handling fee
-                                                                        .toLocaleString(
-                                                                            undefined,
-                                                                            {
-                                                                                minimumFractionDigits: 0,
-                                                                                maximumFractionDigits: 0,
-                                                                            },
-                                                                        )}
-                                                                </span>
-                                                            </div>
+                                                                            renewal.handling_fee,
+                                                                        ))
+                                                                ) // handling fee
+                                                                    .toLocaleString(
+                                                                        undefined,
+                                                                        {
+                                                                            minimumFractionDigits: 0,
+                                                                            maximumFractionDigits: 0,
+                                                                        },
+                                                                    )}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
-
+                                                <div className="mt-4">
+                                                    <>
+                                                        <label
+                                                            htmlFor="payment_note"
+                                                            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                                            Alasan Anda
+                                                            Mengajukan
+                                                            Perpanjangan
+                                                        </label>
+                                                        <textarea
+                                                            onChange={e =>
+                                                                setRenewal({
+                                                                    ...renewal,
+                                                                    note:
+                                                                        e.target
+                                                                            .value,
+                                                                })
+                                                            }
+                                                            id="message"
+                                                            rows={4}
+                                                            className="block p-2.5 w-full text-sm text-gray-900 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                            placeholder="Tulis alasan Anda
+                                                            mengajukan
+                                                            perpanjangan disini..."
+                                                            value={renewal.note}
+                                                        />
+                                                    </>
+                                                </div>
                                                 <div className="mt-4 flex justify-end space-x-2">
                                                     <button
                                                         type="button"
                                                         className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-                                                        onClick={toggleModal}>
+                                                        onClick={
+                                                            toggleModalRenewal
+                                                        }>
                                                         Batal
                                                     </button>
                                                     <button
