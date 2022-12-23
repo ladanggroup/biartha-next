@@ -4,6 +4,8 @@ import AppLayout from '@/components/Layouts/AppLayout'
 import Loading from '@/components/Loading'
 import axios from '@/lib/axios'
 import { Dialog, Transition } from '@headlessui/react'
+import moment from 'moment'
+import 'moment/locale/id'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -30,7 +32,7 @@ export default function show() {
     const router = useRouter()
     const { id } = router.query
     const [uploadProgress, setUploadProgress] = React.useState(0)
-
+    const [modalType, setModalType] = React.useState('')
     const getLoan = async () => {
         setLoading(true)
         const res = await axios({
@@ -45,6 +47,10 @@ export default function show() {
     }
 
     const toggleModal = async () => {
+        setIsOpen(!isOpen)
+    }
+    const toggleModalRenewal = async () => {
+        setModalType('renewal')
         setIsOpen(!isOpen)
     }
 
@@ -161,6 +167,7 @@ export default function show() {
                 })
             })
     }
+
     useEffect(() => {
         if (!router.isReady) return
         getLoan()
@@ -308,6 +315,28 @@ export default function show() {
                                         </div>
                                     </div>
                                 )}
+                                {loan.status === 'LOAN_RUNNING' &&
+                                    moment(loan.loan_end_date)
+                                        .add(-7, 'days')
+                                        .format('YYYY-MM-DD') <=
+                                        moment().format('YYYY-MM-DD') && (
+                                        <div className="mt-4 bg-red-50 p-4 rounded-md shadow-md">
+                                            <div className="font-semibold text-red-600">
+                                                PERINGATAN :
+                                            </div>
+                                            <div className="text-red-600">
+                                                Pinjaman akan segera jatuh tempo
+                                                dalam{' '}
+                                                <span className="font-semibold">
+                                                    {moment(loan.loan_end_date)
+                                                        .locale('fr')
+                                                        .fromNow(true)}
+                                                </span>{' '}
+                                                lagi. Mohon segera lakukan
+                                                pembayaran.
+                                            </div>
+                                        </div>
+                                    )}
                                 {loan?.loan_value && (
                                     <div className="mt-4 text-blue-800 bg-blue-50 p-4">
                                         <div>
@@ -327,7 +356,7 @@ export default function show() {
                                             ({loan.interest_percentage}%)
                                         </div>
                                         <div>
-                                            Biaya Admin : Rp.{' '}
+                                            Biaya Penanganan : Rp.{' '}
                                             {Number(
                                                 loan?.handling_fee,
                                             ).toLocaleString()}
@@ -452,9 +481,16 @@ export default function show() {
                                             onClick={toggleModal}>
                                             Bayar Pinjaman
                                         </button>
-                                        <button className="bg-red-200 hover:bg-opacity-75 text-red-500 py-2 px-4 rounded-full w-full shadow-sm">
-                                            Perpanjang
-                                        </button>
+                                        {moment(loan.loan_end_date)
+                                            .add(-7, 'days')
+                                            .format('YYYY-MM-DD') <=
+                                            moment().format('YYYY-MM-DD') && (
+                                            <button
+                                                className="bg-red-200 hover:bg-opacity-75 text-red-500 py-2 px-4 rounded-full w-full shadow-sm"
+                                                onClick={toggleModalRenewal}>
+                                                Perpanjang
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                                 {loan.status === 'LOAN_PAYMENT_PROBLEM' && (
@@ -584,251 +620,508 @@ export default function show() {
                             leaveTo="opacity-0">
                             <div className="fixed inset-0 bg-black bg-opacity-25" />
                         </Transition.Child>
-
-                        <div className="fixed inset-0 overflow-y-auto">
-                            <div className="flex min-h-full items-center justify-center p-4 text-center">
-                                <Transition.Child
-                                    as={Fragment}
-                                    enter="ease-out duration-300"
-                                    enterFrom="opacity-0 scale-95"
-                                    enterTo="opacity-100 scale-100"
-                                    leave="ease-in duration-200"
-                                    leaveFrom="opacity-100 scale-100"
-                                    leaveTo="opacity-0 scale-95">
-                                    <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                        <Dialog.Title
-                                            as="h3"
-                                            className="text-lg font-medium leading-6 text-gray-900">
-                                            Bayar Pinjaman
-                                        </Dialog.Title>
-                                        <form onSubmit={handleSubmit}>
-                                            <div className="mt-2">
-                                                <div className="text-gray-600">
-                                                    <div className="mt-4">
-                                                        <div className=" text-lg border-2 border-violet-500 p-2 rounded-lg bg-violet-100 text-violet-600">
-                                                            Total Tagihan : Rp.{' '}
-                                                            <span className="font-semibold">
-                                                                {(
-                                                                    Number(
-                                                                        loan?.loan_value,
-                                                                    ) +
-                                                                    Number(
-                                                                        loan?.loan_interest,
-                                                                    ) +
-                                                                    Number(
-                                                                        loan?.handling_fee,
-                                                                    )
-                                                                ).toLocaleString()}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="mt-4 flex flex-col space-y-4">
-                                                        <InputSelect
-                                                            id="payment_method"
-                                                            label={
-                                                                'Pilih Metode Pembayaran'
-                                                            }
-                                                            placeholder={
-                                                                'Pilih Metode Pembayaran'
-                                                            }
-                                                            error={
-                                                                validation.payment_method && (
-                                                                    <span className="text-red-500 text-sm">
+                        {modalType === 'renewal' ? (
+                            <div className="fixed inset-0 overflow-y-auto">
+                                <div className="flex min-h-full items-center justify-center p-4 text-center">
+                                    <Transition.Child
+                                        as={Fragment}
+                                        enter="ease-out duration-300"
+                                        enterFrom="opacity-0 scale-95"
+                                        enterTo="opacity-100 scale-100"
+                                        leave="ease-in duration-200"
+                                        leaveFrom="opacity-100 scale-100"
+                                        leaveTo="opacity-0 scale-95">
+                                        <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                            <Dialog.Title
+                                                as="h3"
+                                                className="text-lg font-medium leading-6 text-gray-900">
+                                                Perbarui Kontrak
+                                            </Dialog.Title>
+                                            <form onSubmit={handleSubmit}>
+                                                <div className="mt-2">
+                                                    <div className="text-gray-600">
+                                                        <div className="mt-4">
+                                                            <div className="border-2 border-gray-200 p-2 rounded-lg  text-gray-600">
+                                                                <div className="font-semibold text-gray-700 mb-2 border-b-2">
+                                                                    Rincian
+                                                                    Pinjaman
+                                                                    Awal
+                                                                </div>
+                                                                <div>
+                                                                    Tanggal
+                                                                    Pinjaman :{' '}
+                                                                    <span className="font-semibold">
                                                                         {
-                                                                            validation.payment_method
+                                                                            loan?.loan_date
                                                                         }
                                                                     </span>
-                                                                )
-                                                            }
-                                                            onChange={e =>
-                                                                setPayment({
-                                                                    ...payment,
-                                                                    payment_method:
-                                                                        e.target
-                                                                            .value,
-                                                                })
-                                                            }>
-                                                            <option value="Bank Jatim">
-                                                                Bank Jatim -
-                                                                1234567890 - a/n
-                                                                PT. Biartha
-                                                            </option>
-                                                            <option value="Bank Jateng">
-                                                                Bank Jateng -
-                                                                1234567890 - a/n
-                                                                PT. Biartha
-                                                            </option>
-                                                        </InputSelect>
-                                                        <div className="grid grid-cols-2 gap-4">
-                                                            <InputWithLabel
-                                                                id="paymentAccountName"
-                                                                label={
-                                                                    'Nama Bank Pengirim'
-                                                                }
-                                                                placeholder={
-                                                                    'PT Langgeng Jaya'
-                                                                }
-                                                                type="text"
-                                                                onChange={e =>
-                                                                    setPayment({
-                                                                        ...payment,
-                                                                        payment_account_name:
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                    })
-                                                                }
-                                                                value={
-                                                                    payment.payment_account_name
-                                                                }
-                                                                error={
-                                                                    validation.payment_account_name && (
-                                                                        <span className="text-red-500 text-sm">
-                                                                            {
-                                                                                validation.payment_account_name
-                                                                            }
-                                                                        </span>
-                                                                    )
-                                                                }
-                                                            />
-                                                            <InputWithLabel
-                                                                id="paymentAccountNumber"
-                                                                label={
-                                                                    'Nomor Bank Pengirim'
-                                                                }
-                                                                placeholder={
-                                                                    '1234567890'
-                                                                }
-                                                                type="number"
-                                                                onChange={e =>
-                                                                    setPayment({
-                                                                        ...payment,
-                                                                        payment_account_no:
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                    })
-                                                                }
-                                                                value={
-                                                                    payment.payment_account_no
-                                                                }
-                                                                error={
-                                                                    validation.payment_account_no && (
-                                                                        <span className="text-red-500 text-sm">
-                                                                            {
-                                                                                validation.payment_account_no
-                                                                            }
-                                                                        </span>
-                                                                    )
-                                                                }
-                                                            />
-                                                            <InputWithLabel
-                                                                id="paymentTransferDate"
-                                                                label={
-                                                                    'Tanggal Transfer'
-                                                                }
-                                                                type="date"
-                                                                onChange={e =>
-                                                                    setPayment({
-                                                                        ...payment,
-                                                                        payment_date:
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                    })
-                                                                }
-                                                                value={
-                                                                    payment.payment_date
-                                                                }
-                                                                error={
-                                                                    validation.payment_date && (
-                                                                        <span className="text-red-500 text-sm">
-                                                                            {
-                                                                                validation.payment_date
-                                                                            }
-                                                                        </span>
-                                                                    )
-                                                                }
-                                                            />
-                                                            <InputWithLabel
-                                                                id="cardImage"
-                                                                label={
-                                                                    'Upload Bukti Bayar'
-                                                                }
-                                                                type="file"
-                                                                onChange={
-                                                                    uploadFile
-                                                                }
-                                                                defaultValue=""
-                                                                accept="image/*, .pdf"
-                                                                helper={
-                                                                    <p
-                                                                        className="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                                                                        id="file_input_help">
-                                                                        PNG,
-                                                                        JPG,
-                                                                        atau PDF
-                                                                        (Maks
-                                                                        5MB)
-                                                                    </p>
-                                                                }
-                                                                error={
-                                                                    validation.file_doc && (
-                                                                        <span className="text-red-500 text-sm">
-                                                                            {
-                                                                                validation.file_doc
-                                                                            }
-                                                                        </span>
-                                                                    )
-                                                                }>
-                                                                {uploadProgress >
-                                                                    0 && (
-                                                                    <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
-                                                                        <div
-                                                                            className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
-                                                                            style={{
-                                                                                width: `${uploadProgress}%`,
-                                                                            }}>
-                                                                            {
-                                                                                uploadProgress
-                                                                            }
-                                                                            %
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-                                                            </InputWithLabel>
+                                                                </div>
+                                                                <div>
+                                                                    Tenor :{' '}
+                                                                    <span className="font-semibold">
+                                                                        {
+                                                                            loan?.tenor
+                                                                        }{' '}
+                                                                        Hari
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    Tanggal
+                                                                    Jatuh Tempo
+                                                                    :{' '}
+                                                                    <span className="font-semibold">
+                                                                        {
+                                                                            loan?.loan_end_date
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    Pinjaman :
+                                                                    Rp.{' '}
+                                                                    <span className="font-semibold">
+                                                                        {Number(
+                                                                            loan?.loan_value,
+                                                                        ).toLocaleString()}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    Bunga : Rp.{' '}
+                                                                    <span className="font-semibold">
+                                                                        {Number(
+                                                                            loan?.loan_interest,
+                                                                        ).toLocaleString()}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    Biaya
+                                                                    Penanganan :
+                                                                    Rp.{' '}
+                                                                    <span className="font-semibold">
+                                                                        {Number(
+                                                                            loan?.handling_fee,
+                                                                        ).toLocaleString()}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    Total
+                                                                    Tagihan :
+                                                                    Rp.{' '}
+                                                                    <span className="font-semibold">
+                                                                        {(
+                                                                            Number(
+                                                                                loan?.loan_value,
+                                                                            ) +
+                                                                            Number(
+                                                                                loan?.loan_interest,
+                                                                            ) +
+                                                                            Number(
+                                                                                loan?.handling_fee,
+                                                                            )
+                                                                        ).toLocaleString()}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
                                                         </div>
-
-                                                        <input
-                                                            hidden
-                                                            type="text"
-                                                            value={
-                                                                contract.payment_file ||
-                                                                ''
-                                                            }
-                                                        />
+                                                        <div className="mt-4">
+                                                            <div className="border-2 border-gray-200 p-2 rounded-lg  text-gray-600">
+                                                                <div className="font-semibold text-gray-700 mb-2 border-b-2">
+                                                                    Rincian
+                                                                    Pinjaman
+                                                                    Setelah
+                                                                    Diperbarui
+                                                                </div>
+                                                                <div>
+                                                                    Tanggal
+                                                                    Pinjaman :{' '}
+                                                                    <span className="font-semibold">
+                                                                        {
+                                                                            loan?.loan_date
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    Tenor :{' '}
+                                                                    <span className="font-semibold">
+                                                                        {
+                                                                            loan?.tenor
+                                                                        }{' '}
+                                                                        + 30
+                                                                        Hari
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    Tanggal
+                                                                    Jatuh Tempo
+                                                                    :{' '}
+                                                                    <span className="font-semibold">
+                                                                        {moment(
+                                                                            loan.loan_end_date,
+                                                                        )
+                                                                            .add(
+                                                                                30,
+                                                                                'days',
+                                                                            )
+                                                                            .format(
+                                                                                'YYYY-MM-DD',
+                                                                            )}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    Pinjaman :
+                                                                    Rp.{' '}
+                                                                    <span className="font-semibold">
+                                                                        {Number(
+                                                                            loan?.loan_value,
+                                                                        ).toLocaleString()}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    Bunga : Rp.{' '}
+                                                                    <span className="font-semibold">
+                                                                        {Number(
+                                                                            loan?.loan_interest,
+                                                                        ).toLocaleString()}{' '}
+                                                                        + Rp.{' '}
+                                                                        {Number(
+                                                                            (loan.loan_value *
+                                                                                1) /
+                                                                                100,
+                                                                        ).toLocaleString(
+                                                                            undefined,
+                                                                            {
+                                                                                minimumFractionDigits: 0,
+                                                                                maximumFractionDigits: 0,
+                                                                            },
+                                                                        )}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    Biaya
+                                                                    Penanganan :
+                                                                    Rp.{' '}
+                                                                    <span className="font-semibold">
+                                                                        {Number(
+                                                                            loan?.loan_interest,
+                                                                        ).toLocaleString()}{' '}
+                                                                        + Rp.
+                                                                        5,000
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="mt-4">
+                                                            <div className=" text-lg border-2 border-violet-500 p-2 rounded-lg bg-violet-100 text-violet-600">
+                                                                Total Tagihan
+                                                                Akhir : Rp.{' '}
+                                                                <span className="font-semibold">
+                                                                    {(
+                                                                        Number(
+                                                                            loan?.loan_value,
+                                                                        ) +
+                                                                        Number(
+                                                                            loan?.loan_interest,
+                                                                        ) +
+                                                                        Number(
+                                                                            loan?.handling_fee,
+                                                                        ) +
+                                                                        (Number(
+                                                                            (loan.loan_value *
+                                                                                1) /
+                                                                                100,
+                                                                        ) +
+                                                                            Number(
+                                                                                5000,
+                                                                            ))
+                                                                    ) // handling fee
+                                                                        .toLocaleString(
+                                                                            undefined,
+                                                                            {
+                                                                                minimumFractionDigits: 0,
+                                                                                maximumFractionDigits: 0,
+                                                                            },
+                                                                        )}
+                                                                </span>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
 
-                                            <div className="mt-4 flex justify-end space-x-2">
-                                                <button
-                                                    type="button"
-                                                    className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-                                                    onClick={toggleModal}>
-                                                    Batal
-                                                </button>
-                                                <button
-                                                    type="submit"
-                                                    className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-                                                    Simpan Data
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </Dialog.Panel>
-                                </Transition.Child>
+                                                <div className="mt-4 flex justify-end space-x-2">
+                                                    <button
+                                                        type="button"
+                                                        className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                                                        onClick={toggleModal}>
+                                                        Batal
+                                                    </button>
+                                                    <button
+                                                        type="submit"
+                                                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                        Simpan Data
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </Dialog.Panel>
+                                    </Transition.Child>
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="fixed inset-0 overflow-y-auto">
+                                <div className="flex min-h-full items-center justify-center p-4 text-center">
+                                    <Transition.Child
+                                        as={Fragment}
+                                        enter="ease-out duration-300"
+                                        enterFrom="opacity-0 scale-95"
+                                        enterTo="opacity-100 scale-100"
+                                        leave="ease-in duration-200"
+                                        leaveFrom="opacity-100 scale-100"
+                                        leaveTo="opacity-0 scale-95">
+                                        <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                            <Dialog.Title
+                                                as="h3"
+                                                className="text-lg font-medium leading-6 text-gray-900">
+                                                Bayar Pinjaman
+                                            </Dialog.Title>
+                                            <form onSubmit={handleSubmit}>
+                                                <div className="mt-2">
+                                                    <div className="text-gray-600">
+                                                        <div className="mt-4">
+                                                            <div className=" text-lg border-2 border-violet-500 p-2 rounded-lg bg-violet-100 text-violet-600">
+                                                                Total Tagihan :
+                                                                Rp.{' '}
+                                                                <span className="font-semibold">
+                                                                    {(
+                                                                        Number(
+                                                                            loan?.loan_value,
+                                                                        ) +
+                                                                        Number(
+                                                                            loan?.loan_interest,
+                                                                        ) +
+                                                                        Number(
+                                                                            loan?.handling_fee,
+                                                                        )
+                                                                    ).toLocaleString()}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="mt-4 flex flex-col space-y-4">
+                                                            <InputSelect
+                                                                id="payment_method"
+                                                                label={
+                                                                    'Pilih Metode Pembayaran'
+                                                                }
+                                                                placeholder={
+                                                                    'Pilih Metode Pembayaran'
+                                                                }
+                                                                error={
+                                                                    validation.payment_method && (
+                                                                        <span className="text-red-500 text-sm">
+                                                                            {
+                                                                                validation.payment_method
+                                                                            }
+                                                                        </span>
+                                                                    )
+                                                                }
+                                                                onChange={e =>
+                                                                    setPayment({
+                                                                        ...payment,
+                                                                        payment_method:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    })
+                                                                }>
+                                                                <option value="Bank Jatim">
+                                                                    Bank Jatim -
+                                                                    1234567890 -
+                                                                    a/n PT.
+                                                                    Biartha
+                                                                </option>
+                                                                <option value="Bank Jateng">
+                                                                    Bank Jateng
+                                                                    - 1234567890
+                                                                    - a/n PT.
+                                                                    Biartha
+                                                                </option>
+                                                            </InputSelect>
+                                                            <div className="grid grid-cols-2 gap-4">
+                                                                <InputWithLabel
+                                                                    id="paymentAccountName"
+                                                                    label={
+                                                                        'Nama Bank Pengirim'
+                                                                    }
+                                                                    placeholder={
+                                                                        'PT Langgeng Jaya'
+                                                                    }
+                                                                    type="text"
+                                                                    onChange={e =>
+                                                                        setPayment(
+                                                                            {
+                                                                                ...payment,
+                                                                                payment_account_name:
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                    value={
+                                                                        payment.payment_account_name
+                                                                    }
+                                                                    error={
+                                                                        validation.payment_account_name && (
+                                                                            <span className="text-red-500 text-sm">
+                                                                                {
+                                                                                    validation.payment_account_name
+                                                                                }
+                                                                            </span>
+                                                                        )
+                                                                    }
+                                                                />
+                                                                <InputWithLabel
+                                                                    id="paymentAccountNumber"
+                                                                    label={
+                                                                        'Nomor Bank Pengirim'
+                                                                    }
+                                                                    placeholder={
+                                                                        '1234567890'
+                                                                    }
+                                                                    type="number"
+                                                                    onChange={e =>
+                                                                        setPayment(
+                                                                            {
+                                                                                ...payment,
+                                                                                payment_account_no:
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                    value={
+                                                                        payment.payment_account_no
+                                                                    }
+                                                                    error={
+                                                                        validation.payment_account_no && (
+                                                                            <span className="text-red-500 text-sm">
+                                                                                {
+                                                                                    validation.payment_account_no
+                                                                                }
+                                                                            </span>
+                                                                        )
+                                                                    }
+                                                                />
+                                                                <InputWithLabel
+                                                                    id="paymentTransferDate"
+                                                                    label={
+                                                                        'Tanggal Transfer'
+                                                                    }
+                                                                    type="date"
+                                                                    onChange={e =>
+                                                                        setPayment(
+                                                                            {
+                                                                                ...payment,
+                                                                                payment_date:
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                            },
+                                                                        )
+                                                                    }
+                                                                    value={
+                                                                        payment.payment_date
+                                                                    }
+                                                                    error={
+                                                                        validation.payment_date && (
+                                                                            <span className="text-red-500 text-sm">
+                                                                                {
+                                                                                    validation.payment_date
+                                                                                }
+                                                                            </span>
+                                                                        )
+                                                                    }
+                                                                />
+                                                                <InputWithLabel
+                                                                    id="cardImage"
+                                                                    label={
+                                                                        'Upload Bukti Bayar'
+                                                                    }
+                                                                    type="file"
+                                                                    onChange={
+                                                                        uploadFile
+                                                                    }
+                                                                    defaultValue=""
+                                                                    accept="image/*, .pdf"
+                                                                    helper={
+                                                                        <p
+                                                                            className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                                                                            id="file_input_help">
+                                                                            PNG,
+                                                                            JPG,
+                                                                            atau
+                                                                            PDF
+                                                                            (Maks
+                                                                            5MB)
+                                                                        </p>
+                                                                    }
+                                                                    error={
+                                                                        validation.file_doc && (
+                                                                            <span className="text-red-500 text-sm">
+                                                                                {
+                                                                                    validation.file_doc
+                                                                                }
+                                                                            </span>
+                                                                        )
+                                                                    }>
+                                                                    {uploadProgress >
+                                                                        0 && (
+                                                                        <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+                                                                            <div
+                                                                                className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                                                                                style={{
+                                                                                    width: `${uploadProgress}%`,
+                                                                                }}>
+                                                                                {
+                                                                                    uploadProgress
+                                                                                }
+
+                                                                                %
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </InputWithLabel>
+                                                            </div>
+
+                                                            <input
+                                                                hidden
+                                                                type="text"
+                                                                value={
+                                                                    contract.payment_file ||
+                                                                    ''
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-4 flex justify-end space-x-2">
+                                                    <button
+                                                        type="button"
+                                                        className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                                                        onClick={toggleModal}>
+                                                        Batal
+                                                    </button>
+                                                    <button
+                                                        type="submit"
+                                                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                                        Simpan Data
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </Dialog.Panel>
+                                    </Transition.Child>
+                                </div>
+                            </div>
+                        )}
                     </Dialog>
                 </Transition>
             )}

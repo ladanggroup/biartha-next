@@ -461,7 +461,7 @@ export default function loan() {
                                                                             <Link
                                                                                 href={{
                                                                                     pathname:
-                                                                                        '/pinjaman/buat-pengajuan',
+                                                                                        '/loan/create',
                                                                                     query: {
                                                                                         loan_id:
                                                                                             item.loan_id,
@@ -536,7 +536,7 @@ export default function loan() {
                                     </div> */}
                                     <div className="flex px-6 py-4">
                                         <Link
-                                            href={'/pinjaman/buat-pengajuan'}
+                                            href={'/loan/create'}
                                             className="btn w-full text-center">
                                             Ajukan Pinjaman
                                         </Link>
