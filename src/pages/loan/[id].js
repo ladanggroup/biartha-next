@@ -2,6 +2,8 @@ import InputSelect from '@/components/InputSelect'
 import InputWithLabel from '@/components/InputWithLabel'
 import AppLayout from '@/components/Layouts/AppLayout'
 import Loading from '@/components/Loading'
+import Message from '@/components/Message'
+import Status from '@/components/Status'
 import axios from '@/lib/axios'
 import { Dialog, Transition } from '@headlessui/react'
 import moment from 'moment'
@@ -130,7 +132,8 @@ export default function show() {
             }
         } else if (
             loan.status === 'LOAN_RUNNING' ||
-            loan.status === 'LOAN_PAYMENT_PROBLEM'
+            loan.status === 'LOAN_PAYMENT_PROBLEM' ||
+            loan.status === 'LOAN_PROBLEM'
         ) {
             formData.append('bank', payment.payment_method)
             formData.append('account_number', payment.payment_account_no)
@@ -274,115 +277,152 @@ export default function show() {
                                         <span className="font-semibold">
                                             {' '}
                                             {loan.loan_number} (
-                                            {loan.status === 'LOAN_PROPOSED' &&
-                                                'Pengajuan'}
-                                            {loan.status === 'LOAN_APPROVED' &&
-                                                'Disetujui'}
-                                            {loan.status ===
-                                                'LOAN_WAITING_TRANSFERED' &&
-                                                'Pencarian Dana'}
-                                            {loan.status === 'LOAN_RUNNING' &&
-                                                'Masa Pinjaman'}
-                                            {loan.status ===
-                                                'LOAN_PAYMENT_VERIFY' &&
-                                                'Verifikasi Pembayaran'}
-                                            {loan.status ===
-                                                'LOAN_PAYMENT_PROBLEM' &&
-                                                'Pembayaran Bermasalah'}
-                                            {loan.status === 'LOAN_REJECTED' &&
-                                                'Ditolak'}
-                                            {loan.status ===
-                                                'LOAN_PAYMENT_VERIFIED' &&
-                                                'Lunas'}
-                                            {loan.status ===
-                                                'LOAN_RENEWAL_PROPOSED' &&
-                                                'Pengajuan Perpanjang Masa Pinjam'}
-                                            )
+                                            <Status status={loan.status} />)
                                         </span>
                                     </div>
                                 </div>
                                 {loan.status === 'LOAN_PROPOSED' && (
-                                    <div className="mt-4 bg-yellow-50 p-4 rounded-md shadow-md">
-                                        <div className="font-semibold text-yellow-600">
-                                            Catatan :
-                                        </div>
-                                        <div className="text-yellow-600">
-                                            Pinjaman sedang dalam proses
-                                            peninjauan. Tunggu dalam 1x24 jam
-                                            hari kerja untuk mendapatkan respon
-                                            dari kami.
-                                        </div>
-                                    </div>
+                                    <Message
+                                        colorBg={'bg-yellow-50'}
+                                        colorText={'text-yellow-600'}>
+                                        Pinjaman sedang dalam proses peninjauan.
+                                        Tunggu dalam 1x24 jam hari kerja untuk
+                                        mendapatkan respon dari kami.
+                                    </Message>
                                 )}
                                 {loan.status === 'LOAN_WAITING_TRANSFERED' && (
-                                    <div className="mt-4 bg-green-100 p-4 rounded-md shadow-md">
-                                        <div className="font-semibold text-green-600">
-                                            Catatan :
-                                        </div>
-                                        <div className="text-green-600">
-                                            Pinjaman sudah disetujui, tunggu
-                                            1x24 jam hari kerja uang akan segera
-                                            masuk ke rekening{' '}
-                                            <span className="font-semibold">
-                                                {loan.bank_info.bank_name} -{' '}
-                                                {
-                                                    loan.bank_info
-                                                        .bank_account_number
-                                                }{' '}
-                                                a/n.{' '}
-                                                {
-                                                    loan.bank_info
-                                                        .bank_account_name
-                                                }
-                                                .
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <Message
+                                        colorBg={'bg-yellow-50'}
+                                        colorText={'text-yellow-600'}>
+                                        Pinjaman sudah disetujui, tunggu 1x24
+                                        jam hari kerja uang akan segera masuk ke
+                                        rekening{' '}
+                                        <span className="font-semibold">
+                                            {loan.bank_info.bank_name} -{' '}
+                                            {loan.bank_info.bank_account_number}{' '}
+                                            a/n.{' '}
+                                            {loan.bank_info.bank_account_name}.
+                                        </span>
+                                    </Message>
                                 )}
                                 {loan.status === 'LOAN_PAYMENT_VERIFY' && (
-                                    <div className="mt-4 bg-yellow-50 p-4 rounded-md shadow-md">
-                                        <div className="font-semibold text-yellow-600">
-                                            Catatan :
-                                        </div>
-                                        <div className="text-yellow-600">
-                                            Pembayaran akan diverifikasi dalam
-                                            1x24 jam di hari dan jam kerja.
-                                        </div>
-                                    </div>
+                                    <Message
+                                        colorBg={'bg-yellow-50'}
+                                        colorText={'text-yellow-600'}>
+                                        Pembayaran akan diverifikasi dalam 1x24
+                                        jam di hari dan jam kerja.
+                                    </Message>
                                 )}
                                 {loan.status === 'LOAN_PAYMENT_PROBLEM' && (
-                                    <div className="mt-4 bg-red-50 p-4 rounded-md shadow-md">
-                                        <div className="font-semibold text-red-600">
-                                            Catatan :
-                                        </div>
-                                        <div className="text-red-600">
-                                            {loanMutation}
-                                        </div>
-                                    </div>
+                                    <Message
+                                        colorBg={'bg-red-50'}
+                                        colorText={'text-red-600'}>
+                                        {loanMutation}
+                                    </Message>
                                 )}
+
+                                {/* message for reminder when loan in tempo date */}
                                 {loan.status === 'LOAN_RUNNING' &&
-                                    moment(loan.loan_end_date)
-                                        .add(-7, 'days')
-                                        .format('YYYY-MM-DD') <=
-                                        moment().format('YYYY-MM-DD') && (
-                                        <div className="mt-4 bg-red-50 p-4 rounded-md shadow-md">
-                                            <div className="font-semibold text-red-600">
-                                                PERINGATAN :
-                                            </div>
-                                            <div className="text-red-600">
-                                                Pinjaman akan segera jatuh tempo
-                                                dalam{' '}
-                                                <span className="font-semibold">
-                                                    {moment(loan.loan_end_date)
-                                                        .locale('fr')
-                                                        .fromNow(true)}
-                                                </span>{' '}
-                                                lagi. Mohon segera lakukan
-                                                pembayaran.
-                                            </div>
-                                        </div>
+                                    loanRenewal === null && (
+                                        <>
+                                            {moment(loan.loan_end_date)
+                                                .add(-7, 'days')
+                                                .format('YYYY-MM-DD') <=
+                                                moment().format('YYYY-MM-DD') &&
+                                                moment(
+                                                    loan.loan_end_date,
+                                                ).format('YYYY-MM-DD') >=
+                                                    moment().format(
+                                                        'YYYY-MM-DD',
+                                                    ) && (
+                                                    <Message
+                                                        colorBg={'bg-red-50'}
+                                                        colorText={
+                                                            'text-red-600'
+                                                        }>
+                                                        Pinjaman akan segera
+                                                        jatuh tempo dalam{' '}
+                                                        <span className="font-semibold">
+                                                            {moment(
+                                                                loan.loan_end_date,
+                                                            )
+                                                                .add(1, 'days')
+                                                                .fromNow(true)}
+                                                        </span>{' '}
+                                                        lagi. Mohon segera
+                                                        lakukan pembayaran.
+                                                    </Message>
+                                                )}
+                                            {moment(loan.loan_end_date).format(
+                                                'YYYY-MM-DD',
+                                            ) <
+                                                moment().format(
+                                                    'YYYY-MM-DD',
+                                                ) && (
+                                                <Message
+                                                    colorBg={'bg-red-50'}
+                                                    colorText={'text-red-600'}>
+                                                    Pinjaman Anda sudah melebih
+                                                    batas waktu pembayaran.
+                                                    Mohon segera lakukan
+                                                    pembayaran.
+                                                </Message>
+                                            )}
+                                        </>
                                     )}
-                                {loan?.loan_value && loanRenewal.length === 0 && (
+                                {loan.status === 'LOAN_RUNNING' &&
+                                    loanRenewal !== null && (
+                                        <>
+                                            {moment(
+                                                loanRenewal.loan_renewal_end_date,
+                                            )
+                                                .add(-7, 'days')
+                                                .format('YYYY-MM-DD') <=
+                                                moment().format('YYYY-MM-DD') &&
+                                                moment(
+                                                    loanRenewal.loan_renewal_end_date,
+                                                ).format('YYYY-MM-DD') >=
+                                                    moment().format(
+                                                        'YYYY-MM-DD',
+                                                    ) && (
+                                                    <Message
+                                                        colorBg={'bg-red-50'}
+                                                        colorText={
+                                                            'text-red-600'
+                                                        }>
+                                                        Pinjaman akan segera
+                                                        jatuh tempo dalam{' '}
+                                                        <span className="font-semibold">
+                                                            {moment(
+                                                                loanRenewal.loan_renewal_end_date,
+                                                            )
+                                                                .add(1, 'days')
+                                                                .fromNow(true)}
+                                                        </span>{' '}
+                                                        lagi. Mohon segera
+                                                        lakukan pembayaran.{' '}
+                                                    </Message>
+                                                )}
+                                            {moment(
+                                                loanRenewal.loan_renewal_end_date,
+                                            ).format('YYYY-MM-DD') <
+                                                moment().format(
+                                                    'YYYY-MM-DD',
+                                                ) && (
+                                                <Message
+                                                    colorBg={'bg-red-50'}
+                                                    colorText={'text-red-600'}>
+                                                    Pinjaman Anda sudah melebih
+                                                    batas waktu pembayaran.
+                                                    Mohon segera lakukan
+                                                    pembayaran.
+                                                </Message>
+                                            )}
+                                        </>
+                                    )}
+
+                                {/* this is for detail loan */}
+                                {loan?.loan_value && loanRenewal === null && (
                                     <div className="mt-4 text-blue-800 bg-blue-50 p-4">
                                         <div>
                                             Pinjaman : Rp.{' '}
@@ -427,62 +467,116 @@ export default function show() {
                                         </div>
                                     </div>
                                 )}
-                                {loan?.loan_value && loanRenewal.length !== 0 && (
-                                    <div className="mt-4 text-blue-800 bg-blue-50 p-4">
-                                        <div>
-                                            Pinjaman : Rp.{' '}
-                                            <span className="font-semibold">
-                                                {' '}
+                                {loan?.loan_value &&
+                                    loanRenewal !== null &&
+                                    (loanRenewal.status ===
+                                    'STATUS_REJECTED' ? (
+                                        <div className="mt-4 text-blue-800 bg-blue-50 p-4">
+                                            <div>
+                                                Pinjaman : Rp.{' '}
+                                                <span className="font-semibold">
+                                                    {' '}
+                                                    {Number(
+                                                        loan?.loan_value,
+                                                    ).toLocaleString()}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                Bunga : Rp.{' '}
                                                 {Number(
-                                                    loan?.loan_value,
+                                                    loan?.loan_interest,
+                                                ).toLocaleString()}{' '}
+                                                ({loan.interest_percentage}%)
+                                            </div>
+                                            <div>
+                                                Biaya Penanganan : Rp.{' '}
+                                                {Number(
+                                                    loan?.handling_fee,
                                                 ).toLocaleString()}
-                                            </span>
+                                            </div>
+                                            <div>Tenor : {loan.tenor} Hari</div>
+                                            <div>
+                                                Tanggal Pinjaman :{' '}
+                                                {loan.loan_date}
+                                            </div>
+                                            <div>
+                                                Tanggal{' '}
+                                                <span className="font-semibold">
+                                                    Akhir
+                                                </span>{' '}
+                                                Pembayaran :{' '}
+                                                {loan.loan_end_date}
+                                            </div>
+                                            <div className="text-xl font-semibold">
+                                                Total : Rp.{' '}
+                                                {(
+                                                    Number(loan?.loan_value) +
+                                                    Number(
+                                                        loan?.loan_interest,
+                                                    ) +
+                                                    Number(loan?.handling_fee)
+                                                ).toLocaleString()}{' '}
+                                            </div>
                                         </div>
-                                        <div>
-                                            Bunga : Rp.{' '}
-                                            {Number(
-                                                loan?.loan_interest,
-                                            ).toLocaleString()}{' '}
-                                            ({loan.interest_percentage}%)
+                                    ) : (
+                                        <div className="mt-4 text-blue-800 bg-blue-50 p-4">
+                                            <div>
+                                                Pinjaman : Rp.{' '}
+                                                <span className="font-semibold">
+                                                    {' '}
+                                                    {Number(
+                                                        loan.loan_value,
+                                                    ).toLocaleString()}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                Bunga : Rp.{' '}
+                                                {Number(
+                                                    loan?.loan_interest,
+                                                ).toLocaleString()}{' '}
+                                                ({loan.interest_percentage}%)
+                                            </div>
+                                            <div>
+                                                Bunga Perpanjangan: Rp.{' '}
+                                                {Number(
+                                                    loanRenewal.loan_interest,
+                                                ).toLocaleString()}{' '}
+                                                ({renewal.interest_presentage}%)
+                                            </div>
+                                            <div>
+                                                Biaya Penanganan : Rp.{' '}
+                                                {Number(
+                                                    loan?.handling_fee +
+                                                        loanRenewal.handling_fee,
+                                                ).toLocaleString()}
+                                            </div>
+                                            <div>
+                                                Tenor :{' '}
+                                                {loan.tenor + loanRenewal.tenor}{' '}
+                                                Hari
+                                            </div>
+                                            <div>
+                                                Tanggal Pinjaman :{' '}
+                                                {loan.loan_date}
+                                            </div>
+                                            <div>
+                                                Tanggal{' '}
+                                                <span className="font-semibold">
+                                                    Akhir
+                                                </span>{' '}
+                                                Pembayaran :{' '}
+                                                {
+                                                    loanRenewal.loan_renewal_end_date
+                                                }
+                                            </div>
+                                            <div className="text-xl font-semibold">
+                                                Total : Rp.{' '}
+                                                {Number(
+                                                    loanRenewal?.grand_total,
+                                                ).toLocaleString()}{' '}
+                                            </div>
                                         </div>
-                                        <div>
-                                            Bunga Perpanjangan: Rp.{' '}
-                                            {Number(
-                                                loanRenewal.loan_interest,
-                                            ).toLocaleString()}{' '}
-                                            ({renewal.interest_presentage}%)
-                                        </div>
-                                        <div>
-                                            Biaya Penanganan : Rp.{' '}
-                                            {Number(
-                                                loan?.handling_fee +
-                                                    loanRenewal.handling_fee,
-                                            ).toLocaleString()}
-                                        </div>
-                                        <div>
-                                            Tenor :{' '}
-                                            {loan.tenor + loanRenewal.tenor}{' '}
-                                            Hari
-                                        </div>
-                                        <div>
-                                            Tanggal Pinjaman : {loan.loan_date}
-                                        </div>
-                                        <div>
-                                            Tanggal{' '}
-                                            <span className="font-semibold">
-                                                Akhir
-                                            </span>{' '}
-                                            Pembayaran :{' '}
-                                            {loanRenewal.loan_renewal_end_date}
-                                        </div>
-                                        <div className="text-xl font-semibold">
-                                            Total : Rp.{' '}
-                                            {Number(
-                                                loanRenewal?.grand_total,
-                                            ).toLocaleString()}{' '}
-                                        </div>
-                                    </div>
-                                )}
+                                    ))}
 
                                 <div className="mt-4 text-gray-600">
                                     <div>
@@ -494,7 +588,6 @@ export default function show() {
                                     <div>Telp : {loan.pic_phone}</div>
                                     <div>Position : {loan.pic_position}</div>
                                 </div>
-
                                 <div className="mt-4 text-gray-600">
                                     <div className="">
                                         Nama Kontrak :{' '}
@@ -511,10 +604,11 @@ export default function show() {
                                     </div>
                                     <div className="">
                                         Nilai Kontrak : Rp.{' '}
-                                        {loan.contract_value}
+                                        {Number(
+                                            loan.contract_value,
+                                        ).toLocaleString()}
                                     </div>
                                 </div>
-
                                 <div className="mt-4 text-gray-600">
                                     <div>Dokumen Kontrak :</div>
                                     <div className="grid grid-cols-2 gap-2">
@@ -576,7 +670,8 @@ export default function show() {
                                         </button>
                                     </div>
                                 )}
-                                {loan.status === 'LOAN_RUNNING' && (
+                                {(loan.status === 'LOAN_RUNNING' ||
+                                    loan.status === 'LOAN_PROBLEM') && (
                                     <div className="mt-4 flex flex-col space-y-2">
                                         <button
                                             className="bg-blue-200 hover:bg-opacity-75 text-blue-500 py-2 px-4 rounded-full w-full shadow-sm"
@@ -586,13 +681,20 @@ export default function show() {
                                         {moment(loan.loan_end_date)
                                             .add(-7, 'days')
                                             .format('YYYY-MM-DD') <=
-                                            moment().format('YYYY-MM-DD') && (
-                                            <button
-                                                className="bg-red-200 hover:bg-opacity-75 text-red-500 py-2 px-4 rounded-full w-full shadow-sm"
-                                                onClick={toggleModalRenewal}>
-                                                Perpanjang
-                                            </button>
-                                        )}
+                                            moment().format('YYYY-MM-DD') &&
+                                            moment(loan.loan_end_date)
+                                                .add(3, 'days')
+                                                .format('YYYY-MM-DD') >
+                                                moment().format('YYYY-MM-DD') &&
+                                            loanRenewal === null && (
+                                                <button
+                                                    className="bg-red-200 hover:bg-opacity-75 text-red-500 py-2 px-4 rounded-full w-full shadow-sm"
+                                                    onClick={
+                                                        toggleModalRenewal
+                                                    }>
+                                                    Perpanjang
+                                                </button>
+                                            )}
                                     </div>
                                 )}
                                 {loan.status === 'LOAN_PAYMENT_PROBLEM' && (
@@ -705,7 +807,8 @@ export default function show() {
                     </Dialog>
                 </Transition>
             )}
-            {loan.status === 'LOAN_RUNNING' && (
+            {(loan.status === 'LOAN_RUNNING' ||
+                loan.status === 'LOAN_PROBLEM') && (
                 <Transition appear show={isOpen} as={Fragment}>
                     <Dialog
                         open={isOpen}
@@ -910,7 +1013,7 @@ export default function show() {
                                                                     Rp.{' '}
                                                                     <span className="font-semibold">
                                                                         {Number(
-                                                                            loan?.loan_interest,
+                                                                            loan?.handling_fee,
                                                                         ).toLocaleString()}{' '}
                                                                         + Rp.
                                                                         {Number(
@@ -958,34 +1061,51 @@ export default function show() {
                                                         <div className=" text-lg border-2 border-violet-500 p-2 rounded-lg bg-violet-100 text-violet-600">
                                                             Total Tagihan Akhir
                                                             : Rp.{' '}
-                                                            <span className="font-semibold">
-                                                                {(
-                                                                    Number(
-                                                                        loan?.loan_value,
-                                                                    ) +
-                                                                    Number(
-                                                                        loan?.loan_interest,
-                                                                    ) +
-                                                                    Number(
-                                                                        loan?.handling_fee,
-                                                                    ) +
-                                                                    (Number(
-                                                                        (loan.loan_value *
-                                                                            renewal.interest_presentage) /
-                                                                            100,
-                                                                    ) +
+                                                            {loanRenewal ===
+                                                                null && (
+                                                                <span className="font-semibold">
+                                                                    {(
                                                                         Number(
-                                                                            renewal.handling_fee,
-                                                                        ))
-                                                                ) // handling fee
-                                                                    .toLocaleString(
+                                                                            loan?.loan_value,
+                                                                        ) +
+                                                                        Number(
+                                                                            loan?.loan_interest,
+                                                                        ) +
+                                                                        Number(
+                                                                            loan?.handling_fee,
+                                                                        ) +
+                                                                        (Number(
+                                                                            (loan.loan_value *
+                                                                                renewal.interest_presentage) /
+                                                                                100,
+                                                                        ) +
+                                                                            Number(
+                                                                                renewal.handling_fee,
+                                                                            ))
+                                                                    ) // handling fee
+                                                                        .toLocaleString(
+                                                                            undefined,
+                                                                            {
+                                                                                minimumFractionDigits: 0,
+                                                                                maximumFractionDigits: 0,
+                                                                            },
+                                                                        )}
+                                                                </span>
+                                                            )}
+                                                            {loanRenewal !==
+                                                                null && (
+                                                                <span className="font-semibold">
+                                                                    {Number(
+                                                                        loanRenewal?.grand_total,
+                                                                    ).toLocaleString(
                                                                         undefined,
                                                                         {
                                                                             minimumFractionDigits: 0,
                                                                             maximumFractionDigits: 0,
                                                                         },
                                                                     )}
-                                                            </span>
+                                                                </span>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1061,19 +1181,43 @@ export default function show() {
                                                             <div className=" text-lg border-2 border-violet-500 p-2 rounded-lg bg-violet-100 text-violet-600">
                                                                 Total Tagihan :
                                                                 Rp.{' '}
-                                                                <span className="font-semibold">
-                                                                    {(
-                                                                        Number(
-                                                                            loan?.loan_value,
-                                                                        ) +
-                                                                        Number(
-                                                                            loan?.loan_interest,
-                                                                        ) +
-                                                                        Number(
-                                                                            loan?.handling_fee,
-                                                                        )
-                                                                    ).toLocaleString()}
-                                                                </span>
+                                                                {loanRenewal ===
+                                                                null ? (
+                                                                    <span className="font-semibold">
+                                                                        {(
+                                                                            Number(
+                                                                                loan?.loan_value,
+                                                                            ) +
+                                                                            Number(
+                                                                                loan?.loan_interest,
+                                                                            ) +
+                                                                            Number(
+                                                                                loan?.handling_fee,
+                                                                            )
+                                                                        ).toLocaleString()}
+                                                                    </span>
+                                                                ) : loanRenewal.status ===
+                                                                  'STATUS_REJECTED' ? (
+                                                                    <span className="font-semibold">
+                                                                        {(
+                                                                            Number(
+                                                                                loan?.loan_value,
+                                                                            ) +
+                                                                            Number(
+                                                                                loan?.loan_interest,
+                                                                            ) +
+                                                                            Number(
+                                                                                loan?.handling_fee,
+                                                                            )
+                                                                        ).toLocaleString()}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="font-semibold">
+                                                                        {Number(
+                                                                            loanRenewal.grand_total,
+                                                                        ).toLocaleString()}
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </div>
                                                         <div className="mt-4 flex flex-col space-y-4">
