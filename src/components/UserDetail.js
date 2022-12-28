@@ -154,9 +154,8 @@ export default function UserDetail() {
         formData.append('district_id', districtId)
         formData.append('postal_code', postalCode)
         formData.append('address', address)
-        formData.append('_method', 'PUT')
-
-        if (userDetail) {
+        if (userDetail.length !== 0) {
+            formData.append('_method', 'PUT')
             try {
                 await axios({
                     method: 'POST',
