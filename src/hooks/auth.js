@@ -77,8 +77,8 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         setStatus(null)
 
         axios
-            .post('/borrower/forgot-password', { email })
-            .then(response => setStatus(response.data.status))
+            .post('/borrower/password/email', { email })
+            .then(response => setStatus(response.data.message))
             .catch(error => {
                 if (error.response.status !== 422) throw error
 
@@ -93,9 +93,9 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         setStatus(null)
 
         axios
-            .post('/borrower/reset-password', { token: router.query.token, ...props })
+            .post('/borrower/password/reset', { token: router.query.token, ...props })
             .then(response =>
-                router.push('/borrower/login?reset=' + btoa(response.data.status)),
+                router.push('/login?reset=' + btoa(response.data.message)),
             )
             .catch(error => {
                 if (error.response.status !== 422) throw error
@@ -106,8 +106,8 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
     const resendEmailVerification = ({ setStatus }) => {
         axios
-            .post('/borrower/email/verification-notification')
-            .then(response => setStatus(response.data.status))
+            .post('/borrower/email/resend')
+            .then(response => setStatus(response.data.message))
     }
 
     const logout = async () => {
