@@ -93,10 +93,44 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         setStatus(null)
 
         axios
-            .post('/borrower/password/reset', { token: router.query.token, ...props })
+            .post('/borrower/password/reset', {
+                token: router.query.token,
+                ...props,
+            })
             .then(response =>
                 router.push('/login?reset=' + btoa(response.data.message)),
             )
+            .catch(error => {
+                if (error.response.status !== 422) throw error
+
+                setErrors(error.response.data.errors)
+            })
+    }
+
+    const verifiedEmail = async ({
+        setErrors,
+        setStatus,
+        expires,
+        signature,
+    }) => {
+        await csrf()
+
+        setErrors([])
+        setStatus(null)
+
+        axios({
+            method: 'get',
+            url:
+                '/borrower/email/verify/' +
+                router.query.id +
+                '/' +
+                router.query.token +
+                '?expires=' +
+                expires +
+                '&signature=' +
+                signature,
+        })
+            .then(response => router.push('/profile/create'))
             .catch(error => {
                 if (error.response.status !== 422) throw error
 
@@ -144,5 +178,6 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         resetPassword,
         resendEmailVerification,
         logout,
+        verifiedEmail,
     }
 }

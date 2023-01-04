@@ -4,9 +4,11 @@ import { useAuth } from '@/hooks/auth'
 import { Breadcrumb } from 'flowbite-react'
 import Head from 'next/head'
 import Link from 'next/link'
+import { useEffect } from 'react'
 
 const Dashboard = () => {
     const { user } = useAuth({ middleware: 'auth' })
+    useEffect(() => {}, [])
     return (
         <>
             {!user && <LoadingUser />}

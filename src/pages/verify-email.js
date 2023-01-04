@@ -3,11 +3,13 @@ import Button from '@/components/Button'
 import GuestLayout from '@/components/Layouts/GuestLayout'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/auth'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import LoadingUser from '@/components/LoadingUser'
 import ApplicationLogoText from '@/components/ApplicationLogoText'
+import { useRouter } from 'next/router'
 
 const VerifyEmail = () => {
+    const router = useRouter()
     const { logout, resendEmailVerification } = useAuth({
         middleware: 'auth',
         redirectIfAuthenticated: '/dashboard',
@@ -15,6 +17,11 @@ const VerifyEmail = () => {
 
     const [status, setStatus] = useState(null)
     const { user } = useAuth({ middleware: 'auth' })
+
+    useEffect(() => {
+        if (!router.isReady) return
+    }, [router.isReady, user])
+
     return (
         <>
             <GuestLayout>
@@ -25,16 +32,16 @@ const VerifyEmail = () => {
                         </Link>
                     }>
                     <div className="mb-4 text-sm text-gray-600">
-                        Thanks for signing up! Before getting started, could
-                        you verify your email address by clicking on the
-                        link we just emailed to you? If you didn't receive
-                        the email, we will gladly send you another.
+                        Terimakasih sudah bergabung bersama{' '}
+                        {process.env.appName}. Sebelum melanjutkan, silahkan cek
+                        email Anda untuk verifikasi akun Anda. Jika Anda tidak
+                        menerima email, kami akan mengirimkan ulang.
                     </div>
 
                     {status === 'verification-link-sent' && (
                         <div className="mb-4 font-medium text-sm text-green-600">
-                            A new verification link has been sent to the
-                            email address you provided during registration.
+                            A new verification link has been sent to the email
+                            address you provided during registration.
                         </div>
                     )}
 
@@ -43,7 +50,7 @@ const VerifyEmail = () => {
                             onClick={() =>
                                 resendEmailVerification({ setStatus })
                             }>
-                            Resend Verification Email
+                            Kirim Ulang Email Verifikasi
                         </Button>
 
                         <button
