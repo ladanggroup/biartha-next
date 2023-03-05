@@ -208,7 +208,7 @@ export default function show() {
             })
             .catch(error => {
                 toast.error(error.data.message, {
-                    position: toast.POSITION.BOTTOM_RIGHT,
+                    position: toast.POSITION.BOTTOM_RIGgHT,
                 })
             })
     }

@@ -23,7 +23,7 @@ export default function InputSelect({
                 id={id}
                 value={value}
                 {...props}>
-                <option>{placeholder}</option>
+                <option value="">{placeholder}</option>
                 {children}
             </select>
             {error}

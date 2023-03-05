@@ -1,6 +1,8 @@
+import CreateCompanyDocument from '@/components/CreateCompanyDocument'
 import InputSelect from '@/components/InputSelect'
 import InputWithLabel from '@/components/InputWithLabel'
 import AppLayout from '@/components/Layouts/AppLayout'
+import ModalSubmit from '@/components/ModalSubmit'
 import { useAuth } from '@/hooks/auth'
 import axios from '@/lib/axios'
 import { useRouter } from 'next/router'
@@ -39,13 +41,14 @@ export default function createCompany() {
         bank_account_number: '',
         bank_account_name: '',
     })
+
     const [province, setProvince] = React.useState([])
     const [city, setCity] = React.useState([])
     const [district, setDistrict] = React.useState([])
     const [validation, setValidation] = React.useState([])
     const router = useRouter()
     const [uploadProgress, setUploadProgress] = React.useState(0)
-    
+
     const handleSubmit = async e => {
         e.preventDefault()
         // setValidation([])
@@ -148,12 +151,12 @@ export default function createCompany() {
         e.preventDefault()
         const file = e.target.files[0]
         setUploadProgress(0)
-        if (file.size > 2000000) {
+        if (file?.size > 2000000) {
             e.target.value = null
             toast.error('Ukuran file tidak boleh lebih dari 2mb', {
                 position: toast.POSITION.BOTTOM_RIGHT,
             })
-        } else if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+        } else if (file?.type !== 'image/jpeg' && file?.type !== 'image/png') {
             e.target.value = null
             toast.error('Format file tidak didukung', {
                 position: toast.POSITION.BOTTOM_RIGHT,
@@ -194,340 +197,328 @@ export default function createCompany() {
             router.push('/dashboard')
         }
     }, [router.isReady])
-    return (
-        <AppLayout
-            header={
-                <h2 className="flex justify-between text-xl font-semibold leading-tight text-gray-800">
-                    <div> Silahkan Melengkapi Data Anda Terlebih dahulu</div>
-                </h2>
-            }>
-            <div className="py-12">
-                <div className="mx-auto flex max-w-7xl space-x-4 sm:px-6 lg:px-8">
-                    <div className="w-full space-y-4">
-                        <div className="h-fit overflow-hidden rounded-lg bg-white shadow-sm">
-                            {!userDetail.is_filled && (
-                                <div className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
-                                    <div className="text-xl font-semibold text-gray-700">
-                                        Informasi Pribadi
-                                    </div>
-                                    <form onSubmit={handleSubmit}>
-                                        <div className="mt-2">
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <InputWithLabel
-                                                    id="phone"
-                                                    label={'Nomor Hp'}
-                                                    placeholder={'08123456789'}
-                                                    type="tel"
-                                                    onChange={e =>
-                                                        setUserDetail({
-                                                            ...userDetail,
-                                                            phone:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    value={userDetail.phone}
-                                                    error={
-                                                        validation.phone && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.phone
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                    required
-                                                    maxLength="14"
-                                                />
-                                                <InputWithLabel
-                                                    id="cardNumber"
-                                                    label={'Nomor KTP'}
-                                                    placeholder={'1234567890'}
-                                                    type="number"
-                                                    onChange={e =>
-                                                        setUserDetail({
-                                                            ...userDetail,
-                                                            card_number:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    value={
-                                                        userDetail.card_number
-                                                    }
-                                                    error={
-                                                        validation.card_number && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.card_number
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                    required
-                                                />
-                                                <InputWithLabel
-                                                    id="cardImage"
-                                                    label={'Foto KTP'}
-                                                    placeholder={'Foto KTP'}
-                                                    type="file"
-                                                    onChange={uploadFile}
-                                                    accept="image/*"
-                                                    helper={
-                                                        <p
-                                                            className="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                                                            id="file_input_help">
-                                                            PNG atau JPG (MAX.
-                                                            2mb)
-                                                        </p>
-                                                    }
-                                                    error={
-                                                        validation.card_image && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.card_image
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }>
-                                                    {uploadProgress > 0 && (
-                                                        <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
-                                                            <div
-                                                                className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
-                                                                style={{
-                                                                    width: `${uploadProgress}%`,
-                                                                }}>
-                                                                {uploadProgress}
-                                                                %
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </InputWithLabel>
 
-                                                <input
-                                                    hidden
-                                                    type="text"
-                                                    value={
-                                                        setUserDetail.card_image ||
-                                                        ''
-                                                    }
-                                                />
-                                                <InputWithLabel
-                                                    id="companyPosition"
-                                                    label={
-                                                        'Posisi di Perusahaan'
-                                                    }
-                                                    placeholder={'Manager'}
-                                                    type="text"
-                                                    onChange={e =>
-                                                        setUserDetail({
-                                                            ...userDetail,
-                                                            company_position:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    value={
-                                                        userDetail.company_position
-                                                    }
-                                                    error={
-                                                        validation.company_position && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.company_position
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                />
-                                                <InputSelect
-                                                    id="provinceId"
-                                                    label={'Provinsi'}
-                                                    placeholder={
-                                                        'Pilih Provinsi'
-                                                    }
-                                                    value={
-                                                        userDetail.province_id
-                                                    }
-                                                    onChange={e => {
-                                                        setUserDetail({
-                                                            ...userDetail,
-                                                            province_id:
-                                                                e.target.value,
-                                                        }),
-                                                            getCity(
-                                                                e.target.value,
-                                                            )
-                                                    }}
-                                                    error={
-                                                        validation.province_id && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.province_id
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                    required>
-                                                    {province.map(
-                                                        (item, index) => (
-                                                            <option
-                                                                key={index}
-                                                                value={item.id}>
-                                                                {item.name}
-                                                            </option>
-                                                        ),
-                                                    )}
-                                                </InputSelect>
-
-                                                <InputSelect
-                                                    id="cityId"
-                                                    label={'Kabupaten/Kota'}
-                                                    placeholder={
-                                                        'Pilih Kabupaten/Kota'
-                                                    }
-                                                    onChange={e => {
-                                                        setUserDetail({
-                                                            ...userDetail,
-                                                            city_id:
-                                                                e.target.value,
-                                                        }),
-                                                            getDistrict(
-                                                                e.target.value,
-                                                            )
-                                                    }}
-                                                    value={userDetail.city_id}
-                                                    error={
-                                                        validation.city_id && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.city_id
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                    required>
-                                                    {city.map((item, index) => (
-                                                        <option
-                                                            key={index}
-                                                            value={item.id}>
-                                                            {item.type}{' '}
-                                                            {item.name}
-                                                        </option>
-                                                    ))}
-                                                </InputSelect>
-
-                                                <InputSelect
-                                                    id="districtId"
-                                                    label={'Kecamatan'}
-                                                    placeholder={
-                                                        'Pilih Kecamatan'
-                                                    }
-                                                    onChange={e =>
-                                                        setUserDetail({
-                                                            ...userDetail,
-                                                            district_id:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    value={
-                                                        userDetail.district_id
-                                                    }
-                                                    error={
-                                                        validation.district_id && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.district_id
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                    required>
-                                                    {district.map(
-                                                        (item, index) => (
-                                                            <option
-                                                                key={index}
-                                                                value={item.id}>
-                                                                {item.name}
-                                                            </option>
-                                                        ),
-                                                    )}
-                                                </InputSelect>
-
-                                                <InputWithLabel
-                                                    id="postalCode"
-                                                    label={'Kode Pos'}
-                                                    placeholder={'60231'}
-                                                    type="text"
-                                                    onChange={e =>
-                                                        setUserDetail({
-                                                            ...userDetail,
-                                                            postal_code:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    value={
-                                                        userDetail.postal_code
-                                                    }
-                                                    error={
-                                                        validation.postal_code && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.postal_code
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                    maxLength={5}
-                                                    required
-                                                />
-                                                <InputWithLabel
-                                                    id="address"
-                                                    label={'Alamat Lengkap'}
-                                                    placeholder={
-                                                        'Jln, Raya Gayungan No. 1'
-                                                    }
-                                                    type="text"
-                                                    onChange={e =>
-                                                        setUserDetail({
-                                                            ...userDetail,
-                                                            address:
-                                                                e.target.value,
-                                                        })
-                                                    }
-                                                    value={userDetail.address}
-                                                    error={
-                                                        validation.address && (
-                                                            <span className="text-red-500 text-sm">
-                                                                {
-                                                                    validation.address
-                                                                }
-                                                            </span>
-                                                        )
-                                                    }
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-4 flex justify-end space-x-2">
-                                            <button
-                                                disabled={
-                                                    uploadProgress > 0 &&
-                                                    uploadProgress < 100
-                                                        ? true
-                                                        : false
-                                                }
-                                                type="submit"
-                                                className="disabled:bg-opacity-50 disabled:text-opacity-50 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-                                                Simpan Data
-                                            </button>
-                                        </div>
-                                    </form>
+    if (!userDetail.is_filled) {
+        return (
+            <AppLayout
+                header={
+                    <h2 className="flex justify-between text-xl font-semibold leading-tight text-gray-800">
+                        <div> Form Pengisian Data Calon Peminjam</div>
+                    </h2>
+                }>
+                <div className="py-12">
+                    <div className="mx-auto flex max-w-7xl space-x-4 sm:px-6 lg:px-8">
+                        <div className="w-full space-y-4">
+                            <div className="h-fit overflow-hidden rounded-lg bg-white shadow-sm"></div>
+                            <div className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
+                                <div className="text-xl font-semibold text-gray-700">
+                                    Informasi Pribadi Anda Sebagai PIC
+                                    Perusahaan
                                 </div>
-                            )}
-                            {userDetail.is_filled && (
+                                <small className="text-red-500">
+                                    * Wajib diisi
+                                </small>
+                                <hr className="my-4 border-gray-200 border-2" />
+                                <form onSubmit={handleSubmit}>
+                                    <div className="mt-2">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <InputWithLabel
+                                                id="phone"
+                                                label={'Nomor Hp*'}
+                                                placeholder={'08123456789'}
+                                                type="tel"
+                                                onChange={e =>
+                                                    setUserDetail({
+                                                        ...userDetail,
+                                                        phone: e.target.value,
+                                                    })
+                                                }
+                                                value={userDetail.phone}
+                                                error={
+                                                    validation.phone && (
+                                                        <span className="text-red-500 text-sm">
+                                                            {validation.phone}
+                                                        </span>
+                                                    )
+                                                }
+                                                required
+                                                maxLength="14"
+                                            />
+                                            <InputWithLabel
+                                                id="cardNumber"
+                                                label={'Nomor KTP*'}
+                                                placeholder={'1234567890'}
+                                                type="number"
+                                                onChange={e =>
+                                                    setUserDetail({
+                                                        ...userDetail,
+                                                        card_number:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                value={userDetail.card_number}
+                                                error={
+                                                    validation.card_number && (
+                                                        <span className="text-red-500 text-sm">
+                                                            {
+                                                                validation.card_number
+                                                            }
+                                                        </span>
+                                                    )
+                                                }
+                                                required
+                                            />
+                                            <InputWithLabel
+                                                id="cardImage"
+                                                label={'Foto KTP*'}
+                                                placeholder={'Foto KTP'}
+                                                type="file"
+                                                onChange={uploadFile}
+                                                accept="image/*"
+                                                helper={
+                                                    <p
+                                                        className="mt-1 text-sm text-gray-500 dark:text-gray-300"
+                                                        id="file_input_help">
+                                                        PNG atau JPG (MAX. 2mb)
+                                                    </p>
+                                                }
+                                                error={
+                                                    validation.card_image && (
+                                                        <span className="text-red-500 text-sm">
+                                                            {
+                                                                validation.card_image
+                                                            }
+                                                        </span>
+                                                    )
+                                                }>
+                                                {uploadProgress > 0 && (
+                                                    <div className="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+                                                        <div
+                                                            className="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+                                                            style={{
+                                                                width: `${uploadProgress}%`,
+                                                            }}>
+                                                            {uploadProgress}%
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </InputWithLabel>
+
+                                            <input
+                                                hidden
+                                                type="text"
+                                                value={
+                                                    setUserDetail.card_image ||
+                                                    ''
+                                                }
+                                            />
+                                            <InputWithLabel
+                                                id="companyPosition"
+                                                label={'Jabatan di Perusahaan*'}
+                                                placeholder={'Manager'}
+                                                type="text"
+                                                onChange={e =>
+                                                    setUserDetail({
+                                                        ...userDetail,
+                                                        company_position:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                value={
+                                                    userDetail.company_position
+                                                }
+                                                error={
+                                                    validation.company_position && (
+                                                        <span className="text-red-500 text-sm">
+                                                            {
+                                                                validation.company_position
+                                                            }
+                                                        </span>
+                                                    )
+                                                }
+                                                required
+                                            />
+                                            <InputSelect
+                                                id="provinceId"
+                                                label={'Provinsi*'}
+                                                placeholder={'Pilih Provinsi'}
+                                                value={userDetail.province_id}
+                                                onChange={e => {
+                                                    setUserDetail({
+                                                        ...userDetail,
+                                                        province_id:
+                                                            e.target.value,
+                                                    }),
+                                                        getCity(e.target.value)
+                                                }}
+                                                error={
+                                                    validation.province_id && (
+                                                        <span className="text-red-500 text-sm">
+                                                            {
+                                                                validation.province_id
+                                                            }
+                                                        </span>
+                                                    )
+                                                }
+                                                required>
+                                                {province.map((item, index) => (
+                                                    <option
+                                                        key={index}
+                                                        value={item.id}>
+                                                        {item.name}
+                                                    </option>
+                                                ))}
+                                            </InputSelect>
+
+                                            <InputSelect
+                                                id="cityId"
+                                                label={'Kabupaten/Kota*'}
+                                                placeholder={
+                                                    'Pilih Kabupaten/Kota'
+                                                }
+                                                onChange={e => {
+                                                    setUserDetail({
+                                                        ...userDetail,
+                                                        city_id: e.target.value,
+                                                    }),
+                                                        getDistrict(
+                                                            e.target.value,
+                                                        )
+                                                }}
+                                                value={userDetail.city_id}
+                                                error={
+                                                    validation.city_id && (
+                                                        <span className="text-red-500 text-sm">
+                                                            {validation.city_id}
+                                                        </span>
+                                                    )
+                                                }
+                                                required>
+                                                {city.map((item, index) => (
+                                                    <option
+                                                        key={index}
+                                                        value={item.id}>
+                                                        {item.type} {item.name}
+                                                    </option>
+                                                ))}
+                                            </InputSelect>
+
+                                            <InputSelect
+                                                id="districtId"
+                                                label={'Kecamatan*'}
+                                                placeholder={'Pilih Kecamatan'}
+                                                onChange={e =>
+                                                    setUserDetail({
+                                                        ...userDetail,
+                                                        district_id:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                value={userDetail.district_id}
+                                                error={
+                                                    validation.district_id && (
+                                                        <span className="text-red-500 text-sm">
+                                                            {
+                                                                validation.district_id
+                                                            }
+                                                        </span>
+                                                    )
+                                                }
+                                                required>
+                                                {district.map((item, index) => (
+                                                    <option
+                                                        key={index}
+                                                        value={item.id}>
+                                                        {item.name}
+                                                    </option>
+                                                ))}
+                                            </InputSelect>
+
+                                            <InputWithLabel
+                                                id="postalCode"
+                                                label={'Kode Pos*'}
+                                                placeholder={'60231'}
+                                                type="text"
+                                                onChange={e =>
+                                                    setUserDetail({
+                                                        ...userDetail,
+                                                        postal_code:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                value={userDetail.postal_code}
+                                                error={
+                                                    validation.postal_code && (
+                                                        <span className="text-red-500 text-sm">
+                                                            {
+                                                                validation.postal_code
+                                                            }
+                                                        </span>
+                                                    )
+                                                }
+                                                maxLength={5}
+                                                required
+                                            />
+                                            <InputWithLabel
+                                                id="address"
+                                                label={'Alamat Lengkap*'}
+                                                placeholder={
+                                                    'Jln, Raya Gayungan No. 1'
+                                                }
+                                                type="text"
+                                                onChange={e =>
+                                                    setUserDetail({
+                                                        ...userDetail,
+                                                        address: e.target.value,
+                                                    })
+                                                }
+                                                value={userDetail.address}
+                                                error={
+                                                    validation.address && (
+                                                        <span className="text-red-500 text-sm">
+                                                            {validation.address}
+                                                        </span>
+                                                    )
+                                                }
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-4 flex justify-end space-x-2">
+                                        <button
+                                            type="submit"
+                                            className="disabled:bg-opacity-50 disabled:text-opacity-50 inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                                            Simpan Data
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </AppLayout>
+        )
+    } else {
+        return (
+            <AppLayout
+                header={
+                    <h2 className="flex justify-between text-xl font-semibold leading-tight text-gray-800">
+                        <div> Form Pengisian Data Calon Peminjam</div>
+                    </h2>
+                }>
+                <div className="py-12">
+                    <div className="mx-auto flex max-w-7xl space-x-4 sm:px-6 lg:px-8">
+                        <div className="w-full space-y-4">
+                            <div className="h-fit overflow-hidden rounded-lg bg-white shadow-sm">
                                 <div className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700">
                                     <div className="text-xl font-semibold text-gray-700">
                                         Informasi Perusahaan
                                     </div>
+                                    <small className="text-red-500">
+                                        * Wajib diisi
+                                    </small>
+                                    <hr className="my-4 border-gray-200 border-2" />
                                     <form onSubmit={handleSubmit}>
                                         <div className="mt-2">
                                             <div className="grid grid-cols-2 gap-4">
@@ -808,7 +799,7 @@ export default function createCompany() {
                                                     id="postalCode"
                                                     label={'Kode Pos'}
                                                     placeholder={'60231'}
-                                                    type="text"
+                                                    type="number"
                                                     onChange={e =>
                                                         setCompany({
                                                             ...company,
@@ -869,11 +860,11 @@ export default function createCompany() {
                                         </div>
                                     </form>
                                 </div>
-                            )}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </AppLayout>
-    )
+            </AppLayout>
+        )
+    }
 }
