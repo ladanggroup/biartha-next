@@ -18,9 +18,7 @@ export default function Footer() {
                     </div>
                     <div>
                         <div className="font-semibold">Email.</div>
-                        <div className="text-gray-500">
-                            support@biartha.co.id
-                        </div>
+                        <div className="text-gray-500">support@biartha.id</div>
                     </div>
                 </div>
             </div>

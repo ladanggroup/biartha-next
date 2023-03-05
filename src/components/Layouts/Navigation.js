@@ -40,7 +40,7 @@ const Navigation = ({ user }) => {
                                     Dashboard
                                 </NavLink>
                                 <NavLink
-                                    href="/pinjaman"
+                                    href="/loan"
                                     active={router.pathname.startsWith(
                                         '/loan',
                                     )}>
@@ -48,7 +48,7 @@ const Navigation = ({ user }) => {
                                 </NavLink>
 
                                 <NavLink
-                                    href="/akun"
+                                    href="/profile"
                                     active={router.pathname.startsWith(
                                         '/profile',
                                     )}>
